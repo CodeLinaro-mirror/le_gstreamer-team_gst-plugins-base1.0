@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-base-1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-15 17:48+0000\n"
+"POT-Creation-Date: 2021-09-08 20:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,7 +83,7 @@ msgstr ""
 msgid "Could not read CD."
 msgstr ""
 
-#: gst/encoding/gstencodebin.c:1802 gst/playback/gstplaybin2.c:3468
+#: gst/encoding/gstencodebin.c:1802 gst/playback/gstplaybin2.c:3483
 #: gst/playback/gstplaysink.c:1515 gst/playback/gstplaysink.c:1528
 #: gst/playback/gstplaysink.c:1864 gst/playback/gstplaysink.c:1896
 #: gst/playback/gstplaysink.c:2480 gst/playback/gstplaysink.c:2529
@@ -93,7 +93,7 @@ msgstr ""
 #: gst/playback/gstplaysink.c:3166 gst/playback/gstplaysink.c:3175
 #: gst/playback/gstplaysink.c:3184 gst/playback/gstplaysink.c:3597
 #: gst/playback/gstplaysink.c:4517 gst/playback/gstplaysinkconvertbin.c:97
-#: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1511
+#: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1513
 #: gst/playback/gsturisourcebin.c:1598
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
@@ -107,11 +107,11 @@ msgstr ""
 msgid "This appears to be a text file"
 msgstr ""
 
-#: gst/playback/gstplaybin2.c:5526
+#: gst/playback/gstplaybin2.c:5541
 msgid "Could not create \"uridecodebin\" element."
 msgstr ""
 
-#: gst/playback/gstplaybin3.c:4574
+#: gst/playback/gstplaybin3.c:4589
 msgid "Could not create \"uridecodebin3\" element."
 msgstr ""
 
@@ -173,30 +173,30 @@ msgstr ""
 msgid "Can't play a text file without video or visualizations."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:958
+#: gst/playback/gsturidecodebin.c:960
 #, c-format
 msgid "No decoder available for type '%s'."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1417 gst/playback/gsturisourcebin.c:1492
+#: gst/playback/gsturidecodebin.c:1419 gst/playback/gsturisourcebin.c:1492
 msgid "No URI specified to play from."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1423 gst/playback/gsturisourcebin.c:1498
+#: gst/playback/gsturidecodebin.c:1425 gst/playback/gsturisourcebin.c:1498
 #, c-format
 msgid "Invalid URI \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1430 gst/playback/gsturisourcebin.c:1505
+#: gst/playback/gsturidecodebin.c:1432 gst/playback/gsturisourcebin.c:1505
 msgid "This stream type cannot be played yet."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1448 gst/playback/gsturisourcebin.c:1523
+#: gst/playback/gsturidecodebin.c:1450 gst/playback/gsturisourcebin.c:1523
 #, c-format
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2335 gst/playback/gsturisourcebin.c:2228
+#: gst/playback/gsturidecodebin.c:2342 gst/playback/gsturisourcebin.c:2228
 msgid "Source element is invalid."
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Error while sending data to \"%s:%d\"."
 msgstr ""
 
-#: gst-libs/gst/audio/gstaudiobasesrc.c:842
+#: gst-libs/gst/audio/gstaudiobasesrc.c:847
 msgid "Can't record audio fast enough"
 msgstr ""
 

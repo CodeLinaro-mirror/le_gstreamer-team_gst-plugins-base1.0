@@ -1518,7 +1518,9 @@ setup_gamma_decode (GstVideoConverter * convert)
   func = convert->in_info.colorimetry.transfer;
 
   convert->gamma_dec.width = convert->current_width;
-  if (convert->current_bits == 8) {
+  if (convert->gamma_dec.gamma_table) {
+    GST_DEBUG ("gamma decode already set up");
+  } else if (convert->current_bits == 8) {
     GST_DEBUG ("gamma decode 8->16: %d", func);
     convert->gamma_dec.gamma_func = gamma_convert_u8_u16;
     t = convert->gamma_dec.gamma_table = g_malloc (sizeof (guint16) * 256);
@@ -1548,7 +1550,9 @@ setup_gamma_encode (GstVideoConverter * convert, gint target_bits)
   func = convert->out_info.colorimetry.transfer;
 
   convert->gamma_enc.width = convert->current_width;
-  if (target_bits == 8) {
+  if (convert->gamma_enc.gamma_table) {
+    GST_DEBUG ("gamma encode already set up");
+  } else if (target_bits == 8) {
     guint8 *t;
 
     GST_DEBUG ("gamma encode 16->8: %d", func);
@@ -1581,7 +1585,8 @@ chain_convert_to_RGB (GstVideoConverter * convert, GstLineCache * prev,
   if (do_gamma) {
     gint scale;
 
-    if (!convert->unpack_rgb) {
+    /* Set up conversion matrices if needed, but only for the first thread */
+    if (idx == 0 && !convert->unpack_rgb) {
       color_matrix_set_identity (&convert->to_RGB_matrix);
       compute_matrix_to_RGB (convert, &convert->to_RGB_matrix);
 
@@ -1833,8 +1838,10 @@ chain_convert (GstVideoConverter * convert, GstLineCache * prev, gint idx)
       convert->current_bits = MAX (convert->in_bits, convert->out_bits);
 
       do_conversion = TRUE;
-      if (!same_matrix || !same_primaries)
-        prepare_matrix (convert, &convert->convert_matrix);
+      if (!same_matrix || !same_primaries) {
+        if (idx == 0)
+          prepare_matrix (convert, &convert->convert_matrix);
+      }
       if (convert->in_bits == convert->out_bits)
         pass_alloc = TRUE;
     } else
@@ -1848,7 +1855,8 @@ chain_convert (GstVideoConverter * convert, GstLineCache * prev, gint idx)
     if (same_primaries) {
       do_conversion = FALSE;
     } else {
-      prepare_matrix (convert, &convert->convert_matrix);
+      if (idx == 0)
+        prepare_matrix (convert, &convert->convert_matrix);
       convert->in_bits = convert->out_bits = 16;
       pass_alloc = TRUE;
       do_conversion = TRUE;
@@ -1970,7 +1978,7 @@ chain_convert_to_YUV (GstVideoConverter * convert, GstLineCache * prev,
     convert->current_bits = convert->pack_bits;
     convert->current_pstride = convert->current_bits >> 1;
 
-    if (!convert->pack_rgb) {
+    if (idx == 0 && !convert->pack_rgb) {
       color_matrix_set_identity (&convert->to_YUV_matrix);
       compute_matrix_to_YUV (convert, &convert->to_YUV_matrix, FALSE);
 

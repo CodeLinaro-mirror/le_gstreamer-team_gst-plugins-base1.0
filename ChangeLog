@@ -1,3 +1,326 @@
+=== release 1.18.5 ===
+
+2021-09-08 20:02:20 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* ChangeLog:
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.18.5
+
+2021-03-15 19:05:44 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtspconnection: Consistently translate GIOError to GstRTSPResult
+	  The users of this API need to be able to differentiate between EINTR
+	  and ERROR. For example, in rtspsrc, gst_rtsp_conninfo_connect()
+	  behaves differently when gst_rtsp_connection_connect_with_response_usec()
+	  returns an ERROR or EINTR. The former is an element error while the
+	  latter is simple a GST_ERROR since it was a user cancellation of the
+	  connection attempt.
+	  Due to this, rtspsrc was incorrectly emitting element errors while
+	  going to NULL, which would or would not reach the application in
+	  a racy manner.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1271>
+
+2021-06-11 09:27:46 -0600  Scott Moreau <oreaus@gmail.com>
+
+	* gst-libs/gst/gl/wayland/gstglwindow_wayland_egl.c:
+	  gl/wayland: Use consistent wl_display when creating work queue for proxy wrapper
+	  Without this, glimagesink since wayland 727c7903 fails with
+	  gst-launch-1.0: ../src/wayland-client.c:2181: wl_proxy_set_queue:
+	  Assertion 'proxy->display == queue->display' failed.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1247>
+
+2021-07-09 09:49:15 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	* tests/check/elements/audiomixer.c:
+	  audioaggregator: Resync on the next buffer when dropping a buffer on discont resyncing
+	  If a buffer is dropped during resyncing on a discont because either its
+	  end offset is already before the current output offset of the
+	  aggregator or because it fully overlaps with the part of the current
+	  output buffer that was already filled, then don't just assume that the
+	  next buffer is going to start at exactly the expected offset. It might
+	  still require some more dropping of samples.
+	  This caused the input to be mixed with an offset to its actual position
+	  in the output stream, causing additional latency and wrong
+	  synchronization between the different input streams.
+	  Instead consider each buffer after a discont as a discont until the
+	  aggregator actually resynced and starts mixing samples from the input
+	  again.
+	  Also update the start output offset of a new input buffer if samples
+	  have to be dropped at the beginning. Otherwise it might be mixed too
+	  early into the output and overwrite part of the output buffer that
+	  already took samples from this input into account.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/issues/912
+	  which is a regression introduced by https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1180/
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1228>
+
+2021-05-06 19:01:41 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/video/video-converter.c:
+	  video-converter: Set up gamma tables only once
+	  When the video converter is using multiple threads, the gamma tables
+	  were created multiple times, leaking the tables set up for the previous
+	  thread.
+	  Only calculate the tables once.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1217>
+
+2021-05-06 18:22:45 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/audio/audio-converter.c:
+	  audio-converter: Free config when gst_audio_converter_new fails
+	  The config got leaked when parameter validation fails.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1217>
+
+2021-06-25 23:42:34 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/video/video-converter.c:
+	  video-converter: Set up matrix tables only once.
+	  When configuring a multi-thread converter, only allocate the
+	  shared colour conversion matrices once for the first thread,
+	  to avoid allocating multiple times and leaking memory.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1220>
+
+2021-04-23 18:03:20 +0200  Per Förlin <perfn@axis.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  gstrtspconnection: Add IPv6 support for tunneled mode
+	  An IPv6 address must be specified within [] brackets.
+	  Add brackets for IPv6 address used for tunneled mode,
+	  for non-tunneled this is already supported.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1214>
+
+2021-06-21 14:06:14 +0000  Sergei Kovalev <sergei@pexip.com>
+
+	* gst-libs/gst/audio/gstaudiobasesink.c:
+	  audiobasesink: Fix of double lock release
+	  Add missing "return;" which prevents double lock release.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1210>
+
+2021-05-31 09:14:53 +0200  Daniel Knobe <daniel-knobe@web.de>
+
+	* gst/rawparse/gstrawbaseparse.c:
+	  rawbaseparse: check destination format correctly
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1186>
+
+2021-05-26 22:50:22 -0400  Olivier Crête <olivier.crete@collabora.com>
+
+	* tests/check/elements/audiomixer.c:
+	  audiomixer: Add test for discont going backwards
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1185>
+
+2021-05-27 16:05:04 -0400  Olivier Crête <olivier.crete@collabora.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't overwrite already written samples
+	  On re-sync, don't forget what has already been written. Instead, just
+	  drop any samples that overlap with parts that were already filled.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1185>
+
+2021-05-27 16:20:09 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiobasesrc.c:
+	  audiobasesrc: Fix divide by zero assertion
+	  GstAudioRingBufferSpec can be cleared from other thread, then
+	  rate value will be zero
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1183>
+
+2021-05-26 23:22:45 +0200  Marijn Suijten <marijns95@gmail.com>
+
+	* gst-libs/gst/audio/audio-format.c:
+	* gst-libs/gst/video/video-format.c:
+	  audio,video-format: Make generate_raw_formats idempotent for assertions
+	  When compiling without assertions `g_assert` and its contents disappear
+	  resulting in no list being deserialized at all and the
+	  `gst_{audio,video}_formats_raw` functions to return an empty collection.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1182>
+
+2021-05-20 11:58:58 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst/compositor/blend.c:
+	  compositor: Fix NV12 blend operation
+	  The full src_height/width was being used instead of the remaining
+	  width/height for the current band. As a side effect, that value would
+	  get erroneously reset and would cause overrun.
+	  Fixes #887
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1163>
+
+2021-05-02 20:45:01 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Don't leak buffer list while wrongly unreffing buffer on EOS/flushing
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1135>
+
+2021-05-02 20:45:36 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/app/meson.build:
+	  app: Add gstappsrc.h to the enum headers in meson.build
+	  It's already indirectly included but let's better be explicit here.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1135>
+
+2021-04-30 20:42:55 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst/videotestsrc/gstvideotestsrc.c:
+	  videotestsrc: Fix a leak when computing alpha caps
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1132>
+
+2021-04-26 14:25:03 -0400  Xavier Claessens <xavier.claessens@collabora.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  gstgl: Fix build when Meson >= 0.58.0rc1
+	  "implicit_include_directories: false" now also means that current build
+	  directory is not added to include paths by default any more. We have to
+	  add it manually because we have some custom_target() that generate
+	  headers in current build directory.
+	  See https://github.com/mesonbuild/meson/issues/8700.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1127>
+
+2021-04-21 02:05:36 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst/playback/gsturidecodebin.c:
+	  uridecodebin: Don't force floating reference for future reusable decodebin
+	  uridecodebin assumes that refcount of decodebins stored in pending_decodebins
+	  are floating but it might not be true in case that refcount of the decodebin
+	  was touched in other places. To avoid the floating refcount issue,
+	  hold strong reference.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1119>
+
+2021-04-21 02:02:48 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst/playback/gsturidecodebin.c:
+	  uridecodebin: Use gst_object_ref instead of g_object_ref
+	  It's more debugging friendly (tracer for example)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1119>
+
+2021-04-12 14:02:46 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst/playback/gstplaybin2.c:
+	* gst/playback/gstplaybin3.c:
+	  playbin{2,3}: fix base_time selection when flush seeking live
+	  This is a direct translation of
+	  <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/429>,
+	  as playbin{2,3} insulates its sub groups state changes from the pipeline
+	  base class, it needs to track whether the subgroup is live itself,
+	  and handle RESET_TIME the same way GstPipeline does.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1110>
+
+2021-04-06 13:22:15 +0200  Robin Burchell <robin.burchell@crimson.no>
+
+	* gst/gio/gstgiobasesink.c:
+	  gstgiobasesink: Handle incomplete writes in gst_gio_base_sink_render()
+	  As the comment asked, yes, incomplete writes can happen.
+	  I have encountered this with an sshfs mount, for example.
+	  It seems like g_output_stream_write_all() is designed to handle this case,
+	  by not returning until the requested buffer has been completely written,
+	  or an error occurs, which seems to match up with the desired behaviour.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/issues/885
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1108>
+
+2021-04-05 00:34:21 +0900  Seungha Yang <seungha@centricular.com>
+
+	* ext/pango/gstclockoverlay.c:
+	* ext/pango/gstclockoverlay.h:
+	  clockoverlay: Fix broken string formatting by strftime() on Windows
+	  Like other foobarA variant APIs on Windows, formatted string
+	  by strftime() is ANSI string, not unicode encoded one.
+	  It would be problematic for non-english locale systems.
+	  We should use unicode version API (wcsftime in this case)
+	  whenever it's possible on Windows.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1107>
+
+2021-03-18 19:18:36 +1100  Matthew Waters <matthew@centricular.com>
+
+	* ext/gl/gstgleffects.c:
+	* ext/gl/gstglimagesink.h:
+	* ext/opus/gstopusenc.c:
+	* gst-libs/gst/audio/gstaudiodecoder.c:
+	* gst-libs/gst/audio/gstaudiometa.c:
+	* gst-libs/gst/audio/streamvolume.c:
+	* gst-libs/gst/gl/cocoa/gstglcaopengllayer.m:
+	* gst-libs/gst/gl/egl/gstgldisplay_egl.c:
+	* gst-libs/gst/gl/egl/gstglmemoryegl.c:
+	* gst-libs/gst/gl/gbm/gstgldisplay_gbm.c:
+	* gst-libs/gst/gl/gl_mkenum.py:
+	* gst-libs/gst/gl/gstglbasememory.c:
+	* gst-libs/gst/gl/gstglbuffer.c:
+	* gst-libs/gst/gl/gstglcontext.c:
+	* gst-libs/gst/gl/gstgldebug.c:
+	* gst-libs/gst/gl/gstgldisplay.c:
+	* gst-libs/gst/gl/gstglfeature.c:
+	* gst-libs/gst/gl/gstglmemory.c:
+	* gst-libs/gst/gl/gstglmemorypbo.c:
+	* gst-libs/gst/gl/gstglquery.c:
+	* gst-libs/gst/gl/gstglrenderbuffer.c:
+	* gst-libs/gst/gl/gstglsl.c:
+	* gst-libs/gst/gl/gstglsyncmeta.c:
+	* gst-libs/gst/gl/gstglutils.c:
+	* gst-libs/gst/gl/gstglwindow.c:
+	* gst-libs/gst/gl/wayland/wayland_event_source.c:
+	* gst-libs/gst/pbutils/encoding-profile.c:
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	* gst-libs/gst/rtp/gstrtpmeta.c:
+	* gst-libs/gst/rtsp/gstrtspextension.c:
+	* gst-libs/gst/tag/gsttagmux.c:
+	* gst-libs/gst/tag/xmpwriter.c:
+	* gst-libs/gst/video/gstvideoaffinetransformationmeta.c:
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	* gst-libs/gst/video/gstvideodecoder.c:
+	* gst-libs/gst/video/gstvideoencoder.c:
+	* gst-libs/gst/video/gstvideometa.c:
+	* gst-libs/gst/video/video-anc.c:
+	* gst-libs/gst/video/video-multiview.c:
+	* gst-libs/gst/video/video-overlay-composition.c:
+	* gst/adder/gstadder.h:
+	* gst/encoding/gstencodebin.c:
+	* gst/playback/gstplay-enum.c:
+	* gst/videorate/gstvideorate.h:
+	* gst/videoscale/gstvideoscale.c:
+	  gst: don't use volatile to mean atomic
+	  volatile is not sufficient to provide atomic guarantees and real atomics
+	  should be used instead.  GCC 11 has started warning about using volatile
+	  with atomic operations.
+	  https://gitlab.gnome.org/GNOME/glib/-/merge_requests/1719
+	  Discovered in https://gitlab.freedesktop.org/gstreamer/gst-plugins-good/-/issues/868
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1106>
+
+2021-04-04 21:18:59 +0700  Binh Truong <crziter@gmail.com>
+
+	* gst-libs/gst/gl/gl_mkenum.py:
+	  Fix build issue on MinGW64
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1098>
+
+2020-12-11 10:15:32 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Put stream flags in GstStream
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1086>
+
+2021-03-22 13:59:39 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/wayland/gstglwindow_wayland_egl.c:
+	  gl/wayland: provide a dummy global_remove function
+	  Even if we don't care about any global objects being removed, wayland
+	  will still error if globals are removed without a corresponding listener
+	  set up for them.  e.g. wl_output hotplugging
+	  Discovered by: Matthias Clasen
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1085>
+
+2021-03-21 16:46:54 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/gio/gstgiosrc.c:
+	  gstgiosrc: Don't leak scheme string in gst_gio_src_query()
+	  Add a g_free() in the code path that forwards the query to the parent
+	  handler.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1084>
+
+2021-03-15 19:48:54 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.18.4 ===
 
 2021-03-15 17:47:59 +0000  Tim-Philipp Müller <tim@centricular.com>
@@ -71497,7 +71820,6 @@
 	* gst-libs/gst/fft/fft.h:
 	* gst-libs/gst/fft/gstfft.h:
 	* gst-libs/gst/pbutils/Makefile.am:
-	* gst-libs/gst/pbutils/gstpbutils.h:
 	* gst-libs/gst/riff/Makefile.am:
 	* gst-libs/gst/riff/riff.h:
 	* gst-libs/gst/rtp/Makefile.am:
