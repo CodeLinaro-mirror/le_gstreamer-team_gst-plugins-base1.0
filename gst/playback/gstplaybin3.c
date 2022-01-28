@@ -228,7 +228,7 @@
 #include <gst/video/navigation.h>
 #include <gst/video/colorbalance.h>
 #include "gstplay-enum.h"
-#include "gstplayback.h"
+#include "gstplaybackelements.h"
 #include "gstplaysink.h"
 #include "gstsubtitleoverlay.h"
 #include "gstplaybackutils.h"
@@ -603,8 +603,6 @@ static GstStaticCaps raw_audio_caps = GST_STATIC_CAPS ("audio/x-raw(ANY)");
 static GstStaticCaps raw_video_caps = GST_STATIC_CAPS ("video/x-raw(ANY)");
 #endif
 
-static void gst_play_bin3_class_init (GstPlayBin3Class * klass);
-static void gst_play_bin3_init (GstPlayBin3 * playbin);
 static void gst_play_bin3_finalize (GObject * object);
 
 static void gst_play_bin3_set_property (GObject * object, guint prop_id,
@@ -655,55 +653,37 @@ static void gst_play_bin3_navigation_init (gpointer g_iface,
 static void gst_play_bin3_colorbalance_init (gpointer g_iface,
     gpointer g_iface_data);
 
-static GType
-gst_play_bin3_get_type (void)
+static void
+_do_init_type (GType type)
 {
-  static GType gst_play_bin3_type = 0;
+  static const GInterfaceInfo svol_info = {
+    NULL, NULL, NULL
+  };
+  static const GInterfaceInfo ov_info = {
+    gst_play_bin3_overlay_init,
+    NULL, NULL
+  };
+  static const GInterfaceInfo nav_info = {
+    gst_play_bin3_navigation_init,
+    NULL, NULL
+  };
+  static const GInterfaceInfo col_info = {
+    gst_play_bin3_colorbalance_init,
+    NULL, NULL
+  };
 
-  if (!gst_play_bin3_type) {
-    static const GTypeInfo gst_play_bin3_info = {
-      sizeof (GstPlayBin3Class),
-      NULL,
-      NULL,
-      (GClassInitFunc) gst_play_bin3_class_init,
-      NULL,
-      NULL,
-      sizeof (GstPlayBin3),
-      0,
-      (GInstanceInitFunc) gst_play_bin3_init,
-      NULL
-    };
-    static const GInterfaceInfo svol_info = {
-      NULL, NULL, NULL
-    };
-    static const GInterfaceInfo ov_info = {
-      gst_play_bin3_overlay_init,
-      NULL, NULL
-    };
-    static const GInterfaceInfo nav_info = {
-      gst_play_bin3_navigation_init,
-      NULL, NULL
-    };
-    static const GInterfaceInfo col_info = {
-      gst_play_bin3_colorbalance_init,
-      NULL, NULL
-    };
-
-    gst_play_bin3_type = g_type_register_static (GST_TYPE_PIPELINE,
-        "GstPlayBin3", &gst_play_bin3_info, 0);
-
-    g_type_add_interface_static (gst_play_bin3_type, GST_TYPE_STREAM_VOLUME,
-        &svol_info);
-    g_type_add_interface_static (gst_play_bin3_type, GST_TYPE_VIDEO_OVERLAY,
-        &ov_info);
-    g_type_add_interface_static (gst_play_bin3_type, GST_TYPE_NAVIGATION,
-        &nav_info);
-    g_type_add_interface_static (gst_play_bin3_type, GST_TYPE_COLOR_BALANCE,
-        &col_info);
-  }
-
-  return gst_play_bin3_type;
+  g_type_add_interface_static (type, GST_TYPE_STREAM_VOLUME, &svol_info);
+  g_type_add_interface_static (type, GST_TYPE_VIDEO_OVERLAY, &ov_info);
+  g_type_add_interface_static (type, GST_TYPE_NAVIGATION, &nav_info);
+  g_type_add_interface_static (type, GST_TYPE_COLOR_BALANCE, &col_info);
 }
+
+static GType gst_play_bin3_get_type (void);
+G_DEFINE_TYPE_WITH_CODE (GstPlayBin3, gst_play_bin3, GST_TYPE_PIPELINE,
+    _do_init_type (g_define_type_id));
+
+GST_ELEMENT_REGISTER_DEFINE_CUSTOM (playbin3,
+    gst_play_bin3_custom_element_init);
 
 static void
 gst_play_bin3_class_init (GstPlayBin3Class * klass)
@@ -2525,16 +2505,23 @@ gst_play_bin3_handle_message (GstBin * bin, GstMessage * msg)
     GstSourceGroup *group;
 
     /* Only post buffering messages for group which is currently playing */
+    GST_PLAY_BIN3_LOCK (playbin);
     group = find_source_group_owner (playbin, msg->src);
-    GST_SOURCE_GROUP_LOCK (group);
-    if (!group->playing) {
-      GST_DEBUG_OBJECT (playbin, "Storing buffering message from pending group "
-          "%p %" GST_PTR_FORMAT, group, msg);
-      gst_message_replace (&group->pending_buffering_msg, msg);
-      gst_message_unref (msg);
-      msg = NULL;
+    if (group->active) {
+      GST_SOURCE_GROUP_LOCK (group);
+      GST_PLAY_BIN3_UNLOCK (playbin);
+      if (!group->playing) {
+        GST_DEBUG_OBJECT (playbin,
+            "Storing buffering message from pending group " "%p %"
+            GST_PTR_FORMAT, group, msg);
+        gst_message_replace (&group->pending_buffering_msg, msg);
+        gst_message_unref (msg);
+        msg = NULL;
+      }
+      GST_SOURCE_GROUP_UNLOCK (group);
+    } else {
+      GST_PLAY_BIN3_UNLOCK (playbin);
     }
-    GST_SOURCE_GROUP_UNLOCK (group);
   } else if (GST_MESSAGE_TYPE (msg) == GST_MESSAGE_STREAM_COLLECTION) {
     GstStreamCollection *collection = NULL;
 
@@ -2921,7 +2908,7 @@ combiner_control_pad (GstPlayBin3 * playbin, GstSourceCombine * combine,
 
   if (combine->combiner) {
     GstPad *sinkpad =
-        gst_element_get_request_pad (combine->combiner, "sink_%u");
+        gst_element_request_pad_simple (combine->combiner, "sink_%u");
 
     if (sinkpad == NULL)
       goto request_pad_failed;
@@ -4322,7 +4309,8 @@ done:
     if (target) {
       GstCaps *target_caps = gst_pad_get_pad_template_caps (target);
       GST_PLAY_BIN3_FILTER_CAPS (filter, target_caps);
-      result = gst_caps_merge (result, target_caps);
+      if (!gst_caps_is_any (target_caps))
+        result = gst_caps_merge (result, target_caps);
       gst_object_unref (target);
     }
   }
@@ -4656,7 +4644,8 @@ error_cleanup:
   }
 }
 
-/* must be called with PLAY_BIN_LOCK */
+/* must be called with PLAY_BIN_LOCK, which is dropped temporarily
+ * if changing states */
 static gboolean
 deactivate_group (GstPlayBin3 * playbin, GstSourceGroup * group)
 {
@@ -4712,8 +4701,10 @@ deactivate_group (GstPlayBin3 * playbin, GstSourceGroup * group)
     REMOVE_SIGNAL (group->uridecodebin, group->source_setup_id);
     REMOVE_SIGNAL (group->uridecodebin, group->about_to_finish_id);
 
+    GST_PLAY_BIN3_UNLOCK (playbin);
     gst_element_set_state (group->uridecodebin, GST_STATE_NULL);
     gst_bin_remove (GST_BIN_CAST (playbin), group->uridecodebin);
+    GST_PLAY_BIN3_LOCK (playbin);
 
     REMOVE_SIGNAL (group->uridecodebin, group->pad_added_id);
     REMOVE_SIGNAL (group->uridecodebin, group->pad_removed_id);
@@ -4786,6 +4777,7 @@ static gboolean
 save_current_group (GstPlayBin3 * playbin)
 {
   GstSourceGroup *curr_group;
+  gboolean swapped = FALSE;
 
   GST_DEBUG_OBJECT (playbin, "save current group");
 
@@ -4793,12 +4785,16 @@ save_current_group (GstPlayBin3 * playbin)
   GST_PLAY_BIN3_LOCK (playbin);
   curr_group = playbin->curr_group;
   if (curr_group && curr_group->valid && curr_group->active) {
-    /* unlink our pads with the sink */
-    deactivate_group (playbin, curr_group);
+    swapped = TRUE;
   }
   /* swap old and new */
   playbin->curr_group = playbin->next_group;
   playbin->next_group = curr_group;
+
+  if (swapped) {
+    /* unlink our pads with the sink */
+    deactivate_group (playbin, curr_group);
+  }
   GST_PLAY_BIN3_UNLOCK (playbin);
 
   return TRUE;
@@ -4999,6 +4995,7 @@ gst_play_bin3_change_state (GstElement * element, GstStateChange transition)
       if (do_save)
         save_current_group (playbin);
       /* Deactivate the groups, set uridecodebin to NULL and unref it */
+      GST_PLAY_BIN3_LOCK (playbin);
       for (i = 0; i < 2; i++) {
         if (playbin->groups[i].active && playbin->groups[i].valid) {
           deactivate_group (playbin, &playbin->groups[i]);
@@ -5013,6 +5010,7 @@ gst_play_bin3_change_state (GstElement * element, GstStateChange transition)
         }
 
       }
+      GST_PLAY_BIN3_UNLOCK (playbin);
 
       /* Set our sinks back to NULL, they might not be child of playbin */
       if (playbin->audio_sink)
@@ -5054,6 +5052,8 @@ failure:
     if (transition == GST_STATE_CHANGE_READY_TO_PAUSED) {
       GstSourceGroup *curr_group;
 
+      GST_PLAY_BIN3_LOCK (playbin);
+
       curr_group = playbin->curr_group;
       if (curr_group) {
         if (curr_group->active && curr_group->valid) {
@@ -5066,6 +5066,8 @@ failure:
       /* Swap current and next group back */
       playbin->curr_group = playbin->next_group;
       playbin->next_group = curr_group;
+
+      GST_PLAY_BIN3_UNLOCK (playbin);
     }
     return ret;
   }
@@ -5187,14 +5189,21 @@ gst_play_bin3_colorbalance_init (gpointer g_iface, gpointer g_iface_data)
 }
 
 gboolean
-gst_play_bin3_plugin_init (GstPlugin * plugin, gboolean as_playbin)
+gst_play_bin3_custom_element_init (GstPlugin * plugin)
 {
-  GST_DEBUG_CATEGORY_INIT (gst_play_bin3_debug, "playbin3", 0, "play bin");
+  gboolean ret = TRUE;
 
-  if (as_playbin)
-    return gst_element_register (plugin, "playbin", GST_RANK_NONE,
+  GST_DEBUG_CATEGORY_INIT (gst_play_bin3_debug, "playbin3", 0, "play bin3");
+
+  playback_element_init (plugin);
+
+  if (g_getenv ("USE_PLAYBIN3")) {
+    ret &= gst_element_register (plugin, "playbin", GST_RANK_NONE,
         GST_TYPE_PLAY_BIN);
+  }
 
-  return gst_element_register (plugin, "playbin3", GST_RANK_NONE,
+  ret &= gst_element_register (plugin, "playbin3", GST_RANK_NONE,
       GST_TYPE_PLAY_BIN);
+
+  return ret;
 }

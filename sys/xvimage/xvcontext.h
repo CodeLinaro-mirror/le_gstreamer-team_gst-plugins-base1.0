@@ -160,6 +160,7 @@ struct _GstXvContext
   gboolean have_colorkey;
   gboolean have_double_buffer;
   gboolean have_iturbt709;
+  gboolean have_xvcolorspace;
 
   GList *formats_list;
 
@@ -195,7 +196,7 @@ gst_xvcontext_unref (GstXvContext * xvcontext)
 }
 
 gint            gst_xvcontext_get_format_from_info      (GstXvContext * xvcontext,
-                                                         GstVideoInfo * info);
+                                                         const GstVideoInfo * info);
 
 
 void            gst_xvcontext_set_synchronous           (GstXvContext * xvcontext,

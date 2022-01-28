@@ -367,9 +367,9 @@ print_stream_info (GstDiscovererStreamInfo * info, void *depth)
     gst_caps_unref (caps);
   }
 
-  g_print ("%*s%s: %s\n", 2 * GPOINTER_TO_INT (depth), " ",
+  g_print ("%*s%s #%d: %s\n", 2 * GPOINTER_TO_INT (depth), " ",
       gst_discoverer_stream_info_get_stream_type_nick (info),
-      GST_STR_NULL (desc));
+      gst_discoverer_stream_info_get_stream_number (info), GST_STR_NULL (desc));
 
   if (desc) {
     g_free (desc);
@@ -388,6 +388,12 @@ print_stream_info (GstDiscovererStreamInfo * info, void *depth)
     desc =
         gst_stream_subtitle_information_to_string (info,
         GPOINTER_TO_INT (depth) + 1);
+  else if (GST_IS_DISCOVERER_CONTAINER_INFO (info)) {
+    const GstTagList *tags =
+        gst_discoverer_container_info_get_tags (GST_DISCOVERER_CONTAINER_INFO
+        (info));
+    print_tags_topology (GPOINTER_TO_INT (depth) + 1, tags);
+  }
   if (desc) {
     g_print ("%s", desc);
     g_free (desc);

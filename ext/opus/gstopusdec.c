@@ -46,6 +46,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include "gstopuselements.h"
 #include "gstopusheader.h"
 #include "gstopuscommon.h"
 #include "gstopusdec.h"
@@ -78,6 +79,8 @@ static GstStaticPadTemplate opus_dec_sink_factory =
     );
 
 G_DEFINE_TYPE (GstOpusDec, gst_opus_dec, GST_TYPE_AUDIO_DECODER);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (opusdec, "opusdec",
+    GST_RANK_PRIMARY, GST_TYPE_OPUS_DEC, opus_element_init (plugin));
 
 #define DB_TO_LINEAR(x) pow (10., (x) / 20.)
 
@@ -135,7 +138,7 @@ gst_opus_dec_class_init (GstOpusDecClass * klass)
   gst_element_class_add_static_pad_template (element_class,
       &opus_dec_sink_factory);
   gst_element_class_set_static_metadata (element_class, "Opus audio decoder",
-      "Codec/Decoder/Audio", "decode opus streams to audio",
+      "Codec/Decoder/Audio/Converter", "decode opus streams to audio",
       "Vincent Penquerc'h <vincent.penquerch@collabora.co.uk>");
   g_object_class_install_property (gobject_class, PROP_USE_INBAND_FEC,
       g_param_spec_boolean ("use-inband-fec", "Use in-band FEC",

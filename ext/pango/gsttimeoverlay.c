@@ -51,6 +51,7 @@
 #include <gst/video/video.h>
 
 #include "gsttimeoverlay.h"
+#include "gstpangoelements.h"
 
 #define DEFAULT_TIME_LINE GST_TIME_OVERLAY_TIME_LINE_BUFFER_TIME
 #define DEFAULT_SHOW_TIMES_AS_DATES FALSE
@@ -67,11 +68,21 @@ enum
 
 #define gst_time_overlay_parent_class parent_class
 G_DEFINE_TYPE (GstTimeOverlay, gst_time_overlay, GST_TYPE_BASE_TEXT_OVERLAY);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (timeoverlay, "timeoverlay",
+    GST_RANK_NONE, GST_TYPE_TIME_OVERLAY, pango_element_init (plugin));
 
 static void gst_time_overlay_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_time_overlay_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
+
+/**
+ * GstTimeOverlayTimeLine::elapsed-running-time:
+ *
+ * Overlay elapsed running time since the first observed running time.
+ *
+ * Since: 1.20
+ */
 
 #define GST_TYPE_TIME_OVERLAY_TIME_LINE (gst_time_overlay_time_line_type())
 static GType
@@ -83,6 +94,8 @@ gst_time_overlay_time_line_type (void)
     {GST_TIME_OVERLAY_TIME_LINE_STREAM_TIME, "stream-time", "stream-time"},
     {GST_TIME_OVERLAY_TIME_LINE_RUNNING_TIME, "running-time", "running-time"},
     {GST_TIME_OVERLAY_TIME_LINE_TIME_CODE, "time-code", "time-code"},
+    {GST_TIME_OVERLAY_TIME_LINE_ELAPSED_RUNNING_TIME,
+        "elapsed-running-time", "elapsed-running-time"},
     {0, NULL, NULL},
   };
 
@@ -150,6 +163,12 @@ gst_time_overlay_get_text (GstBaseTextOverlay * overlay,
       case GST_TIME_OVERLAY_TIME_LINE_RUNNING_TIME:
         ts = gst_segment_to_running_time (segment, GST_FORMAT_TIME, ts_buffer);
         break;
+      case GST_TIME_OVERLAY_TIME_LINE_ELAPSED_RUNNING_TIME:
+        ts = gst_segment_to_running_time (segment, GST_FORMAT_TIME, ts_buffer);
+        if (self->first_running_time == GST_CLOCK_TIME_NONE)
+          self->first_running_time = ts;
+        ts -= self->first_running_time;
+        break;
       case GST_TIME_OVERLAY_TIME_LINE_BUFFER_TIME:
       default:
         ts = ts_buffer;
@@ -184,6 +203,22 @@ gst_time_overlay_get_text (GstBaseTextOverlay * overlay,
   return ret;
 }
 
+static GstStateChangeReturn
+gst_time_overlay_change_state (GstElement * element, GstStateChange transition)
+{
+  GstTimeOverlay *self = GST_TIME_OVERLAY (element);
+
+  switch (transition) {
+    case GST_STATE_CHANGE_READY_TO_PAUSED:
+      self->first_running_time = GST_CLOCK_TIME_NONE;
+      break;
+    default:
+      break;
+  }
+
+  return GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+}
+
 static void
 gst_time_overlay_finalize (GObject * gobject)
 {
@@ -211,6 +246,8 @@ gst_time_overlay_class_init (GstTimeOverlayClass * klass)
       "Tim-Philipp Müller <tim@centricular.net>");
 
   gsttextoverlay_class->get_text = gst_time_overlay_get_text;
+
+  gstelement_class->change_state = gst_time_overlay_change_state;
 
   gobject_class->finalize = gst_time_overlay_finalize;
   gobject_class->set_property = gst_time_overlay_set_property;
@@ -241,12 +278,30 @@ gst_time_overlay_class_init (GstTimeOverlayClass * klass)
   gst_type_mark_as_plugin_api (GST_TYPE_TIME_OVERLAY_TIME_LINE, 0);
 }
 
+static gboolean
+gst_time_overlay_video_event (GstPad * pad, GstObject * parent,
+    GstEvent * event)
+{
+  GstTimeOverlay *overlay = GST_TIME_OVERLAY (parent);
+
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_FLUSH_STOP:
+      overlay->first_running_time = GST_CLOCK_TIME_NONE;
+      break;
+    default:
+      break;
+  }
+
+  return overlay->orig_video_event (pad, parent, event);
+}
+
 static void
 gst_time_overlay_init (GstTimeOverlay * overlay)
 {
   GstBaseTextOverlay *textoverlay;
   PangoContext *context;
   PangoFontDescription *font_description;
+  GstPad *video_sink;
 
   textoverlay = GST_BASE_TEXT_OVERLAY (overlay);
 
@@ -272,6 +327,10 @@ gst_time_overlay_init (GstTimeOverlay * overlay)
   pango_font_description_set_size (font_description, 18 * PANGO_SCALE);
   pango_context_set_font_description (context, font_description);
   pango_font_description_free (font_description);
+
+  video_sink = gst_element_get_static_pad (GST_ELEMENT (overlay), "video_sink");
+  overlay->orig_video_event = GST_PAD_EVENTFUNC (video_sink);
+  gst_pad_set_event_function (video_sink, gst_time_overlay_video_event);
 }
 
 static void

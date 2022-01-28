@@ -216,7 +216,7 @@
 #include <gst/video/navigation.h>
 #include <gst/video/colorbalance.h>
 #include "gstplay-enum.h"
-#include "gstplayback.h"
+#include "gstplaybackelements.h"
 #include "gstplaysink.h"
 #include "gstsubtitleoverlay.h"
 #include "gstplaybackutils.h"
@@ -332,6 +332,7 @@ struct _GstSourceGroup
   gulong pad_removed_id;
   gulong no_more_pads_id;
   gulong notify_source_id;
+  gulong source_setup_id;
   gulong drained_id;
   gulong autoplug_factories_id;
   gulong autoplug_select_id;
@@ -593,8 +594,6 @@ enum
 static GstStaticCaps raw_audio_caps = GST_STATIC_CAPS ("audio/x-raw(ANY)");
 static GstStaticCaps raw_video_caps = GST_STATIC_CAPS ("video/x-raw(ANY)");
 
-static void gst_play_bin_class_init (GstPlayBinClass * klass);
-static void gst_play_bin_init (GstPlayBin * playbin);
 static void gst_play_bin_finalize (GObject * object);
 
 static void gst_play_bin_set_property (GObject * object, guint prop_id,
@@ -657,57 +656,43 @@ static void gst_play_bin_navigation_init (gpointer g_iface,
 static void gst_play_bin_colorbalance_init (gpointer g_iface,
     gpointer g_iface_data);
 
-static GType
-gst_play_bin_get_type (void)
-{
-  static GType gst_play_bin_type = 0;
-
-  if (!gst_play_bin_type) {
-    static const GTypeInfo gst_play_bin_info = {
-      sizeof (GstPlayBinClass),
-      NULL,
-      NULL,
-      (GClassInitFunc) gst_play_bin_class_init,
-      NULL,
-      NULL,
-      sizeof (GstPlayBin),
-      0,
-      (GInstanceInitFunc) gst_play_bin_init,
-      NULL
-    };
-    static const GInterfaceInfo svol_info = {
-      NULL, NULL, NULL
-    };
-    static const GInterfaceInfo ov_info = {
-      gst_play_bin_overlay_init,
-      NULL, NULL
-    };
-    static const GInterfaceInfo nav_info = {
-      gst_play_bin_navigation_init,
-      NULL, NULL
-    };
-    static const GInterfaceInfo col_info = {
-      gst_play_bin_colorbalance_init,
-      NULL, NULL
-    };
-
-    gst_play_bin_type = g_type_register_static (GST_TYPE_PIPELINE,
-        "GstPlayBin", &gst_play_bin_info, 0);
-
-    g_type_add_interface_static (gst_play_bin_type, GST_TYPE_STREAM_VOLUME,
-        &svol_info);
-    g_type_add_interface_static (gst_play_bin_type, GST_TYPE_VIDEO_OVERLAY,
-        &ov_info);
-    g_type_add_interface_static (gst_play_bin_type, GST_TYPE_NAVIGATION,
-        &nav_info);
-    g_type_add_interface_static (gst_play_bin_type, GST_TYPE_COLOR_BALANCE,
-        &col_info);
-  }
-
-  return gst_play_bin_type;
-}
+static GType gst_play_bin_get_type (void);
 
 static void
+_do_init_type (GType type)
+{
+
+  static const GInterfaceInfo svol_info = {
+    NULL, NULL, NULL
+  };
+  static const GInterfaceInfo ov_info = {
+    gst_play_bin_overlay_init,
+    NULL, NULL
+  };
+  static const GInterfaceInfo nav_info = {
+    gst_play_bin_navigation_init,
+    NULL, NULL
+  };
+  static const GInterfaceInfo col_info = {
+    gst_play_bin_colorbalance_init,
+    NULL, NULL
+  };
+
+  g_type_add_interface_static (type, GST_TYPE_STREAM_VOLUME, &svol_info);
+  g_type_add_interface_static (type, GST_TYPE_VIDEO_OVERLAY, &ov_info);
+  g_type_add_interface_static (type, GST_TYPE_NAVIGATION, &nav_info);
+  g_type_add_interface_static (type, GST_TYPE_COLOR_BALANCE, &col_info);
+}
+
+G_DEFINE_TYPE_WITH_CODE (GstPlayBin, gst_play_bin, GST_TYPE_PIPELINE,
+    _do_init_type (g_define_type_id));
+#define _do_init \
+    GST_DEBUG_CATEGORY_INIT (gst_play_bin_debug, "playbin", 0, "play bin");\
+    playback_element_init (plugin);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (playbin, "playbin", GST_RANK_NONE,
+    GST_TYPE_PLAY_BIN, _do_init);
+
+void
 gst_play_bin_class_init (GstPlayBinClass * klass)
 {
   GObjectClass *gobject_klass;
@@ -3531,7 +3516,8 @@ pad_added_cb (GstElement * decodebin, GstPad * pad, GstSourceGroup * group)
 
   /* get sinkpad for the new stream */
   if (combine->combiner) {
-    if ((sinkpad = gst_element_get_request_pad (combine->combiner, "sink_%u"))) {
+    if ((sinkpad =
+            gst_element_request_pad_simple (combine->combiner, "sink_%u"))) {
 
       GST_DEBUG_OBJECT (playbin, "got pad %s:%s from combiner",
           GST_DEBUG_PAD_NAME (sinkpad));
@@ -5151,11 +5137,8 @@ done:
           }
         }
         gst_caps_unref (target_caps);
-        target_caps = tmp;
+        result = gst_caps_merge (result, tmp);
       }
-
-
-      result = gst_caps_merge (result, target_caps);
       gst_object_unref (target);
     }
   }
@@ -5269,9 +5252,17 @@ notify_source_cb (GstElement * uridecodebin, GParamSpec * pspec,
   GST_OBJECT_UNLOCK (playbin);
 
   g_object_notify (G_OBJECT (playbin), "source");
+}
 
-  g_signal_emit (playbin, gst_play_bin_signals[SIGNAL_SOURCE_SETUP],
-      0, playbin->source);
+static void
+source_setup_cb (GstElement * uridecodebin, GstElement * source,
+    GstSourceGroup * group)
+{
+  GstPlayBin *playbin;
+
+  playbin = group->playbin;
+
+  g_signal_emit (playbin, gst_play_bin_signals[SIGNAL_SOURCE_SETUP], 0, source);
 }
 
 /* must be called with the group lock */
@@ -5409,6 +5400,8 @@ activate_group (GstPlayBin * playbin, GstSourceGroup * group, GstState target)
       G_CALLBACK (no_more_pads_cb), group);
   group->notify_source_id = g_signal_connect (uridecodebin, "notify::source",
       G_CALLBACK (notify_source_cb), group);
+  group->source_setup_id = g_signal_connect (uridecodebin, "source-setup",
+      G_CALLBACK (source_setup_cb), group);
 
   /* we have 1 pending no-more-pads */
   group->pending = 1;
@@ -5588,6 +5581,7 @@ error_cleanup:
       REMOVE_SIGNAL (group->uridecodebin, group->pad_removed_id);
       REMOVE_SIGNAL (group->uridecodebin, group->no_more_pads_id);
       REMOVE_SIGNAL (group->uridecodebin, group->notify_source_id);
+      REMOVE_SIGNAL (group->uridecodebin, group->source_setup_id);
       REMOVE_SIGNAL (group->uridecodebin, group->drained_id);
       REMOVE_SIGNAL (group->uridecodebin, group->autoplug_factories_id);
       REMOVE_SIGNAL (group->uridecodebin, group->autoplug_select_id);
@@ -5676,6 +5670,7 @@ deactivate_group (GstPlayBin * playbin, GstSourceGroup * group)
     REMOVE_SIGNAL (group->uridecodebin, group->pad_removed_id);
     REMOVE_SIGNAL (group->uridecodebin, group->no_more_pads_id);
     REMOVE_SIGNAL (group->uridecodebin, group->notify_source_id);
+    REMOVE_SIGNAL (group->uridecodebin, group->source_setup_id);
     REMOVE_SIGNAL (group->uridecodebin, group->drained_id);
     REMOVE_SIGNAL (group->uridecodebin, group->autoplug_factories_id);
     REMOVE_SIGNAL (group->uridecodebin, group->autoplug_select_id);
@@ -6109,13 +6104,4 @@ gst_play_bin_colorbalance_init (gpointer g_iface, gpointer g_iface_data)
   iface->set_value = gst_play_bin_colorbalance_set_value;
   iface->get_value = gst_play_bin_colorbalance_get_value;
   iface->get_balance_type = gst_play_bin_colorbalance_get_balance_type;
-}
-
-gboolean
-gst_play_bin2_plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (gst_play_bin_debug, "playbin", 0, "play bin");
-
-  return gst_element_register (plugin, "playbin", GST_RANK_NONE,
-      GST_TYPE_PLAY_BIN);
 }

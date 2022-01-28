@@ -26,17 +26,6 @@
 #include <gst/base/gstbytereader.h>
 #include "video-anc.h"
 
-#if !GLIB_CHECK_VERSION(2, 47, 4)
-#ifdef __GNUC__
-#define G_GNUC_CHECK_VERSION(major, minor) \
-    ((__GNUC__ > (major)) || \
-     ((__GNUC__ == (major)) && \
-      (__GNUC_MINOR__ >= (minor))))
-#else
-#define G_GNUC_CHECK_VERSION(major, minor) 0
-#endif
-#endif
-
 /**
  * SECTION:gstvideoanc
  * @title: GstVideo Ancillary
@@ -1042,7 +1031,7 @@ gst_buffer_add_video_caption_meta (GstBuffer * buffer,
   g_return_val_if_fail (meta != NULL, NULL);
 
   meta->caption_type = caption_type;
-  meta->data = g_memdup (data, size);
+  meta->data = g_memdup2 (data, size);
   meta->size = size;
 
   return meta;

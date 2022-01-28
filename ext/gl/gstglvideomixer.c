@@ -48,6 +48,7 @@
 #include <gst/gl/gstglfuncs.h>
 #include <gst/video/gstvideoaffinetransformationmeta.h>
 
+#include "gstglelements.h"
 #include "gstglvideomixer.h"
 
 #include "gstglmixerbin.h"
@@ -390,6 +391,9 @@ typedef GstGLMixerBinClass GstGLVideoMixerBinClass;
 
 G_DEFINE_TYPE (GstGLVideoMixerBin, gst_gl_video_mixer_bin,
     GST_TYPE_GL_MIXER_BIN);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (glvideomixer, "glvideomixer",
+    GST_RANK_NONE, gst_gl_video_mixer_bin_get_type (),
+    gl_element_init (plugin));
 
 static void
 gst_gl_video_mixer_bin_init (GstGLVideoMixerBin * self)
@@ -458,6 +462,9 @@ static void gst_gl_video_mixer_child_proxy_init (gpointer g_iface,
 G_DEFINE_TYPE_WITH_CODE (GstGLVideoMixer, gst_gl_video_mixer, GST_TYPE_GL_MIXER,
     G_IMPLEMENT_INTERFACE (GST_TYPE_CHILD_PROXY,
         gst_gl_video_mixer_child_proxy_init); DEBUG_INIT);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (glvideomixerelement,
+    "glvideomixerelement", GST_RANK_NONE, gst_gl_video_mixer_get_type (),
+    gl_element_init (plugin));
 
 static void gst_gl_video_mixer_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -874,7 +881,9 @@ gst_gl_video_mixer_release_pad (GstElement * element, GstPad * p)
   /* we call the base class first as this will remove the pad from
    * the aggregator, thus stopping misc callbacks from being called,
    * one of which (process_textures) will recreate the vertex_buffer
-   * if it is destroyed */
+   * if it is destroyed.  Calling the parent may release the last ref to the pad
+   * so we need to keep the pad alive for the follow up clean up */
+  gst_object_ref (pad);
   GST_ELEMENT_CLASS (g_type_class_peek_parent (G_OBJECT_GET_CLASS (element)))
       ->release_pad (element, p);
 
@@ -884,6 +893,7 @@ gst_gl_video_mixer_release_pad (GstElement * element, GstPad * p)
         _del_buffer, &pad->vertex_buffer);
     pad->vertex_buffer = 0;
   }
+  gst_object_unref (pad);
 }
 
 static void
@@ -1606,7 +1616,7 @@ gst_gl_video_mixer_callback (gpointer stuff)
           gst_video_aggregator_pad_get_current_buffer (vagg_pad);
 
       af_meta = gst_buffer_get_video_affine_transformation_meta (buffer);
-      gst_gl_get_affine_transformation_meta_as_ndc_ext (af_meta, af_matrix);
+      gst_gl_get_affine_transformation_meta_as_ndc (af_meta, af_matrix);
       gst_gl_multiply_matrix4 (af_matrix, pad->m_matrix, matrix);
       gst_gl_shader_set_uniform_matrix_4fv (video_mixer->shader,
           "u_transformation", 1, FALSE, matrix);

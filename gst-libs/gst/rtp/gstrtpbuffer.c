@@ -184,7 +184,7 @@ gst_rtp_buffer_new_take_data (gpointer data, gsize len)
 GstBuffer *
 gst_rtp_buffer_new_copy_data (gconstpointer data, gsize len)
 {
-  return gst_rtp_buffer_new_take_data (g_memdup (data, len), len);
+  return gst_rtp_buffer_new_take_data (g_memdup2 (data, len), len);
 }
 
 /**
@@ -833,6 +833,8 @@ ensure_buffers (GstRTPBuffer * rtp)
  * extension header. If the existing extension data is not large enough, it will
  * be made larger.
  *
+ * Will also shorten the extension data from 1.20.
+ *
  * Returns: True if done.
  */
 gboolean
@@ -856,15 +858,23 @@ gst_rtp_buffer_set_extension_data (GstRTPBuffer * rtp, guint16 bits,
     mem = gst_allocator_alloc (NULL, min_size, NULL);
 
     if (rtp->data[1]) {
-      /* copy old data */
+      /* copy old data & initialize the remainder of the new buffer */
       gst_memory_map (mem, &map, GST_MAP_WRITE);
       memcpy (map.data, rtp->data[1], rtp->size[1]);
+      if (min_size > rtp->size[1]) {
+        memset (map.data + rtp->size[1], 0, min_size - rtp->size[1]);
+      }
       gst_memory_unmap (mem, &map);
 
       /* unmap old */
       gst_buffer_unmap (rtp->buffer, &rtp->map[1]);
       gst_buffer_replace_memory (rtp->buffer, 1, mem);
     } else {
+      /* don't leak data from uninitialized memory via the padding */
+      gst_memory_map (mem, &map, GST_MAP_WRITE);
+      memset (map.data, 0, map.size);
+      gst_memory_unmap (mem, &map);
+
       /* we didn't have extension data, add */
       gst_buffer_insert_memory (rtp->buffer, 1, mem);
     }
@@ -872,6 +882,15 @@ gst_rtp_buffer_set_extension_data (GstRTPBuffer * rtp, guint16 bits,
     /* map new */
     gst_memory_map (mem, &rtp->map[1], GST_MAP_READWRITE);
     gst_memory_ref (mem);
+    rtp->data[1] = rtp->map[1].data;
+    rtp->size[1] = rtp->map[1].size;
+  } else if (min_size < rtp->size[1]) {
+    GstMemory *mem = rtp->map[1].memory;
+
+    gst_memory_ref (mem);
+    gst_buffer_unmap (rtp->buffer, &rtp->map[1]);
+    gst_memory_resize (mem, 0, min_size);
+    gst_memory_map (mem, &rtp->map[1], GST_MAP_READWRITE);
     rtp->data[1] = rtp->map[1].data;
     rtp->size[1] = rtp->map[1].size;
   }
@@ -885,6 +904,37 @@ gst_rtp_buffer_set_extension_data (GstRTPBuffer * rtp, guint16 bits,
   GST_WRITE_UINT16_BE (data + 2, length);
 
   return TRUE;
+}
+
+/**
+ * gst_rtp_buffer_remove_extension_data:
+ * @rtp: the RTP packet
+ *
+ * Unsets the extension bit of the RTP buffer and removes the extension header
+ * and data.
+ *
+ * If the RTP buffer has no header extension data, the action has no effect.
+ * The RTP buffer must be mapped READWRITE only once and the underlying
+ * GstBuffer must be writable.
+ *
+ * Since: 1.20
+ */
+void
+gst_rtp_buffer_remove_extension_data (GstRTPBuffer * rtp)
+{
+  g_return_if_fail (gst_buffer_is_writable (rtp->buffer));
+  g_return_if_fail (rtp->map[0].flags & GST_MAP_WRITE);
+
+  if (rtp->data[1] != NULL) {
+    GstBuffer *buf = rtp->buffer;
+
+    ensure_buffers (rtp);
+
+    GST_RTP_HEADER_EXTENSION (rtp->data[0]) = FALSE;
+    gst_rtp_buffer_unmap (rtp);
+    gst_buffer_remove_memory (buf, 1);
+    gst_rtp_buffer_map (buf, GST_MAP_READWRITE, rtp);
+  }
 }
 
 /**
