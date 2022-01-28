@@ -41,7 +41,7 @@
 
 #include "gstplay-enum.h"
 #include "gstrawcaps.h"
-#include "gstplayback.h"
+#include "gstplaybackelements.h"
 #include "gstplaybackutils.h"
 
 #define GST_TYPE_URI_DECODE_BIN \
@@ -210,6 +210,12 @@ GType gst_uri_decode_bin_get_type (void);
 #define gst_uri_decode_bin_parent_class parent_class
 G_DEFINE_TYPE (GstURIDecodeBin, gst_uri_decode_bin, GST_TYPE_BIN);
 
+#define _do_init \
+    GST_DEBUG_CATEGORY_INIT (gst_uri_decode_bin_debug, "uridecodebin", 0, "URI decoder element"); \
+    playback_element_init (plugin);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (uridecodebin, "uridecodebin",
+    GST_RANK_NONE, GST_TYPE_URI_DECODE_BIN, _do_init);
+
 static void remove_decoders (GstURIDecodeBin * bin, gboolean force);
 static void gst_uri_decode_bin_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -231,8 +237,7 @@ _gst_boolean_accumulator (GSignalInvocationHint * ihint,
   gboolean myboolean;
 
   myboolean = g_value_get_boolean (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boolean (return_accu, myboolean);
+  g_value_set_boolean (return_accu, myboolean);
 
   /* stop emission if FALSE */
   return myboolean;
@@ -248,8 +253,7 @@ _gst_boolean_or_accumulator (GSignalInvocationHint * ihint,
   myboolean = g_value_get_boolean (handler_return);
   retboolean = g_value_get_boolean (return_accu);
 
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boolean (return_accu, myboolean || retboolean);
+  g_value_set_boolean (return_accu, myboolean || retboolean);
 
   return TRUE;
 }
@@ -261,8 +265,7 @@ _gst_array_accumulator (GSignalInvocationHint * ihint,
   gpointer array;
 
   array = g_value_get_boxed (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boxed (return_accu, array);
+  g_value_set_boxed (return_accu, array);
 
   return FALSE;
 }
@@ -274,8 +277,7 @@ _gst_select_accumulator (GSignalInvocationHint * ihint,
   GstAutoplugSelectResult res;
 
   res = g_value_get_enum (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_enum (return_accu, res);
+  g_value_set_enum (return_accu, res);
 
   /* Call the next handler in the chain (if any) when the current callback
    * returns TRY. This makes it possible to register separate autoplug-select
@@ -294,8 +296,7 @@ _gst_array_hasvalue_accumulator (GSignalInvocationHint * ihint,
   gpointer array;
 
   array = g_value_get_boxed (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boxed (return_accu, array);
+  g_value_set_boxed (return_accu, array);
 
   if (array != NULL)
     return FALSE;
@@ -1320,6 +1321,8 @@ static const gchar *adaptive_media[] = {
 
 /*
  * Generate and configure a source element.
+ *
+ * Returns: (transfer full): a new #GstElement
  */
 static GstElement *
 gen_source_element (GstURIDecodeBin * decoder)
@@ -1348,21 +1351,6 @@ gen_source_element (GstURIDecodeBin * decoder)
     goto no_source;
 
   GST_LOG_OBJECT (decoder, "found source type %s", G_OBJECT_TYPE_NAME (source));
-
-  decoder->is_stream = IS_STREAM_URI (decoder->uri);
-
-  query = gst_query_new_scheduling ();
-  if (gst_element_query (source, query)) {
-    gst_query_parse_scheduling (query, &flags, NULL, NULL, NULL);
-    if ((flags & GST_SCHEDULING_FLAG_BANDWIDTH_LIMITED))
-      decoder->is_stream = TRUE;
-  }
-  gst_query_unref (query);
-
-  GST_LOG_OBJECT (decoder, "source is stream: %d", decoder->is_stream);
-
-  decoder->need_queue = IS_QUEUE_URI (decoder->uri);
-  GST_LOG_OBJECT (decoder, "source needs queue: %d", decoder->need_queue);
 
   source_class = G_OBJECT_GET_CLASS (source);
 
@@ -1410,6 +1398,34 @@ gen_source_element (GstURIDecodeBin * decoder)
         "setting subtitle-encoding=%s to source element", decoder->encoding);
     g_object_set (source, "subtitle-encoding", decoder->encoding, NULL);
   }
+
+  /* Sink reference before passing it to signal handler.
+   * Language binding might otherwise sink it and then unref.
+   * A floating ref is also tricky for a native signal handler in case
+   * of a "transfer floating" call followed by unref
+   * (e.g. some container_add and then container_remove).
+   * Bottom line; best not have a floating ref boldly going into unknown code.
+   */
+  g_object_ref_sink (source);
+
+  g_signal_emit (decoder, gst_uri_decode_bin_signals[SIGNAL_SOURCE_SETUP],
+      0, source);
+
+  decoder->is_stream = IS_STREAM_URI (decoder->uri);
+
+  query = gst_query_new_scheduling ();
+  if (gst_element_query (source, query)) {
+    gst_query_parse_scheduling (query, &flags, NULL, NULL, NULL);
+    if ((flags & GST_SCHEDULING_FLAG_BANDWIDTH_LIMITED))
+      decoder->is_stream = TRUE;
+  }
+  gst_query_unref (query);
+
+  GST_LOG_OBJECT (decoder, "source is stream: %d", decoder->is_stream);
+
+  decoder->need_queue = IS_QUEUE_URI (decoder->uri);
+  GST_LOG_OBJECT (decoder, "source needs queue: %d", decoder->need_queue);
+
   return source;
 
   /* ERRORS */
@@ -2257,12 +2273,11 @@ setup_source (GstURIDecodeBin * decoder)
   /* state will be merged later - if file is not found, error will be
    * handled by the application right after. */
   gst_bin_add (GST_BIN_CAST (decoder), decoder->source);
+  /* bin now has a ref, but the local reference is not counted */
+  g_object_unref (decoder->source);
 
   /* notify of the new source used */
   g_object_notify (G_OBJECT (decoder), "source");
-
-  g_signal_emit (decoder, gst_uri_decode_bin_signals[SIGNAL_SOURCE_SETUP],
-      0, decoder->source);
 
   if (is_live_source (decoder->source))
     decoder->is_stream = FALSE;
@@ -2607,7 +2622,7 @@ decoder_query_duration_fold (const GValue * item, GValue * ret,
 
     gst_query_parse_duration (fold->query, NULL, &duration);
 
-    GST_DEBUG_OBJECT (item, "got duration %" G_GINT64_FORMAT, duration);
+    GST_DEBUG_OBJECT (pad, "got duration %" G_GINT64_FORMAT, duration);
 
     if (duration > fold->max)
       fold->max = duration;
@@ -2640,7 +2655,7 @@ decoder_query_position_fold (const GValue * item, GValue * ret,
 
     gst_query_parse_position (fold->query, NULL, &position);
 
-    GST_DEBUG_OBJECT (item, "got position %" G_GINT64_FORMAT, position);
+    GST_DEBUG_OBJECT (pad, "got position %" G_GINT64_FORMAT, position);
 
     if (position > fold->max)
       fold->max = position;
@@ -2720,7 +2735,7 @@ decoder_query_seeking_fold (const GValue * item, GValue * ret, QueryFold * fold)
     g_value_set_boolean (ret, TRUE);
     gst_query_parse_seeking (fold->query, NULL, &seekable, NULL, NULL);
 
-    GST_DEBUG_OBJECT (item, "got seekable %d", seekable);
+    GST_DEBUG_OBJECT (pad, "got seekable %d", seekable);
 
     if (fold->seekable)
       fold->seekable = seekable;
@@ -2749,7 +2764,7 @@ decoder_query_generic_fold (const GValue * item, GValue * ret, QueryFold * fold)
 
   if ((res = gst_pad_query (pad, fold->query))) {
     g_value_set_boolean (ret, TRUE);
-    GST_DEBUG_OBJECT (item, "answered query %p", fold->query);
+    GST_DEBUG_OBJECT (pad, "answered query %p", fold->query);
   }
 
   /* and stop as soon as we have a valid result */
@@ -2930,14 +2945,4 @@ setup_failed:
     do_async_done (decoder);
     return GST_STATE_CHANGE_FAILURE;
   }
-}
-
-gboolean
-gst_uri_decode_bin_plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (gst_uri_decode_bin_debug, "uridecodebin", 0,
-      "URI decoder element");
-
-  return gst_element_register (plugin, "uridecodebin", GST_RANK_NONE,
-      GST_TYPE_URI_DECODE_BIN);
 }

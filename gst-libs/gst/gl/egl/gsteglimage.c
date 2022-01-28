@@ -191,10 +191,6 @@
 #define EGL_YUV_NARROW_RANGE_EXT 0x3283
 #endif
 
-#if !GST_GL_HAVE_EGLUINT64KHR
-typedef khronos_uint64_t EGLuint64KHR;
-#endif
-
 GST_DEFINE_MINI_OBJECT_TYPE (GstEGLImage, gst_egl_image);
 
 #ifndef GST_DISABLE_GST_DEBUG
@@ -460,7 +456,7 @@ gst_egl_image_from_texture (GstGLContext * context, GstGLMemory * gl_mem,
  * target.
  */
 static int
-_drm_rgba_fourcc_from_info (GstVideoInfo * info, int plane,
+_drm_rgba_fourcc_from_info (const GstVideoInfo * info, int plane,
     GstGLFormat * out_format)
 {
   GstVideoFormat format = GST_VIDEO_INFO_FORMAT (info);
@@ -545,6 +541,10 @@ _drm_rgba_fourcc_from_info (GstVideoInfo * info, int plane,
       *out_format = plane == 0 ? GST_GL_R16 : GST_GL_RG16;
       return plane == 0 ? DRM_FORMAT_R16 : DRM_FORMAT_RG1616;
 
+    case GST_VIDEO_FORMAT_AV12:
+      *out_format = plane == 1 ? GST_GL_RED : GST_GL_RG;
+      return plane == 1 ? rg_fourcc : DRM_FORMAT_R8;
+
     default:
       GST_ERROR ("Unsupported format for DMABuf.");
       return -1;
@@ -571,8 +571,9 @@ _drm_rgba_fourcc_from_info (GstVideoInfo * info, int plane,
  */
 GstEGLImage *
 gst_egl_image_from_dmabuf (GstGLContext * context,
-    gint dmabuf, GstVideoInfo * in_info, gint plane, gsize offset)
+    gint dmabuf, const GstVideoInfo * in_info, gint plane, gsize offset)
 {
+  gint comp[GST_VIDEO_MAX_COMPONENTS];
   GstGLFormat format = 0;
   guintptr attribs[13];
   EGLImageKHR img;
@@ -580,16 +581,17 @@ gst_egl_image_from_dmabuf (GstGLContext * context,
   gint fourcc;
   gint i;
 
+  gst_video_format_info_component (in_info->finfo, plane, comp);
   fourcc = _drm_rgba_fourcc_from_info (in_info, plane, &format);
   GST_DEBUG ("fourcc %.4s (%d) plane %d (%dx%d)",
       (char *) &fourcc, fourcc, plane,
-      GST_VIDEO_INFO_COMP_WIDTH (in_info, plane),
-      GST_VIDEO_INFO_COMP_HEIGHT (in_info, plane));
+      GST_VIDEO_INFO_COMP_WIDTH (in_info, comp[0]),
+      GST_VIDEO_INFO_COMP_HEIGHT (in_info, comp[0]));
 
   attribs[atti++] = EGL_WIDTH;
-  attribs[atti++] = GST_VIDEO_INFO_COMP_WIDTH (in_info, plane);
+  attribs[atti++] = GST_VIDEO_INFO_COMP_WIDTH (in_info, comp[0]);
   attribs[atti++] = EGL_HEIGHT;
-  attribs[atti++] = GST_VIDEO_INFO_COMP_HEIGHT (in_info, plane);
+  attribs[atti++] = GST_VIDEO_INFO_COMP_HEIGHT (in_info, comp[0]);
   attribs[atti++] = EGL_LINUX_DRM_FOURCC_EXT;
   attribs[atti++] = fourcc;
   attribs[atti++] = EGL_DMA_BUF_PLANE0_FD_EXT;
@@ -621,7 +623,7 @@ gst_egl_image_from_dmabuf (GstGLContext * context,
  * YUV->RGB conversion matrices etc.)
  */
 static int
-_drm_direct_fourcc_from_info (GstVideoInfo * info)
+_drm_direct_fourcc_from_info (const GstVideoInfo * info)
 {
   GstVideoFormat format = GST_VIDEO_INFO_FORMAT (info);
 
@@ -729,7 +731,7 @@ _drm_direct_fourcc_from_info (GstVideoInfo * info)
  */
 gboolean
 gst_egl_image_check_dmabuf_direct (GstGLContext * context,
-    GstVideoInfo * in_info, GstGLTextureTarget target)
+    const GstVideoInfo * in_info, GstGLTextureTarget target)
 {
   EGLDisplay egl_display = EGL_DEFAULT_DISPLAY;
   GstGLDisplayEGL *display_egl;
@@ -857,7 +859,7 @@ gst_egl_image_check_dmabuf_direct (GstGLContext * context,
  */
 GstEGLImage *
 gst_egl_image_from_dmabuf_direct_target (GstGLContext * context,
-    gint * fd, gsize * offset, GstVideoInfo * in_info,
+    gint * fd, const gsize * offset, const GstVideoInfo * in_info,
     GstGLTextureTarget target)
 {
 
@@ -1022,7 +1024,7 @@ gst_egl_image_from_dmabuf_direct_target (GstGLContext * context,
  */
 GstEGLImage *
 gst_egl_image_from_dmabuf_direct (GstGLContext * context,
-    gint * fd, gsize * offset, GstVideoInfo * in_info)
+    gint * fd, const gsize * offset, const GstVideoInfo * in_info)
 {
   return gst_egl_image_from_dmabuf_direct_target (context, fd, offset, in_info,
       GST_GL_TEXTURE_TARGET_2D);

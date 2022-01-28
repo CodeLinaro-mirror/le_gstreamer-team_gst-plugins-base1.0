@@ -11,7 +11,7 @@ base_tests = [
   [ 'libs/baseaudiovisualizer.c' ],
   [ 'libs/discoverer.c' ],
   [ 'libs/fft.c' ],
-  [ 'libs/libsabi.c' ],
+  [ 'libs/libsabi.c', false, [ gstgl_dep ] ],
   [ 'libs/mikey.c' ],
   [ 'libs/navigation.c' ],
   [ 'libs/pbutils.c' ],
@@ -19,6 +19,7 @@ base_tests = [
   [ 'libs/rtp.c' ],
   [ 'libs/rtpbasedepayload.c' ],
   [ 'libs/rtpbasepayload.c' ],
+  [ 'libs/rtphdrext.c' ],
   [ 'libs/rtpmeta.c' ],
   [ 'libs/rtsp.c' ],
   [ 'libs/sdp.c' ],
@@ -86,6 +87,7 @@ endif
 # FIXME: Unstable on Windows
 if build_gstgl and host_machine.system() != 'windows'
   base_tests += [
+    [ 'libs/gstglapi.c', not build_gstgl, [gstgl_dep]],
     [ 'libs/gstglcolorconvert.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
     [ 'libs/gstglcontext.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
     [ 'libs/gstglfeature.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
@@ -128,6 +130,10 @@ if valgrind_dep.found()
   test_defines += ['-DHAVE_VALGRIND']
 endif
 
+if build_gstgl
+  test_defines += ['-DTEST_GST_GL_ABI_CHECK']
+endif
+
 test_deps = [gst_dep, gst_base_dep, gst_net_dep, gst_check_dep, audio_dep,
   video_dep, pbutils_dep, rtp_dep, rtsp_dep, tag_dep, allocators_dep, app_dep,
   fft_dep, riff_dep, sdp_dep, gio_dep, valgrind_dep] + glib_deps
@@ -155,13 +161,13 @@ foreach t : base_tests
     )
 
     env = environment()
-    env.set('GST_PLUGIN_PATH_1_0', meson.build_root(), pluginsdirs)
+    env.set('GST_PLUGIN_PATH_1_0', meson.global_build_root(), pluginsdirs)
     env.set('GST_PLUGIN_SYSTEM_PATH_1_0', '')
     env.set('GST_STATE_IGNORE_ELEMENTS', 'cdio cdparanoiasrc libvisual_ alsasrc alsasink')
     env.set('CK_DEFAULT_TIMEOUT', '20')
     env.set('GST_TAG_LICENSE_TRANSLATIONS_DICT', join_paths(gst_tag_dir, 'license-translations.dict'))
     env.set('GST_PLUGIN_LOADING_WHITELIST', 'gstreamer',
-        'gst-plugins-base@' + meson.build_root())
+        'gst-plugins-base@' + meson.project_build_root())
     env.set('GST_REGISTRY', join_paths(meson.current_build_dir(), '@0@.registry'.format(test_name)))
     env.set('GST_PLUGIN_SCANNER_1_0', gst_plugin_scanner_path)
     test(test_name, exe, env: env, timeout: 3 * 60)
@@ -178,14 +184,14 @@ foreach group : [1, 2, 3, 4, 5, 6]
 
   # TODO Use env.copy when it is in meson
   env = environment()
-  env.set('GST_PLUGIN_PATH_1_0', meson.build_root(), pluginsdirs)
+  env.set('GST_PLUGIN_PATH_1_0', meson.global_build_root(), pluginsdirs)
   env.set('GST_PLUGIN_SYSTEM_PATH_1_0', '')
   env.set('GST_STATE_IGNORE_ELEMENTS', 'cdio cdparanoiasrc libvisual_ alsasrc alsasink')
   env.set('CK_DEFAULT_TIMEOUT', '20')
   env.set('GST_TAG_LICENSE_TRANSLATIONS_DICT', join_paths(gst_tag_dir, 'license-translations.dict'))
   env.set('GST_PLUGIN_LOADING_WHITELIST', 'gstreamer',
-      'gst-plugins-base@' + meson.build_root())
-  env.set('GST_REGISTRY', join_paths(meson.current_build_dir(), '@0@.registry'.format(test_name)))
+      'gst-plugins-base@' + meson.project_build_root())
+  env.set('GST_REGISTRY', join_paths(meson.current_build_dir(), '@0@.registry'.format(vscale_test_name)))
   env.set('GST_PLUGIN_SCANNER_1_0', gst_plugin_scanner_path)
 
   test(vscale_test_name, exe, env: env, timeout: 3 * 60)

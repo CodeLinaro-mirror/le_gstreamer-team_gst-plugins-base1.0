@@ -399,6 +399,21 @@ gst_video_color_matrix_get_Kr_Kb (GstVideoColorMatrix matrix, gdouble * Kr,
  * @func: a #GstVideoTransferFunction
  * @val: a value
  *
+ * Deprecated: 1.20: Use gst_video_transfer_function_encode() instead.
+ *
+ * Since: 1.6
+ */
+gdouble
+gst_video_color_transfer_encode (GstVideoTransferFunction func, gdouble val)
+{
+  return gst_video_transfer_function_encode (func, val);
+}
+
+/**
+ * gst_video_transfer_function_encode:
+ * @func: a #GstVideoTransferFunction
+ * @val: a value
+ *
  * Convert @val to its gamma encoded value.
  *
  * For a linear value L in the range [0..1], conversion to the non-linear
@@ -413,10 +428,10 @@ gst_video_color_matrix_get_Kr_Kb (GstVideoColorMatrix matrix, gdouble * Kr,
  *
  * Returns: the gamma encoded value of @val
  *
- * Since: 1.6
+ * Since: 1.20
  */
 gdouble
-gst_video_color_transfer_encode (GstVideoTransferFunction func, gdouble val)
+gst_video_transfer_function_encode (GstVideoTransferFunction func, gdouble val)
 {
   gdouble res;
 
@@ -516,8 +531,23 @@ gst_video_color_transfer_encode (GstVideoTransferFunction func, gdouble val)
  * @func: a #GstVideoTransferFunction
  * @val: a value
  *
+ * Deprecated: 1.20: Use gst_video_transfer_function_decode() instead.
+ *
+ * Since: 1.6
+ */
+gdouble
+gst_video_color_transfer_decode (GstVideoTransferFunction func, gdouble val)
+{
+  return gst_video_transfer_function_decode (func, val);
+}
+
+/**
+ * gst_video_transfer_function_decode:
+ * @func: a #GstVideoTransferFunction
+ * @val: a value
+ *
  * Convert @val to its gamma decoded value. This is the inverse operation of
- * @gst_video_color_transfer_encode().
+ * gst_video_color_transfer_encode().
  *
  * For a non-linear value L' in the range [0..1], conversion to the linear
  * L is in general performed with a power function like:
@@ -531,10 +561,10 @@ gst_video_color_transfer_encode (GstVideoTransferFunction func, gdouble val)
  *
  * Returns: the gamma decoded value of @val
  *
- * Since: 1.6
+ * Since: 1.20
  */
 gdouble
-gst_video_color_transfer_decode (GstVideoTransferFunction func, gdouble val)
+gst_video_transfer_function_decode (GstVideoTransferFunction func, gdouble val)
 {
   gdouble res;
 

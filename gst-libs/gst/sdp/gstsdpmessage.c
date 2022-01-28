@@ -61,6 +61,7 @@
 #include <gio/gio.h>
 
 #include <gst/rtp/gstrtppayloads.h>
+#include <gst/pbutils/pbutils.h>
 #include "gstsdpmessage.h"
 
 #define FREE_STRING(field)              g_free (field); (field) = NULL
@@ -3540,6 +3541,35 @@ gst_sdp_media_add_rtcp_fb_attributes_from_media (const GstSDPMedia * media,
   return GST_SDP_OK;
 }
 
+static void
+gst_sdp_media_caps_adjust_h264 (GstCaps * caps)
+{
+  long int spsint;
+  guint8 sps[2];
+  const gchar *profile_level_id;
+  GstStructure *s = gst_caps_get_structure (caps, 0);
+
+  if (g_strcmp0 (gst_structure_get_string (s, "encoding-name"), "H264") ||
+      g_strcmp0 (gst_structure_get_string (s, "level-asymmetry-allowed"), "1"))
+    return;
+
+  profile_level_id = gst_structure_get_string (s, "profile-level-id");
+  if (!profile_level_id)
+    return;
+
+  spsint = strtol (profile_level_id, NULL, 16);
+  sps[0] = spsint >> 16;
+  sps[1] = spsint >> 8;
+
+  GST_DEBUG ("'level-asymmetry-allowed' is set so we shouldn't care about "
+      "'profile-level-id' and only set a 'profile' instead");
+  gst_structure_set (s, "profile", G_TYPE_STRING,
+      gst_codec_utils_h264_get_profile (sps, 2), NULL);
+
+  gst_structure_remove_fields (s, "level-asymmetry-allowed", "profile-level-id",
+      NULL);
+}
+
 /**
  * gst_sdp_media_get_caps_from_media:
  * @media: a #GstSDPMedia
@@ -3690,7 +3720,7 @@ gst_sdp_media_get_caps_from_media (const GstSDPMedia * media, gint pt)
           }
         }
 
-        if (strlen (key) > 1) {
+        if (strlen (key) > 0) {
           tmp = g_ascii_strdown (key, -1);
           gst_structure_set (s, tmp, G_TYPE_STRING, val, NULL);
           g_free (tmp);
@@ -3713,6 +3743,8 @@ gst_sdp_media_get_caps_from_media (const GstSDPMedia * media, gint pt)
       gst_structure_set (s, "a-framesize", G_TYPE_STRING, p, NULL);
     }
   }
+
+  gst_sdp_media_caps_adjust_h264 (caps);
 
   /* parse rtcp-fb: field */
   gst_sdp_media_add_rtcp_fb_attributes_from_media (media, pt, caps);
@@ -3767,7 +3799,7 @@ gst_sdp_media_set_media_from_caps (const GstCaps * caps, GstSDPMedia * media)
   gchar *tmp;
   gint caps_pt, caps_rate;
   guint n_fields, j;
-  gboolean first, nack, nack_pli, ccm_fir;
+  gboolean first, nack, nack_pli, ccm_fir, transport_cc;
   GString *fmtp;
   GstStructure *s;
 
@@ -3830,6 +3862,15 @@ gst_sdp_media_set_media_from_caps (const GstCaps * caps, GstSDPMedia * media)
       gst_sdp_media_add_attribute (media, "rtcp-fb", tmp);
       g_free (tmp);
       GST_DEBUG ("adding rtcp-fb-ccm-fir to pt=%d", caps_pt);
+    }
+  }
+
+  if (gst_structure_get_boolean (s, "rtcp-fb-transport-cc", &transport_cc)) {
+    if (transport_cc) {
+      tmp = g_strdup_printf ("%d transport-cc", caps_pt);
+      gst_sdp_media_add_attribute (media, "rtcp-fb", tmp);
+      g_free (tmp);
+      GST_DEBUG ("adding rtcp-fb-transport-cc to pt=%d", caps_pt);
     }
   }
 
@@ -3951,6 +3992,16 @@ gst_sdp_media_set_media_from_caps (const GstCaps * caps, GstSDPMedia * media)
     }
 
     if ((fval = gst_structure_get_string (s, fname))) {
+
+      /* "profile" is our internal representation of the notion of
+       * "level-asymmetry-allowed" with caps, convert it back to the SDP
+       * representation */
+      if (!g_strcmp0 (gst_structure_get_string (s, "encoding-name"), "H264")
+          && !g_strcmp0 (fname, "profile")) {
+        fname = "level-asymmetry-allowed";
+        fval = "1";
+      }
+
       g_string_append_printf (fmtp, "%s%s=%s", first ? "" : ";", fname, fval);
       first = FALSE;
     }

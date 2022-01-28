@@ -55,7 +55,7 @@
 
 #include "gstplay-enum.h"
 #include "gstrawcaps.h"
-#include "gstplayback.h"
+#include "gstplaybackelements.h"
 #include "gstplaybackutils.h"
 
 #define GST_TYPE_URI_DECODE_BIN3 \
@@ -329,6 +329,12 @@ GType gst_uri_decode_bin3_get_type (void);
 #define gst_uri_decode_bin3_parent_class parent_class
 G_DEFINE_TYPE (GstURIDecodeBin3, gst_uri_decode_bin3, GST_TYPE_BIN);
 
+#define _do_init \
+    GST_DEBUG_CATEGORY_INIT (gst_uri_decode_bin3_debug, "uridecodebin3", 0, "URI decoder element 3"); \
+    playback_element_init (plugin);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (uridecodebin3, "uridecodebin3",
+    GST_RANK_NONE, GST_TYPE_URI_DECODE_BIN3, _do_init);
+
 #define REMOVE_SIGNAL(obj,id)            \
 if (id) {                                \
   g_signal_handler_disconnect (obj, id); \
@@ -354,8 +360,7 @@ _gst_int_accumulator (GSignalInvocationHint * ihint,
 {
   gint res = g_value_get_int (handler_return);
 
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_int (return_accu, res);
+  g_value_set_int (return_accu, res);
 
   if (res == -1)
     return TRUE;
@@ -744,7 +749,8 @@ src_pad_added_cb (GstElement * element, GstPad * pad,
   }
 
   if (sinkpad == NULL)
-    sinkpad = gst_element_get_request_pad (uridecodebin->decodebin, "sink_%u");
+    sinkpad =
+        gst_element_request_pad_simple (uridecodebin->decodebin, "sink_%u");
 
   if (sinkpad) {
     GST_DEBUG_OBJECT (uridecodebin,
@@ -786,7 +792,27 @@ static void
 src_pad_removed_cb (GstElement * element, GstPad * pad,
     GstSourceHandler * handler)
 {
-  /* FIXME : IMPLEMENT */
+  GstURIDecodeBin3 *uridecodebin = handler->uridecodebin;
+  GstPad *peer_pad = gst_pad_get_peer (pad);
+
+  if (peer_pad) {
+    GstPadTemplate *templ = gst_pad_get_pad_template (peer_pad);
+
+    GST_DEBUG_OBJECT (uridecodebin,
+        "Source %" GST_PTR_FORMAT " removed pad %" GST_PTR_FORMAT " peer %"
+        GST_PTR_FORMAT, element, pad, peer_pad);
+
+    if (templ) {
+      if (GST_PAD_TEMPLATE_PRESENCE (templ) == GST_PAD_REQUEST) {
+        GST_DEBUG_OBJECT (uridecodebin,
+            "Releasing decodebin pad %" GST_PTR_FORMAT, peer_pad);
+        gst_element_release_request_pad (uridecodebin->decodebin, peer_pad);
+      }
+      gst_object_unref (templ);
+    }
+
+    gst_object_unref (peer_pad);
+  }
 }
 
 static void
@@ -1090,6 +1116,7 @@ free_play_items (GstURIDecodeBin3 * dec)
 
   g_list_free (dec->play_items);
   dec->play_items = NULL;
+  dec->current = NULL;
 }
 
 static GstStateChangeReturn
@@ -1146,14 +1173,4 @@ gst_uri_decodebin3_send_event (GstElement * element, GstEvent * event)
     return gst_element_send_event (self->decodebin, event);
 
   return GST_ELEMENT_CLASS (parent_class)->send_event (element, event);
-}
-
-gboolean
-gst_uri_decode_bin3_plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (gst_uri_decode_bin3_debug, "uridecodebin3", 0,
-      "URI decoder element 3");
-
-  return gst_element_register (plugin, "uridecodebin3", GST_RANK_NONE,
-      GST_TYPE_URI_DECODE_BIN3);
 }

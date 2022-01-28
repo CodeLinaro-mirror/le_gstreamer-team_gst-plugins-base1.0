@@ -33,7 +33,7 @@
 /* for XkbKeycodeToKeysym */
 #include <X11/XKBlib.h>
 
-GST_DEBUG_CATEGORY_EXTERN (gst_debug_xv_context);
+GST_DEBUG_CATEGORY (gst_debug_xv_context);
 #define GST_CAT_DEFAULT gst_debug_xv_context
 
 void
@@ -159,6 +159,7 @@ gst_xvcontext_get_xv_support (GstXvContext * context,
     static const char dbl_buffer[] = "XV_DOUBLE_BUFFER";
     static const char colorkey[] = "XV_COLORKEY";
     static const char iturbt709[] = "XV_ITURBT_709";
+    static const char *xv_colorspace = "XV_COLORSPACE";
 
     GST_DEBUG ("Checking %d Xv port attributes", count);
 
@@ -166,6 +167,7 @@ gst_xvcontext_get_xv_support (GstXvContext * context,
     context->have_double_buffer = FALSE;
     context->have_colorkey = FALSE;
     context->have_iturbt709 = FALSE;
+    context->have_xvcolorspace = FALSE;
 
     for (i = 0; ((i < count) && todo); i++) {
       GST_DEBUG ("Got attribute %s", attr[i].name);
@@ -234,6 +236,9 @@ gst_xvcontext_get_xv_support (GstXvContext * context,
       } else if (!strcmp (attr[i].name, iturbt709)) {
         todo--;
         context->have_iturbt709 = TRUE;
+      } else if (!strcmp (attr[i].name, xv_colorspace)) {
+        context->have_xvcolorspace = TRUE;
+        todo--;
       }
     }
 
@@ -881,7 +886,8 @@ gst_xvcontext_update_colorbalance (GstXvContext * context,
 /* This function tries to get a format matching with a given caps in the
    supported list of formats we generated in gst_xvimagesink_get_xv_support */
 gint
-gst_xvcontext_get_format_from_info (GstXvContext * context, GstVideoInfo * info)
+gst_xvcontext_get_format_from_info (GstXvContext * context,
+    const GstVideoInfo * info)
 {
   GList *list = NULL;
 
@@ -905,7 +911,7 @@ gst_xvcontext_set_colorimetry (GstXvContext * context,
   Atom prop_atom;
   int xv_value;
 
-  if (!context->have_iturbt709)
+  if (!context->have_iturbt709 && !context->have_xvcolorspace)
     return;
 
   switch (colorimetry->matrix) {
@@ -919,10 +925,20 @@ gst_xvcontext_set_colorimetry (GstXvContext * context,
   }
 
   g_mutex_lock (&context->lock);
-  prop_atom = XInternAtom (context->disp, "XV_ITURBT_709", True);
-  if (prop_atom != None) {
-    XvSetPortAttribute (context->disp,
-        context->xv_port_id, prop_atom, xv_value);
+  if (context->have_iturbt709) {
+    prop_atom = XInternAtom (context->disp, "XV_ITURBT_709", True);
+    if (prop_atom != None) {
+      XvSetPortAttribute (context->disp,
+          context->xv_port_id, prop_atom, xv_value);
+    }
+  }
+
+  if (context->have_xvcolorspace) {
+    prop_atom = XInternAtom (context->disp, "XV_COLORSPACE", True);
+    if (prop_atom != None) {
+      XvSetPortAttribute (context->disp,
+          context->xv_port_id, prop_atom, xv_value);
+    }
   }
   g_mutex_unlock (&context->lock);
 }
@@ -1090,10 +1106,16 @@ gst_xwindow_set_title (GstXWindow * window, const gchar * title)
   if (window->internal && title) {
     XTextProperty xproperty;
     XClassHint *hint = XAllocClassHint ();
+    Atom _NET_WM_NAME = XInternAtom (context->disp, "_NET_WM_NAME", 0);
+    Atom UTF8_STRING = XInternAtom (context->disp, "UTF8_STRING", 0);
 
     if ((XStringListToTextProperty (((char **) &title), 1, &xproperty)) != 0) {
       XSetWMName (context->disp, window->win, &xproperty);
       XFree (xproperty.value);
+
+      XChangeProperty (context->disp, window->win, _NET_WM_NAME, UTF8_STRING, 8,
+          0, (unsigned char *) title, strlen (title));
+      XSync (context->disp, False);
 
       if (hint) {
         hint->res_name = (char *) title;

@@ -1,12 +1,14 @@
 opus_sources = [
   'gstopus.c',
+  'gstopuselement.c',
   'gstopuscommon.c',
   'gstopusdec.c',
   'gstopusenc.c',
   'gstopusheader.c',
 ]
 
-opus_dep = dependency('opus', version : '>= 0.9.4', required : get_option('opus'))
+opus_dep = dependency('opus', version: '>= 0.9.4', required: get_option('opus'),
+                      fallback: ['opus', 'opus_dep'], default_options: ['docs=disabled'])
 
 if opus_dep.found()
   gstopus = library('gstopus',

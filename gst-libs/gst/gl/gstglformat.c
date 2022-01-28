@@ -148,8 +148,8 @@ gst_gl_format_type_n_bytes (guint format, guint type)
  * Returns: the #GstGLFormat necessary for holding the data in @plane of @vinfo
  */
 GstGLFormat
-gst_gl_format_from_video_info (GstGLContext * context, GstVideoInfo * vinfo,
-    guint plane)
+gst_gl_format_from_video_info (GstGLContext * context,
+    const GstVideoInfo * vinfo, guint plane)
 {
   gboolean texture_rg =
       gst_gl_context_check_feature (context, "GL_EXT_texture_rg")
@@ -194,12 +194,16 @@ gst_gl_format_from_video_info (GstGLContext * context, GstVideoInfo * vinfo,
     case GST_VIDEO_FORMAT_NV61:
       n_plane_components = plane == 0 ? 1 : 2;
       break;
+    case GST_VIDEO_FORMAT_AV12:
+      n_plane_components = (plane == 1) ? 2 : 1;
+      break;
     case GST_VIDEO_FORMAT_GRAY8:
     case GST_VIDEO_FORMAT_Y444:
     case GST_VIDEO_FORMAT_Y42B:
     case GST_VIDEO_FORMAT_Y41B:
     case GST_VIDEO_FORMAT_I420:
     case GST_VIDEO_FORMAT_YV12:
+    case GST_VIDEO_FORMAT_A420:
       n_plane_components = 1;
       break;
     case GST_VIDEO_FORMAT_BGR10A2_LE:
@@ -220,6 +224,11 @@ gst_gl_format_from_video_info (GstGLContext * context, GstVideoInfo * vinfo,
     case GST_VIDEO_FORMAT_Y412_LE:
     case GST_VIDEO_FORMAT_Y412_BE:
       return GST_GL_RGBA16;
+    case GST_VIDEO_FORMAT_GBR:
+    case GST_VIDEO_FORMAT_RGBP:
+    case GST_VIDEO_FORMAT_BGRP:
+    case GST_VIDEO_FORMAT_GBRA:
+      return GST_GL_R8;
     default:
       n_plane_components = 4;
       g_assert_not_reached ();

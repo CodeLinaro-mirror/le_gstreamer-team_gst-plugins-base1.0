@@ -66,7 +66,7 @@ G_STMT_START {                    \
 #define INIT_MEMDUP(field, data, len)            \
 G_STMT_START {                                   \
   g_free ((field));                              \
-  (field) = g_memdup (data, len);                \
+  (field) = g_memdup2 (data, len);                \
 } G_STMT_END
 #define FREE_MEMDUP(field)                       \
 G_STMT_START {                                   \
@@ -2490,9 +2490,7 @@ gst_mikey_message_to_caps (const GstMIKEYMessage * msg, GstCaps * caps)
       goto done;
 
     pkd = (GstMIKEYPayloadKeyData *) sub;
-    buf =
-        gst_buffer_new_wrapped (g_memdup (pkd->key_data, pkd->key_len),
-        pkd->key_len);
+    buf = gst_buffer_new_memdup (pkd->key_data, pkd->key_len);
     gst_caps_set_simple (caps, "srtp-key", GST_TYPE_BUFFER, buf, NULL);
     gst_buffer_unref (buf);
   }

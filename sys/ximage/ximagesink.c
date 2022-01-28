@@ -115,8 +115,10 @@
 /* for XkbKeycodeToKeysym */
 #include <X11/XKBlib.h>
 
-GST_DEBUG_CATEGORY_EXTERN (gst_debug_x_image_sink);
-GST_DEBUG_CATEGORY_EXTERN (CAT_PERFORMANCE);
+GST_DEBUG_CATEGORY_EXTERN (gst_debug_x_image_pool);
+GST_DEBUG_CATEGORY (gst_debug_x_image_sink);
+GST_DEBUG_CATEGORY_STATIC (CAT_PERFORMANCE);
+
 #define GST_CAT_DEFAULT gst_debug_x_image_sink
 
 typedef struct
@@ -178,6 +180,13 @@ G_DEFINE_TYPE_WITH_CODE (GstXImageSink, gst_x_image_sink, GST_TYPE_VIDEO_SINK,
         gst_x_image_sink_navigation_init);
     G_IMPLEMENT_INTERFACE (GST_TYPE_VIDEO_OVERLAY,
         gst_x_image_sink_video_overlay_init));
+
+#define _do_init \
+  GST_DEBUG_CATEGORY_INIT (gst_debug_x_image_sink, "ximagesink", 0, "ximagesink element");\
+  GST_DEBUG_CATEGORY_INIT (gst_debug_x_image_pool, "ximagepool", 0, "ximagepool object");\
+  GST_DEBUG_CATEGORY_GET (CAT_PERFORMANCE, "GST_PERFORMANCE");
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (ximagesink, "ximagesink",
+    GST_RANK_SECONDARY, GST_TYPE_X_IMAGE_SINK, _do_init);
 
 /* ============================================================= */
 /*                                                               */
@@ -397,6 +406,15 @@ gst_x_image_sink_xwindow_set_title (GstXImageSink * ximagesink,
       if (title) {
         if ((XStringListToTextProperty (((char **) &title), 1,
                     &xproperty)) != 0) {
+          Atom _NET_WM_NAME =
+              XInternAtom (ximagesink->xcontext->disp, "_NET_WM_NAME", 0);
+          Atom UTF8_STRING =
+              XInternAtom (ximagesink->xcontext->disp, "UTF8_STRING", 0);
+          XChangeProperty (ximagesink->xcontext->disp, xwindow->win,
+              _NET_WM_NAME, UTF8_STRING, 8, 0, (unsigned char *) title,
+              strlen (title));
+          XSync (ximagesink->xcontext->disp, False);
+
           XSetWMName (ximagesink->xcontext->disp, xwindow->win, &xproperty);
           XFree (xproperty.value);
         }

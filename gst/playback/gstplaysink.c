@@ -33,6 +33,7 @@
 #include <gst/video/videooverlay.h>
 #include <gst/video/navigation.h>
 
+#include "gstplaybackelements.h"
 #include "gstplaysink.h"
 #include "gststreamsynchronizer.h"
 #include "gstplaysinkvideoconvert.h"
@@ -412,7 +413,7 @@ static void gst_play_sink_colorbalance_init (gpointer g_iface,
     gpointer g_iface_data);
 
 static void
-_do_init (GType type)
+_do_init_type (GType type)
 {
   static const GInterfaceInfo svol_info = {
     NULL, NULL, NULL
@@ -437,7 +438,13 @@ _do_init (GType type)
 }
 
 G_DEFINE_TYPE_WITH_CODE (GstPlaySink, gst_play_sink, GST_TYPE_BIN,
-    _do_init (g_define_type_id));
+    _do_init_type (g_define_type_id));
+#define _do_init \
+    GST_DEBUG_CATEGORY_INIT (gst_play_sink_debug, "playsink", 0, "play sink");\
+    playback_element_init (plugin);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (playsink, "playsink", GST_RANK_NONE,
+    GST_TYPE_PLAY_SINK, _do_init);
+
 
 static void
 gst_play_sink_class_init (GstPlaySinkClass * klass)
@@ -3353,7 +3360,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       GstIterator *it;
 
       playsink->video_sinkpad_stream_synchronizer =
-          gst_element_get_request_pad (GST_ELEMENT_CAST
+          gst_element_request_pad_simple (GST_ELEMENT_CAST
           (playsink->stream_synchronizer), "sink_%u");
       it = gst_pad_iterate_internal_links
           (playsink->video_sinkpad_stream_synchronizer);
@@ -3565,7 +3572,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       GstIterator *it;
 
       playsink->audio_sinkpad_stream_synchronizer =
-          gst_element_get_request_pad (GST_ELEMENT_CAST
+          gst_element_request_pad_simple (GST_ELEMENT_CAST
           (playsink->stream_synchronizer), "sink_%u");
       it = gst_pad_iterate_internal_links
           (playsink->audio_sinkpad_stream_synchronizer);
@@ -3620,7 +3627,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       GST_DEBUG_OBJECT (playsink, "adding audio chain");
       if (playsink->audio_tee_asrc == NULL) {
         playsink->audio_tee_asrc =
-            gst_element_get_request_pad (playsink->audio_tee, "src_%u");
+            gst_element_request_pad_simple (playsink->audio_tee, "src_%u");
       }
 
       sinkpad = playsink->audio_ssync_queue_sinkpad;
@@ -3697,7 +3704,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
         activate_chain (GST_PLAY_CHAIN (playsink->vischain), TRUE);
         if (playsink->audio_tee_vissrc == NULL) {
           playsink->audio_tee_vissrc =
-              gst_element_get_request_pad (playsink->audio_tee, "src_%u");
+              gst_element_request_pad_simple (playsink->audio_tee, "src_%u");
         }
         gst_pad_link_full (playsink->audio_tee_vissrc,
             playsink->vischain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
@@ -3774,7 +3781,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
         GValue item = { 0, };
 
         playsink->text_sinkpad_stream_synchronizer =
-            gst_element_get_request_pad (GST_ELEMENT_CAST
+            gst_element_request_pad_simple (GST_ELEMENT_CAST
             (playsink->stream_synchronizer), "sink_%u");
         it = gst_pad_iterate_internal_links
             (playsink->text_sinkpad_stream_synchronizer);
@@ -5520,12 +5527,4 @@ gst_play_sink_colorbalance_init (gpointer g_iface, gpointer g_iface_data)
   iface->set_value = gst_play_sink_colorbalance_set_value;
   iface->get_value = gst_play_sink_colorbalance_get_value;
   iface->get_balance_type = gst_play_sink_colorbalance_get_balance_type;
-}
-
-gboolean
-gst_play_sink_plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (gst_play_sink_debug, "playsink", 0, "play bin");
-  return gst_element_register (plugin, "playsink", GST_RANK_NONE,
-      GST_TYPE_PLAY_SINK);
 }

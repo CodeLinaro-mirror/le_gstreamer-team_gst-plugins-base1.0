@@ -1,3 +1,7 @@
+if get_option('qt5').disabled()
+  subdir_done()
+endif
+
 if x11_dep.found()
   if gtk_x11_dep.found()
     executable('gtk-videooverlay', 'gtk-videooverlay.c',
@@ -34,6 +38,13 @@ endif
 
 if host_system == 'windows'
   executable('win32-videooverlay', 'win32-videooverlay.c',
+    c_args : gst_plugins_base_args,
+    include_directories : [configinc, libsinc],
+    dependencies : [gst_dep, video_dep],
+    install: false,
+  )
+
+  executable('win32-videooverlay-playbin', 'win32-videooverlay-playbin.c',
     c_args : gst_plugins_base_args,
     include_directories : [configinc, libsinc],
     dependencies : [gst_dep, video_dep],

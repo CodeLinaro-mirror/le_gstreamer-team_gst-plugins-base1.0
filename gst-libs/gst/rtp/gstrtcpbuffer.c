@@ -84,7 +84,7 @@ gst_rtcp_buffer_new_take_data (gpointer data, guint len)
 GstBuffer *
 gst_rtcp_buffer_new_copy_data (gconstpointer data, guint len)
 {
-  return gst_rtcp_buffer_new_take_data (g_memdup (data, len), len);
+  return gst_rtcp_buffer_new_take_data (g_memdup2 (data, len), len);
 }
 
 static gboolean
@@ -1213,7 +1213,7 @@ gst_rtcp_packet_copy_profile_specific_ext (GstRTCPPacket * packet,
     if (data != NULL) {
       guint8 *ptr = packet->rtcp->map.data + packet->offset;
       ptr += ((packet->length + 1 - pse_len) * sizeof (guint32));
-      *data = g_memdup (ptr, pse_len * sizeof (guint32));
+      *data = g_memdup2 (ptr, pse_len * sizeof (guint32));
     }
 
     return TRUE;
@@ -2211,6 +2211,27 @@ gst_rtcp_sdes_type_to_name (GstRTCPSDESType type)
     case GST_RTCP_SDES_PRIV:
       result = "priv";
       break;
+    case GST_RTCP_SDES_H323_CADDR:
+      result = "h323-caddr";
+      break;
+    case GST_RTCP_SDES_APSI:
+      result = "apsi";
+      break;
+    case GST_RTCP_SDES_RGRP:
+      result = "rgrp";
+      break;
+    case GST_RTCP_SDES_REPAIRED_RTP_STREAM_ID:
+      result = "repaired-rtp-stream-id";
+      break;
+    case GST_RTCP_SDES_CCID:
+      result = "ccid";
+      break;
+    case GST_RTCP_SDES_RTP_STREAM_ID:
+      result = "rtp-stream-id";
+      break;
+    case GST_RTCP_SDES_MID:
+      result = "mid";
+      break;
     default:
       result = NULL;
       break;
@@ -2254,6 +2275,27 @@ gst_rtcp_sdes_name_to_type (const gchar * name)
 
   if (strcmp ("note", name) == 0)
     return GST_RTCP_SDES_NOTE;
+
+  if (strcmp ("h323-caddr", name) == 0)
+    return GST_RTCP_SDES_H323_CADDR;
+
+  if (strcmp ("apsi", name) == 0)
+    return GST_RTCP_SDES_APSI;
+
+  if (strcmp ("rgrp", name) == 0)
+    return GST_RTCP_SDES_RGRP;
+
+  if (strcmp ("rtp-stream-id", name) == 0)
+    return GST_RTCP_SDES_RTP_STREAM_ID;
+
+  if (strcmp ("repaired-rtp-stream-id", name) == 0)
+    return GST_RTCP_SDES_REPAIRED_RTP_STREAM_ID;
+
+  if (strcmp ("ccid", name) == 0)
+    return GST_RTCP_SDES_CCID;
+
+  if (strcmp ("mid", name) == 0)
+    return GST_RTCP_SDES_MID;
 
   return GST_RTCP_SDES_PRIV;
 }

@@ -421,6 +421,87 @@ GST_START_TEST (test_rtp_buffer_set_extension_data)
 
 GST_END_TEST;
 
+GST_START_TEST (test_rtp_buffer_set_extension_data_shrink_data)
+{
+  GstBuffer *buf;
+  guint16 bits;
+  guint size;
+  gpointer pointer;
+  GstRTPBuffer rtp = GST_RTP_BUFFER_INIT;
+  guint8 scratch_cmp[4 * 4] = { 0, };
+  GstMapInfo info = GST_MAP_INFO_INIT;
+  gsize i;
+
+  buf = gst_rtp_buffer_new_allocate (20, 0, 0);
+  gst_rtp_buffer_map (buf, GST_MAP_READWRITE, &rtp);
+
+  fail_unless (gst_rtp_buffer_set_extension_data (&rtp, 270, 4) == TRUE);
+  fail_unless (gst_rtp_buffer_get_extension (&rtp) == TRUE);
+  gst_rtp_buffer_get_extension_data (&rtp, &bits, &pointer, &size);
+  GST_MEMDUMP ("", pointer, size * 4);
+  fail_unless (bits == 270);
+  fail_unless (size == 4);
+  for (i = 0; i < size * 4; i++) {
+    guint8 *bytes = pointer;
+    bytes[i] = i;
+  }
+  memcpy (scratch_cmp, pointer, size * 4);
+  fail_unless_equals_int64 ((guint64) gst_buffer_get_size (buf), 52);
+  gst_rtp_buffer_unmap (&rtp);
+
+  /* ensure that the mapped buffer size matches */
+  gst_buffer_map (buf, &info, GST_MAP_READ);
+  GST_MEMDUMP ("", info.data, info.size);
+  fail_unless_equals_int64 ((guint64) info.size, 52);
+  gst_buffer_unmap (buf, &info);
+
+  gst_rtp_buffer_map (buf, GST_MAP_READWRITE, &rtp);
+  /* shrinking the extension data should still succeed and only output the
+   * relevant data */
+  fail_unless (gst_rtp_buffer_set_extension_data (&rtp, 180, 2) == TRUE);
+  gst_rtp_buffer_get_extension_data (&rtp, &bits, &pointer, &size);
+  GST_MEMDUMP ("", pointer, size * 4);
+  fail_unless (bits == 180);
+  fail_unless (size == 2);
+  fail_unless_equals_int64 ((guint64) gst_buffer_get_size (buf), 44);
+  for (i = 0; i < 8; i++) {
+    guint8 *ext_data = pointer;
+    fail_unless_equals_int_hex (ext_data[i], scratch_cmp[i]);
+  }
+  gst_rtp_buffer_unmap (&rtp);
+
+  gst_buffer_map (buf, &info, GST_MAP_READ);
+  GST_MEMDUMP ("", info.data, info.size);
+  fail_unless_equals_int64 ((guint64) info.size, 44);
+  gst_buffer_unmap (buf, &info);
+
+  gst_rtp_buffer_map (buf, GST_MAP_READWRITE, &rtp);
+  fail_unless (gst_rtp_buffer_set_extension_data (&rtp, 308, 3) == TRUE);
+  gst_rtp_buffer_get_extension_data (&rtp, &bits, &pointer, &size);
+  GST_MEMDUMP ("", pointer, size * 4);
+  fail_unless (bits == 308);
+  fail_unless (size == 3);
+  for (i = 0; i < 8; i++) {
+    guint8 *ext_data = pointer;
+    fail_unless_equals_int_hex (ext_data[i], scratch_cmp[i]);
+  }
+  /* new data will be zero-initialized */
+  for (i = 8; i < size * 4; i++) {
+    guint8 *ext_data = pointer;
+    fail_unless_equals_int_hex (ext_data[i], 0);
+  }
+  fail_unless_equals_int64 ((guint64) gst_buffer_get_size (buf), 48);
+  gst_rtp_buffer_unmap (&rtp);
+
+  gst_buffer_map (buf, &info, GST_MAP_READ);
+  GST_MEMDUMP ("", info.data, info.size);
+  fail_unless_equals_int64 ((guint64) info.size, 48);
+  gst_buffer_unmap (buf, &info);
+  gst_buffer_unref (buf);
+}
+
+GST_END_TEST;
+
 #if 0
 GST_START_TEST (test_rtp_buffer_list_set_extension)
 {
@@ -685,6 +766,25 @@ GST_START_TEST (test_rtp_seqnum_compare)
   ASSERT_COMP (0x8001, 0x0000, 0x7fff);
   ASSERT_COMP (0x8002, 0x0001, 0x7fff);
 #undef ASSERT_COMP
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_rtcp_sdes_type)
+{
+  GstRTCPSDESType i;
+
+  for (i = 1; i < GST_RTCP_SDES_MID; i++) {
+    GstRTCPSDESType sdes_type;
+    const char *sdes_name;
+
+    sdes_name = gst_rtcp_sdes_type_to_name (i);
+    GST_DEBUG ("%u (0x%x) -> \'%s\'", i, i, sdes_name);
+    fail_unless (sdes_name != NULL);
+    sdes_type = gst_rtcp_sdes_name_to_type (sdes_name);
+
+    fail_unless_equals_int (sdes_type, i);
+  }
 }
 
 GST_END_TEST;
@@ -2058,8 +2158,7 @@ create_feedback_buffer (gboolean with_padding)
       0x00, 0x14, 0x00, 0x02,
     };
 
-    return gst_buffer_new_wrapped (g_memdup (transport_wide_cc_padding_buffer,
-            sizeof (transport_wide_cc_padding_buffer)),
+    return gst_buffer_new_memdup (transport_wide_cc_padding_buffer,
         sizeof (transport_wide_cc_padding_buffer));
   } else {
     guint8 transport_wide_cc_buffer[36] = {
@@ -2073,8 +2172,7 @@ create_feedback_buffer (gboolean with_padding)
       0x14, 0x14, 0x15, 0x29,
       0x18, 0x12, 0x15, 0x16,
     };
-    return gst_buffer_new_wrapped (g_memdup (transport_wide_cc_buffer,
-            sizeof (transport_wide_cc_buffer)),
+    return gst_buffer_new_memdup (transport_wide_cc_buffer,
         sizeof (transport_wide_cc_buffer));
   }
 }
@@ -2090,8 +2188,7 @@ create_remb_buffer ()
     0x00, 0x0b, 0xd0, 0x90,
   };
 
-  return gst_buffer_new_wrapped (g_memdup (remb_buffer, sizeof (remb_buffer)),
-      sizeof (remb_buffer));
+  return gst_buffer_new_memdup (remb_buffer, sizeof (remb_buffer));
 }
 
 static gboolean
@@ -2175,6 +2272,49 @@ GST_START_TEST (test_rtp_buffer_extlen_wraparound)
 
 GST_END_TEST;
 
+GST_START_TEST (test_rtp_buffer_remove_extension_data)
+{
+  GstBuffer *buf;
+  GstMapInfo info;
+  guint8 rtp_test_buffer[] = {
+    0x90, 0x7c, 0x18, 0xa6,     /* |V=2|P|X|CC|M|PT|sequence number| */
+    0x7a, 0x62, 0x17, 0x0f,     /* |timestamp| */
+    0x70, 0x23, 0x91, 0x38,     /* |synchronization source (SSRC) identifier| */
+    0xbe, 0xde, 0x00, 0x02,     /* |0xBE|0xDE|length=2| */
+    0x00, 0x00, 0x00, 0x00,     /* |0 (pad)|0 (pad)|0 (pad)|0 (pad)| */
+    0x00, 0x00, 0x00, 0x00,     /* |0 (pad)|0 (pad)|0 (pad)|0 (pad)| */
+    0xff, 0xff, 0xff, 0xff      /* |dummy payload| */
+  };
+
+  guint8 expected_result[] = {
+    0x80, 0x7c, 0x18, 0xa6,     /* |V=2|P|X|CC|M|PT|sequence number| */
+    0x7a, 0x62, 0x17, 0x0f,     /* |timestamp| */
+    0x70, 0x23, 0x91, 0x38,     /* |synchronization source (SSRC) identifier| */
+    0xff, 0xff, 0xff, 0xff      /* |dummy payload| */
+  };
+
+  GstRTPBuffer rtp = GST_RTP_BUFFER_INIT;
+
+  buf = gst_buffer_new_and_alloc (sizeof (rtp_test_buffer));
+  gst_buffer_fill (buf, 0, rtp_test_buffer, sizeof (rtp_test_buffer));
+
+  fail_unless (gst_rtp_buffer_map (buf, GST_MAP_READWRITE, &rtp));
+
+  gst_rtp_buffer_remove_extension_data (&rtp);
+  gst_rtp_buffer_unmap (&rtp);
+
+  gst_buffer_map (buf, &info, GST_MAP_READ);
+
+  fail_unless_equals_int (info.size, sizeof (expected_result));
+  fail_unless_equals_int
+      (memcmp (info.data, expected_result, sizeof (expected_result)), 0);
+
+  gst_buffer_unmap (buf, &info);
+  gst_buffer_unref (buf);
+}
+
+GST_END_TEST;
+
 static Suite *
 rtp_suite (void)
 {
@@ -2189,6 +2329,7 @@ rtp_suite (void)
   //tcase_add_test (tc_chain, test_rtp_buffer_list_set_extension);
   tcase_add_test (tc_chain, test_rtp_seqnum_compare);
 
+  tcase_add_test (tc_chain, test_rtcp_sdes_type);
   tcase_add_test (tc_chain, test_rtcp_buffer);
   tcase_add_test (tc_chain, test_rtcp_reduced_buffer);
   tcase_add_test (tc_chain, test_rtcp_validate_with_padding);
@@ -2229,6 +2370,8 @@ rtp_suite (void)
 
   tcase_add_test (tc_chain, test_rtcp_compound_padding);
   tcase_add_test (tc_chain, test_rtp_buffer_extlen_wraparound);
+  tcase_add_test (tc_chain, test_rtp_buffer_remove_extension_data);
+  tcase_add_test (tc_chain, test_rtp_buffer_set_extension_data_shrink_data);
 
   return s;
 }

@@ -104,7 +104,7 @@
 #include <gst/pbutils/pbutils.h>
 
 #include "gstplay-enum.h"
-#include "gstplayback.h"
+#include "gstplaybackelements.h"
 #include "gstplaybackutils.h"
 #include "gstrawcaps.h"
 
@@ -495,37 +495,16 @@ static GstPadProbeReturn pad_event_cb (GstPad * pad, GstPadProbeInfo * info,
  * Standard GObject boilerplate *
  ********************************/
 
-static void gst_parse_bin_class_init (GstParseBinClass * klass);
-static void gst_parse_bin_init (GstParseBin * parse_bin);
 static void gst_parse_bin_dispose (GObject * object);
 static void gst_parse_bin_finalize (GObject * object);
+static GType gst_parse_bin_get_type (void);
 
-static GType
-gst_parse_bin_get_type (void)
-{
-  static GType gst_parse_bin_type = 0;
-
-  if (!gst_parse_bin_type) {
-    static const GTypeInfo gst_parse_bin_info = {
-      sizeof (GstParseBinClass),
-      NULL,
-      NULL,
-      (GClassInitFunc) gst_parse_bin_class_init,
-      NULL,
-      NULL,
-      sizeof (GstParseBin),
-      0,
-      (GInstanceInitFunc) gst_parse_bin_init,
-      NULL
-    };
-
-    gst_parse_bin_type =
-        g_type_register_static (GST_TYPE_BIN, "GstParseBin",
-        &gst_parse_bin_info, 0);
-  }
-
-  return gst_parse_bin_type;
-}
+G_DEFINE_TYPE (GstParseBin, gst_parse_bin, GST_TYPE_BIN);
+#define _do_init \
+    GST_DEBUG_CATEGORY_INIT (gst_parse_bin_debug, "parsebin", 0, "parser bin");\
+    playback_element_init (plugin);
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (parsebin, "parsebin", GST_RANK_NONE,
+    GST_TYPE_PARSE_BIN, _do_init);
 
 static gboolean
 _gst_boolean_accumulator (GSignalInvocationHint * ihint,
@@ -534,8 +513,7 @@ _gst_boolean_accumulator (GSignalInvocationHint * ihint,
   gboolean myboolean;
 
   myboolean = g_value_get_boolean (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boolean (return_accu, myboolean);
+  g_value_set_boolean (return_accu, myboolean);
 
   /* stop emission if FALSE */
   return myboolean;
@@ -551,8 +529,7 @@ _gst_boolean_or_accumulator (GSignalInvocationHint * ihint,
   myboolean = g_value_get_boolean (handler_return);
   retboolean = g_value_get_boolean (return_accu);
 
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boolean (return_accu, myboolean || retboolean);
+  g_value_set_boolean (return_accu, myboolean || retboolean);
 
   return TRUE;
 }
@@ -565,8 +542,7 @@ _gst_array_accumulator (GSignalInvocationHint * ihint,
   gpointer array;
 
   array = g_value_get_boxed (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boxed (return_accu, array);
+  g_value_set_boxed (return_accu, array);
 
   return FALSE;
 }
@@ -578,8 +554,7 @@ _gst_select_accumulator (GSignalInvocationHint * ihint,
   GstAutoplugSelectResult res;
 
   res = g_value_get_enum (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_enum (return_accu, res);
+  g_value_set_enum (return_accu, res);
 
   /* Call the next handler in the chain (if any) when the current callback
    * returns TRY. This makes it possible to register separate autoplug-select
@@ -598,8 +573,7 @@ _gst_array_hasvalue_accumulator (GSignalInvocationHint * ihint,
   gpointer array;
 
   array = g_value_get_boxed (handler_return);
-  if (!(ihint->run_type & G_SIGNAL_RUN_CLEANUP))
-    g_value_set_boxed (return_accu, array);
+  g_value_set_boxed (return_accu, array);
 
   if (array != NULL)
     return FALSE;
@@ -3362,46 +3336,63 @@ static gint
 sort_end_pads (GstParsePad * da, GstParsePad * db)
 {
   gint va, vb;
-  GstCaps *capsa, *capsb;
-  GstStructure *sa, *sb;
   const gchar *namea, *nameb;
   gchar *ida, *idb;
   gint ret;
+  GstCaps *capsa, *capsb;
 
   capsa = get_pad_caps (GST_PAD_CAST (da));
   capsb = get_pad_caps (GST_PAD_CAST (db));
 
-  sa = gst_caps_get_structure ((const GstCaps *) capsa, 0);
-  sb = gst_caps_get_structure ((const GstCaps *) capsb, 0);
+  if (gst_caps_get_size (capsa) == 0 || gst_caps_get_size (capsb) == 0) {
+    if (gst_caps_is_any (capsa))
+      va = 6;
+    if (gst_caps_is_empty (capsa))
+      va = 7;
+    else
+      va = 0;
 
-  namea = gst_structure_get_name (sa);
-  nameb = gst_structure_get_name (sb);
+    if (gst_caps_is_any (capsb))
+      vb = 6;
+    if (gst_caps_is_empty (capsb))
+      vb = 7;
+    else
+      vb = 0;
+  } else {
+    GstStructure *sa, *sb;
 
-  if (g_strrstr (namea, "video/x-raw"))
-    va = 0;
-  else if (g_strrstr (namea, "video/"))
-    va = 1;
-  else if (g_strrstr (namea, "image/"))
-    va = 2;
-  else if (g_strrstr (namea, "audio/x-raw"))
-    va = 3;
-  else if (g_strrstr (namea, "audio/"))
-    va = 4;
-  else
-    va = 5;
+    sa = gst_caps_get_structure ((const GstCaps *) capsa, 0);
+    sb = gst_caps_get_structure ((const GstCaps *) capsb, 0);
 
-  if (g_strrstr (nameb, "video/x-raw"))
-    vb = 0;
-  else if (g_strrstr (nameb, "video/"))
-    vb = 1;
-  else if (g_strrstr (nameb, "image/"))
-    vb = 2;
-  else if (g_strrstr (nameb, "audio/x-raw"))
-    vb = 3;
-  else if (g_strrstr (nameb, "audio/"))
-    vb = 4;
-  else
-    vb = 5;
+    namea = gst_structure_get_name (sa);
+    nameb = gst_structure_get_name (sb);
+
+    if (g_strrstr (namea, "video/x-raw"))
+      va = 0;
+    else if (g_strrstr (namea, "video/"))
+      va = 1;
+    else if (g_strrstr (namea, "image/"))
+      va = 2;
+    else if (g_strrstr (namea, "audio/x-raw"))
+      va = 3;
+    else if (g_strrstr (namea, "audio/"))
+      va = 4;
+    else
+      va = 5;
+
+    if (g_strrstr (nameb, "video/x-raw"))
+      vb = 0;
+    else if (g_strrstr (nameb, "video/"))
+      vb = 1;
+    else if (g_strrstr (nameb, "image/"))
+      vb = 2;
+    else if (g_strrstr (nameb, "audio/x-raw"))
+      vb = 3;
+    else if (g_strrstr (nameb, "audio/"))
+      vb = 4;
+    else
+      vb = 5;
+  }
 
   gst_caps_unref (capsa);
   gst_caps_unref (capsb);
@@ -3910,6 +3901,7 @@ guess_stream_type_from_caps (GstCaps * caps)
     return GST_STREAM_TYPE_AUDIO;
   if (g_str_has_prefix (name, "text/") ||
       g_str_has_prefix (name, "subpicture/") ||
+      g_str_has_prefix (name, "subtitle/") ||
       g_str_has_prefix (name, "closedcaption/"))
     return GST_STREAM_TYPE_TEXT;
 
@@ -4400,13 +4392,4 @@ gst_parse_bin_handle_message (GstBin * bin, GstMessage * msg)
     gst_message_unref (msg);
   else
     GST_BIN_CLASS (parent_class)->handle_message (bin, msg);
-}
-
-gboolean
-gst_parse_bin_plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (gst_parse_bin_debug, "parsebin", 0, "parser bin");
-
-  return gst_element_register (plugin, "parsebin", GST_RANK_NONE,
-      GST_TYPE_PARSE_BIN);
 }
