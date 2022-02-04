@@ -12,7 +12,7 @@ Build-Depends: debhelper,
                xvfb,
                xauth,
                libglib2.0-dev (>= 2.56),
-               libgstreamer1.0-dev (>= 1.19.90),
+               libgstreamer1.0-dev (>= 1.20.0),
                liborc-0.4-dev (>= 1:0.4.24),
                zlib1g-dev (>= 1:1.1.4),
                libgl-dev,
@@ -152,7 +152,7 @@ Multi-Arch: same
 Section: libs
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgstreamer-plugins-base1.0-0 (>= 1.19.90)
+         libgstreamer-plugins-base1.0-0 (>= 1.20.0)
 Suggests: alsa-utils (>= 0.9.0)
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
@@ -178,7 +178,7 @@ Multi-Arch: same
 Section: libs
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgstreamer-plugins-base1.0-0 (>= 1.19.90)
+         libgstreamer-plugins-base1.0-0 (>= 1.20.0)
 Breaks: gstreamer1.0-plugins-bad (<< 1.15.1)
 Replaces: gstreamer1.0-plugins-bad (<< 1.15.1)
 Suggests: gvfs
@@ -206,7 +206,7 @@ Multi-Arch: same
 Section: libs
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgstreamer-plugins-base1.0-0 (>= 1.19.90)
+         libgstreamer-plugins-base1.0-0 (>= 1.20.0)
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
 XB-GStreamer-URI-Sources: ${gstreamer:URISources}
@@ -232,8 +232,8 @@ Multi-Arch: same
 Section: libs
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgstreamer-plugins-base1.0-0 (>= 1.19.90),
-         libgstreamer-gl1.0-0 (>= 1.19.90)
+         libgstreamer-plugins-base1.0-0 (>= 1.20.0),
+         libgstreamer-gl1.0-0 (>= 1.20.0)
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
 XB-GStreamer-URI-Sources: ${gstreamer:URISources}
