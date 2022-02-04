@@ -1,7 +1,73 @@
+=== release 1.20.0 ===
+
+2022-02-03 19:53:25 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* README:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.20.0
+
+2022-02-03 19:53:18 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* ChangeLog:
+	  Update ChangeLogs for 1.20.0
+
+2022-02-03 18:18:03 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/video/meson.build:
+	* gst-libs/gst/video/video.c:
+	* gst-libs/gst/video/video.h:
+	  video: fix up GstVideoOrientationMethod type registration
+	  ... in order to make older g-i happy (~1.60) which doesn't like
+	  freeform descriptions in the value_name field. Which in turn
+	  then makes hotdoc happy instead of erroring out when we bump
+	  the symbol index version.
+	  We usually only (ab)use the name field for description strings
+	  for private plugin enums, not for public API visible to bindings.
+	  This lets glib-mkenum generate the _get_type() function for the
+	  enum again, which in turn will generate the expected value names
+	  to match the enums.
+	  We might be able to add this back later once we can upgrade the
+	  g-i version requirement (and the documentation job image).
+	  This reverts most of commit b0aab48cdcf0a454d14aeb4d907209d8ee3f1add
+
+2021-11-21 17:52:48 -0500  Jeremy Cline <jeremy@jcline.org>
+
+	* gst-libs/gst/tag/gsttagdemux.c:
+	  tagdemux: Fix crash when presented with malformed files
+	  There's a race condition in gsttagdemux.c between typefinding and the
+	  end-of-stream event. If TYPE_FIND_MAX_SIZE is exceeded,
+	  demux->priv->collect is set to NULL and an error is returned. However,
+	  the end-of-stream event causes one last attempt at typefinding to occur.
+	  This leads to gst_tag_demux_trim_buffer() being called with the NULL
+	  demux->priv->collect buffer which it attempts to dereference, resulting
+	  in a segfault.
+	  The malicious MP3 can be created by:
+	  printf "\x49\x44\x33\x04\x00\x00\x00\x00\x00\x00%s", \
+	  "$(dd if=/dev/urandom bs=1K count=200)" > malicious.mp3
+	  This creates a valid ID3 header which gets us as far as typefinding. The
+	  crash can then be reproduced with the following pipeline:
+	  gst-launch-1.0 -e filesrc location=malicious.mp3 ! queue ! decodebin ! audioconvert ! vorbisenc ! oggmux ! filesink location=malicious.ogg
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/967
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1620>
+
+2022-02-01 05:07:04 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* docs/meson.build:
+	  docs: Add objc and objcpp files to hotdoc gst_c_sources
+	  Hotdoc should be able to extract and parse comments out of these. Just
+	  need to be careful to only add the glob in directories that actually
+	  contain *.m (objc) and *.mm (objcpp) files.
+	  Also fix some doc comments and remove redundant ones.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1614>
+
 === release 1.19.90 ===
 
 2022-01-28 14:28:35 +0000  Tim-Philipp Müller <tim@centricular.com>
 
+	* ChangeLog:
 	* NEWS:
 	* RELEASE:
 	* gst-plugins-base.doap:
