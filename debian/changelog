@@ -1,3 +1,11 @@
+gst-plugins-base1.0 (1.20.0-2) unstable; urgency=medium
+
+  * debian/control:
+    + Add libgudev-1.0-dev (>= 147) [linux-any] dependency to
+      libgstreamer-plugins-base1.0-dev (Closes: #1005120).
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 08 Feb 2022 22:11:05 +0200
+
 gst-plugins-base1.0 (1.20.0-1) unstable; urgency=medium
 
   * New upstream release.
