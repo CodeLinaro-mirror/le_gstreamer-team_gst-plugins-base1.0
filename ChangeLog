@@ -1,7 +1,176 @@
+=== release 1.20.1 ===
+
+2022-03-14 11:33:33 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.20.1
+
+2022-03-14 11:33:25 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* ChangeLog:
+	  Update ChangeLogs for 1.20.1
+
+2022-03-09 16:02:06 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasepayload.c:
+	* tests/check/libs/rtpbasepayload.c:
+	  rtpbasepayload: Remove dead twcc code
+	  This feature was removed in 7a53fbad68d702ca4905f7da223f4d2884548edc,
+	  but this code was left behind.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1922>
+
+2022-03-02 03:43:00 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: Add lock to protect buffering messages
+	  Fix a small race where a group can receive stream-start
+	  and post a pending buffering message just as another
+	  thread posts a different buffering message, causing them
+	  to be received by the application out of order. In the
+	  worst case, this leads the application receiving a
+	  stale 99% buffering message and going back to buffering
+	  right after the 100% buffering message.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1901>
+
+2022-03-04 22:21:13 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/gl/gstgldisplay.c:
+	  gldisplay: Reorder GST_GL_WINDOW check for egl-device
+	  "egl-device" should be checked before the "egl", otherwise unexpected egl will be picked
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1862>
+
+2022-02-21 10:49:15 +0100  Sebastian Fricke <sebastian.fricke@collabora.com>
+
+	* gst-libs/gst/tag/licenses.c:
+	  Remove the uninstalled term
+	  Remove the symbolic link `gst-uninstalled` which points to `gst-env`.
+	  The `uninstalled` is the old name and the project should stick to a
+	  single name for the procedure.
+	  Remove the term from all the files, exceptions are variables from
+	  dependencies like `uninstalled_variables` from pkgconfig and
+	  `meson-uninstalled`.
+	  Adjust mentions of the script in the documentation and README.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1829>
+
+2022-02-23 11:10:11 +0100  Sebastian Fricke <sebastian.fricke@collabora.com>
+
+	* README.md:
+	  Maintain build instructions at a single location
+	  Do not maintain similar build instructions within each gst-plugins-*
+	  subproject and the subproject/gstreamer subproject. Use the build
+	  instructions from the mono-repository and link to them via hyperlink.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1829>
+
+2022-01-22 01:30:57 +1100  Jan Schmidt <jan@centricular.com>
+
+	* tools/gst-play.c:
+	  gst-play: Fix trick-mode handling.
+	  The instant-rate value in the TrickMode enum is a
+	  flag, but the other values are not. Move instant-rate
+	  to the end of the enum and give it a value large enough
+	  for it to be used without modifying the trick-mode
+	  setting.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1793>
+
+2022-02-22 15:08:48 +0100  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	  videoaggregator: Correct use of start_time/end_time
+	  When 29713c5d changed most uses of `start_time` and `end_time` to
+	  `start_running_time` and `end_running_time`, it missed two.
+	  Fixes: 29713c5d40a1d7d1f21dada68f55f7a97f0b7025
+	  Fixes: https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/1038
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1782>
+
+2022-02-22 10:54:23 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasepayload.c:
+	  rtpbasepayload: Copy all buffer metadata instead of just GstMetas for the input meta buffer
+	  This gives RTP header extensions some more metadata to work from.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1777>
+
+2022-02-20 14:05:05 +0100  Sebastian Groß <s3b.gr0ss@gmail.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: shader: Fix dframe out of bound write
+	  shader_fade_and_move_horiz_out writes a complete stride at the end of its
+	  dframe data
+	  This led to SIGSEGV since the stride reached into sframe->map[0]->memory
+	  which could not be umpapped later on.
+	  This is due to `d` is increased twice. Once at the end of the upper loop
+	  and at the start of the lower loop.
+	  The corresponding dframe stride is therefore skipped.
+	  Rewind `d` and start at the correct position.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/-/issues/1702
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1765>
+
+2022-02-19 01:58:20 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	  videoaggregator: Use floor() to calculate current position
+	  ... instead of round(). Depending on framerate, calculated position
+	  may not be clearly represented by using uint64, 30000/1001 for example.
+	  Then the result of round() can be sliglhtly larger (1ns) than
+	  buffer timestamp. And that will cause unnecessary frame delay.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1755>
+
+2022-01-07 20:02:46 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	* tests/check/elements/compositor.c:
+	  videoaggregator: Fix for unhandled negative rate
+	  Nagative rates have been considered only in
+	  gst_video_aggregator_advance_on_timeout(). Update other places
+	  to fix broken reverse playback.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1714>
+
+2021-08-25 20:18:20 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	* tests/check/gst/typefindfunctions.c:
+	  typefindfunctions: Fix WebVTT format detection
+	  If WebVTT file consists of "WebVTT" header without body,
+	  the file size can be smaller than 10 bytes.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1713>
+
+2022-02-07 09:30:58 +0100  David Svensson Fors <davidsf@axis.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	  codec-utils: Avoid out-of-bounds error
+	  For artificial input (in unit tests), all six bytes of
+	  constraint_indicator_flags in hevc_caps_get_mime_codec() can be
+	  zero. Add a guard against an out-of-bounds error that occurred in that
+	  case. Change variables to signed int so comparison with -1 works.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1706>
+
+2021-12-22 18:46:44 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/video/navigation.h:
+	  navigation: Fix Since marker for mouse scroll
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1703>
+
+2022-02-03 01:04:40 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/video-color.c:
+	  video-color: Fix for missing clipping in PQ EOTF function
+	  * Add missing clipping in EOTF
+	  * Use pre-calculated values
+	  * Update variable names to specification's defined ones
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1700>
+
+2022-02-07 16:17:28 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.20.0 ===
 
 2022-02-03 19:53:25 +0000  Tim-Philipp Müller <tim@centricular.com>
 
+	* ChangeLog:
 	* NEWS:
 	* README:
 	* RELEASE:
