@@ -930,8 +930,11 @@ gst_decodebin3_input_pad_unlink (GstPad * pad, GstObject * parent)
       SELECTION_UNLOCK (dbin);
       gst_element_post_message (GST_ELEMENT_CAST (dbin), msg);
       update_requested_selection (dbin);
-    } else
+    } else {
+      if (collection)
+        gst_object_unref (collection);
       SELECTION_UNLOCK (dbin);
+    }
 
     gst_bin_remove (GST_BIN (dbin), input->parsebin);
     gst_element_set_state (input->parsebin, GST_STATE_NULL);
@@ -1094,6 +1097,23 @@ stream_in_list (GList * list, const gchar * sid)
   return NULL;
 }
 
+static gboolean
+stream_list_equal (GList * lista, GList * listb)
+{
+  GList *tmp;
+
+  if (g_list_length (lista) != g_list_length (listb))
+    return FALSE;
+
+  for (tmp = lista; tmp; tmp = tmp->next) {
+    gchar *osid = tmp->data;
+    if (!stream_in_list (listb, osid))
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
 static void
 update_requested_selection (GstDecodebin3 * dbin)
 {
@@ -1170,8 +1190,15 @@ update_requested_selection (GstDecodebin3 * dbin)
   }
 
 beach:
-  /* Finally set the requested selection */
+  if (stream_list_equal (tmp, dbin->requested_selection)) {
+    /* If the selection is equal, there is nothign to do */
+    GST_DEBUG_OBJECT (dbin, "Dropping duplicate selection");
+    g_list_free (tmp);
+    tmp = NULL;
+  }
+
   if (tmp) {
+    /* Finally set the requested selection */
     if (dbin->requested_selection) {
       GST_FIXME_OBJECT (dbin,
           "Replacing non-NULL requested_selection, what should we do ??");

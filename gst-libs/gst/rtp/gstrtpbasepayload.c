@@ -63,6 +63,13 @@ struct _GstRTPBasePayloadPrivate
 
   gboolean negotiated;
 
+  /* We need to know whether negotiate was called in order to decide
+   * whether we should store the input buffer as input meta in case
+   * negotiate() gets called from the subclass' handle_buffer() implementation,
+   * as negotiate() is where we instantiate header extensions.
+   */
+  gboolean negotiate_called;
+
   gboolean delay_segment;
   GstEvent *pending_segment;
 
@@ -840,7 +847,8 @@ gst_rtp_base_payload_chain (GstPad * pad, GstObject * parent,
     goto not_negotiated;
 
   if (rtpbasepayload->priv->source_info
-      || rtpbasepayload->priv->header_exts->len > 0) {
+      || rtpbasepayload->priv->header_exts->len > 0
+      || !rtpbasepayload->priv->negotiate_called) {
     /* Save a copy of meta (instead of taking an extra reference before
      * handle_buffer) to make the meta available when allocating a output
      * buffer. */
@@ -1508,6 +1516,7 @@ gst_rtp_base_payload_negotiate (GstRTPBasePayload * payload)
   gst_caps_unref (templ);
 
 out:
+  payload->priv->negotiate_called = TRUE;
 
   if (!res)
     gst_pad_mark_reconfigure (GST_RTP_BASE_PAYLOAD_SRCPAD (payload));
@@ -1718,7 +1727,8 @@ set_headers (GstBuffer ** buffer, guint idx, gpointer user_data)
   gst_rtp_buffer_set_timestamp (&rtp, data->rtptime);
 
   GST_OBJECT_LOCK (data->payload);
-  if (data->payload->priv->header_exts->len > 0) {
+  if (data->payload->priv->header_exts->len > 0
+      && data->payload->priv->input_meta_buffer) {
     guint wordlen;
     gsize extlen;
     guint16 bit_pattern;
@@ -1959,7 +1969,7 @@ no_rate:
 /**
  * gst_rtp_base_payload_push_list:
  * @payload: a #GstRTPBasePayload
- * @list: a #GstBufferList
+ * @list: (transfer full): a #GstBufferList
  *
  * Push @list to the peer element of the payloader. The SSRC, payload type,
  * seqnum and timestamp of the RTP buffer will be updated first.
@@ -1993,7 +2003,7 @@ gst_rtp_base_payload_push_list (GstRTPBasePayload * payload,
 /**
  * gst_rtp_base_payload_push:
  * @payload: a #GstRTPBasePayload
- * @buffer: a #GstBuffer
+ * @buffer: (transfer full): a #GstBuffer
  *
  * Push @buffer to the peer element of the payloader. The SSRC, payload type,
  * seqnum and timestamp of the RTP buffer will be updated first.
@@ -2284,6 +2294,7 @@ gst_rtp_base_payload_change_state (GstElement * element,
       g_atomic_int_set (&rtpbasepayload->priv->notified_first_timestamp, 1);
       priv->base_offset = GST_BUFFER_OFFSET_NONE;
       priv->negotiated = FALSE;
+      priv->negotiate_called = FALSE;
       gst_caps_replace (&rtpbasepayload->priv->subclass_srccaps, NULL);
       gst_caps_replace (&rtpbasepayload->priv->sinkcaps, NULL);
       break;

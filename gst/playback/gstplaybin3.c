@@ -1476,12 +1476,7 @@ gst_play_bin3_set_uri (GstPlayBin3 * playbin, const gchar * uri)
 {
   GstSourceGroup *group;
 
-  if (uri == NULL) {
-    g_warning ("cannot set NULL uri");
-    return;
-  }
-
-  if (!gst_playbin_uri_is_valid (playbin, uri)) {
+  if (uri && !gst_playbin_uri_is_valid (playbin, uri)) {
     if (g_str_has_prefix (uri, "file:")) {
       GST_WARNING_OBJECT (playbin, "not entirely correct file URI '%s' - make "
           "sure to escape spaces and non-ASCII characters properly and specify "
@@ -1498,11 +1493,16 @@ gst_play_bin3_set_uri (GstPlayBin3 * playbin, const gchar * uri)
   GST_SOURCE_GROUP_LOCK (group);
   /* store the uri in the next group we will play */
   g_free (group->uri);
-  group->uri = g_strdup (uri);
-  group->valid = TRUE;
+  if (uri) {
+    group->uri = g_strdup (uri);
+    group->valid = TRUE;
+  } else {
+    group->uri = NULL;
+    group->valid = FALSE;
+  }
   GST_SOURCE_GROUP_UNLOCK (group);
 
-  GST_DEBUG ("set new uri to %s", uri);
+  GST_DEBUG ("set new uri to %s", GST_STR_NULL (uri));
   GST_PLAY_BIN3_UNLOCK (playbin);
 }
 
@@ -2247,31 +2247,6 @@ get_source_group_for_streams (GstPlayBin3 * playbin, GstEvent * event)
   return res;
 }
 
-static GstStreamType
-get_stream_type_for_event (GstStreamCollection * collection, GstEvent * event)
-{
-  GList *stream_list = NULL;
-  GList *tmp;
-  GstStreamType res = 0;
-  guint i, len;
-
-  gst_event_parse_select_streams (event, &stream_list);
-  len = gst_stream_collection_get_size (collection);
-  for (tmp = stream_list; tmp; tmp = tmp->next) {
-    gchar *stid = (gchar *) tmp->data;
-
-    for (i = 0; i < len; i++) {
-      GstStream *stream = gst_stream_collection_get_stream (collection, i);
-      if (!g_strcmp0 (stid, gst_stream_get_stream_id (stream))) {
-        res |= gst_stream_get_stream_type (stream);
-      }
-    }
-  }
-  g_list_free_full (stream_list, g_free);
-
-  return res;
-}
-
 static gboolean
 gst_play_bin3_send_event (GstElement * element, GstEvent * event)
 {
@@ -2300,15 +2275,8 @@ gst_play_bin3_send_event (GstElement * element, GstEvent * event)
      * the selection with that combiner */
     event = update_select_streams_event (playbin, event, group);
 
-    if (group->collection) {
-      group->selected_stream_types =
-          get_stream_type_for_event (group->collection, event);
-      playbin->selected_stream_types =
-          playbin->groups[0].selected_stream_types | playbin->groups[1].
-          selected_stream_types;
-      if (playbin->active_stream_types != playbin->selected_stream_types)
-        reconfigure_output (playbin);
-    }
+    /* Don't reconfigure playsink just yet, until the streams-selected
+     * message(s) tell us as streams become active / available */
 
     /* Send this event directly to uridecodebin, so it works even
      * if uridecodebin didn't add any pads yet */
@@ -2585,6 +2553,32 @@ gst_play_bin3_handle_message (GstBin * bin, GstMessage * msg)
     if (playbin->is_live && GST_STATE_TARGET (playbin) == GST_STATE_PLAYING) {
       do_reset_time = TRUE;
     }
+  } else if (GST_MESSAGE_TYPE (msg) == GST_MESSAGE_STREAMS_SELECTED) {
+    GstSourceGroup *target_group;
+
+    GST_PLAY_BIN3_LOCK (playbin);
+
+    target_group = find_source_group_owner (playbin, msg->src);
+    if (target_group) {
+      GstStreamType selected_types = 0;
+      guint i, nb;
+      nb = gst_message_streams_selected_get_size (msg);
+      for (i = 0; i < nb; i++) {
+        GstStream *stream = gst_message_streams_selected_get_stream (msg, i);
+        selected_types |= gst_stream_get_stream_type (stream);
+        gst_object_unref (stream);
+      }
+      target_group->selected_stream_types = selected_types;
+      playbin->selected_stream_types =
+          playbin->groups[0].selected_stream_types | playbin->groups[1].
+          selected_stream_types;
+      if (playbin->active_stream_types != playbin->selected_stream_types) {
+        GST_DEBUG_OBJECT (playbin,
+            "selected stream types changed, reconfiguring output");
+        reconfigure_output (playbin);
+      }
+    }
+    GST_PLAY_BIN3_UNLOCK (playbin);
   }
 
 beach:
@@ -3094,6 +3088,7 @@ pad_added_cb (GstElement * uridecodebin, GstPad * pad, GstSourceGroup * group)
     goto unknown_type;
   }
 
+  GST_PLAY_BIN3_LOCK (playbin);
   combine = &playbin->combiner[pb_stream_type];
 
   combiner_control_pad (playbin, combine, pad);
@@ -3108,6 +3103,7 @@ pad_added_cb (GstElement * uridecodebin, GstPad * pad, GstSourceGroup * group)
     group->pending_about_to_finish = FALSE;
     emit_about_to_finish (playbin);
   }
+  GST_PLAY_BIN3_UNLOCK (playbin);
 
   GST_PLAY_BIN3_SHUTDOWN_UNLOCK (playbin);
 
@@ -3147,11 +3143,12 @@ pad_removed_cb (GstElement * decodebin, GstPad * pad, GstSourceGroup * group)
   else if (g_str_has_prefix (GST_PAD_NAME (pad), "text"))
     combine = &playbin->combiner[PLAYBIN_STREAM_TEXT];
   else
-    return;
+    goto done;
 
   combiner_release_pad (playbin, combine, pad);
   release_source_pad (playbin, group, pad);
 
+done:
   GST_PLAY_BIN3_UNLOCK (playbin);
 }
 
