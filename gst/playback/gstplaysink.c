@@ -194,6 +194,7 @@ struct _GstPlaySink
 
   gboolean async_pending;
   gboolean need_async_start;
+  gboolean reconfigure_pending;
 
   GstPlayFlags flags;
 
@@ -411,6 +412,8 @@ static void gst_play_sink_navigation_init (gpointer g_iface,
     gpointer g_iface_data);
 static void gst_play_sink_colorbalance_init (gpointer g_iface,
     gpointer g_iface_data);
+
+static gboolean is_raw_pad (GstPad * pad);
 
 static void
 _do_init_type (GType type)
@@ -3231,6 +3234,19 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
     need_text = TRUE;
   }
 
+  if (playsink->video_pad) {
+    playsink->video_pad_raw = is_raw_pad (playsink->video_pad);
+    GST_DEBUG_OBJECT (playsink, "Video pad is raw: %d",
+        playsink->video_pad_raw);
+  }
+
+  if (playsink->audio_pad) {
+    playsink->audio_pad_raw = is_raw_pad (playsink->audio_pad);
+    GST_DEBUG_OBJECT (playsink, "Audio pad is raw: %d",
+        playsink->audio_pad_raw);
+  }
+
+
   if (((flags & GST_PLAY_FLAG_VIDEO)
           || (flags & GST_PLAY_FLAG_NATIVE_VIDEO)) && playsink->video_pad) {
     /* we have video and we are requested to show it */
@@ -3408,19 +3424,43 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
     /* if we are not part of vis or subtitles, set the ghostpad target */
     if (!need_vis && !need_text && (!playsink->textchain
             || !playsink->text_pad)) {
+      GstPad *old_sink_peer = gst_pad_get_peer (playsink->videochain->sinkpad);
+      GstPad *new_peer = NULL;
+
       GST_DEBUG_OBJECT (playsink, "ghosting video sinkpad");
-      gst_pad_unlink (playsink->video_srcpad_stream_synchronizer,
-          playsink->videochain->sinkpad);
-      if (playsink->videodeinterlacechain
-          && playsink->videodeinterlacechain->srcpad)
-        gst_pad_unlink (playsink->videodeinterlacechain->srcpad,
-            playsink->videochain->sinkpad);
       if (need_deinterlace)
-        gst_pad_link_full (playsink->videodeinterlacechain->srcpad,
-            playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
+        new_peer = playsink->videodeinterlacechain->srcpad;
       else
-        gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
-            playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
+        new_peer = playsink->video_srcpad_stream_synchronizer;
+
+      if (old_sink_peer != new_peer) {
+        /* Make sure the srcpad we're linking to is unlinked. This may
+         * leave a deinterlace or text overlay unlinked and lying around,
+         * but that will be cleaned up below */
+        GstPad *old_src_peer = gst_pad_get_peer (new_peer);
+        if (old_src_peer != NULL) {
+          gst_pad_unlink (new_peer, old_src_peer);
+          gst_clear_object (&old_src_peer);
+        }
+
+        /* And that the pad we're linking to is unlinked */
+        if (old_sink_peer != NULL)
+          gst_pad_unlink (old_sink_peer, playsink->videochain->sinkpad);
+
+        if (!GST_PAD_LINK_SUCCESSFUL (gst_pad_link_full (new_peer,
+                    playsink->videochain->sinkpad,
+                    GST_PAD_LINK_CHECK_NOTHING))) {
+          if (need_deinterlace) {
+            GST_WARNING_OBJECT (playsink,
+                "Failed to link deinterlace srcpad to video sinkpad");
+          } else {
+            GST_WARNING_OBJECT (playsink,
+                "Failed to link stream synchronizer srcpad to video sinkpad");
+          }
+        }
+      }
+
+      gst_clear_object (&old_sink_peer);
     }
   } else {
     GST_DEBUG_OBJECT (playsink, "no video needed");
@@ -3881,6 +3921,9 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
   update_av_offset (playsink);
   update_text_offset (playsink);
   do_async_done (playsink);
+
+  playsink->reconfigure_pending = FALSE;
+
   GST_PLAY_SINK_UNLOCK (playsink);
 
   return TRUE;
@@ -4333,7 +4376,35 @@ gst_play_sink_reconfigure (GstPlaySink * playsink)
   video_set_blocked (playsink, TRUE);
   audio_set_blocked (playsink, TRUE);
   text_set_blocked (playsink, TRUE);
+  playsink->reconfigure_pending = TRUE;
   GST_PLAY_SINK_UNLOCK (playsink);
+
+  return TRUE;
+}
+
+/* Called with PLAY_SINK_LOCK */
+static gboolean
+gst_play_sink_ready_to_reconfigure_locked (GstPlaySink * playsink)
+{
+  /* We reconfigure when for ALL streams:
+   * * there isn't a pad
+   * * OR the pad is blocked
+   * * OR there are no pending blocks on that pad
+   */
+  if (playsink->reconfigure_pending == FALSE)
+    return FALSE;
+
+  if (playsink->video_pad && !playsink->video_pad_blocked
+      && PENDING_VIDEO_BLOCK (playsink))
+    return FALSE;
+
+  if (playsink->audio_pad && !playsink->audio_pad_blocked
+      && PENDING_AUDIO_BLOCK (playsink))
+    return FALSE;
+
+  if (playsink->text_pad && !playsink->text_pad_blocked
+      && PENDING_TEXT_BLOCK (playsink))
+    return FALSE;
 
   return TRUE;
 }
@@ -4365,30 +4436,8 @@ sinkpad_blocked_cb (GstPad * blockedpad, GstPadProbeInfo * info,
     GST_DEBUG_OBJECT (pad, "Text pad blocked");
   }
 
-  /* We reconfigure when for ALL streams:
-   * * there isn't a pad
-   * * OR the pad is blocked
-   * * OR there are no pending blocks on that pad
-   */
-
-  if ((!playsink->video_pad || playsink->video_pad_blocked
-          || !PENDING_VIDEO_BLOCK (playsink)) && (!playsink->audio_pad
-          || playsink->audio_pad_blocked || !PENDING_AUDIO_BLOCK (playsink))
-      && (!playsink->text_pad || playsink->text_pad_blocked
-          || !PENDING_TEXT_BLOCK (playsink))) {
+  if (gst_play_sink_ready_to_reconfigure_locked (playsink)) {
     GST_DEBUG_OBJECT (playsink, "All pads blocked -- reconfiguring");
-
-    if (playsink->video_pad) {
-      playsink->video_pad_raw = is_raw_pad (playsink->video_pad);
-      GST_DEBUG_OBJECT (playsink, "Video pad is raw: %d",
-          playsink->video_pad_raw);
-    }
-
-    if (playsink->audio_pad) {
-      playsink->audio_pad_raw = is_raw_pad (playsink->audio_pad);
-      GST_DEBUG_OBJECT (playsink, "Audio pad is raw: %d",
-          playsink->audio_pad_raw);
-    }
 
     gst_play_sink_do_reconfigure (playsink);
 
@@ -4681,6 +4730,7 @@ gst_play_sink_release_pad (GstPlaySink * playsink, GstPad * pad)
     res = &pad;
     untarget = FALSE;
   }
+
   GST_PLAY_SINK_UNLOCK (playsink);
 
   if (*res) {
@@ -4694,6 +4744,23 @@ gst_play_sink_release_pad (GstPlaySink * playsink, GstPad * pad)
     gst_element_remove_pad (GST_ELEMENT_CAST (playsink), *res);
     *res = NULL;
   }
+
+  GST_PLAY_SINK_LOCK (playsink);
+
+  /* If we have a pending reconfigure, we might have met the conditions
+   * to reconfigure now */
+  if (gst_play_sink_ready_to_reconfigure_locked (playsink)) {
+    GST_DEBUG_OBJECT (playsink,
+        "All pads ready after release -- reconfiguring");
+
+    gst_play_sink_do_reconfigure (playsink);
+
+    video_set_blocked (playsink, FALSE);
+    audio_set_blocked (playsink, FALSE);
+    text_set_blocked (playsink, FALSE);
+  }
+
+  GST_PLAY_SINK_UNLOCK (playsink);
 }
 
 static void

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-base-1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-14 11:36+0000\n"
+"POT-Creation-Date: 2022-05-02 23:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,23 +83,23 @@ msgstr ""
 msgid "Could not read CD."
 msgstr ""
 
-#: gst/playback/gstdecodebin2.c:1911 gst/playback/gstparsebin.c:1520
+#: gst/playback/gstdecodebin2.c:1911 gst/playback/gstparsebin.c:1542
 msgid "Could not determine type of stream"
 msgstr ""
 
-#: gst/playback/gstdecodebin2.c:2889 gst/playback/gstparsebin.c:2352
+#: gst/playback/gstdecodebin2.c:2889 gst/playback/gstparsebin.c:2374
 msgid "This appears to be a text file"
 msgstr ""
 
-#: gst/playback/gstplaybin2.c:3468 gst/playback/gstplaysink.c:1522
-#: gst/playback/gstplaysink.c:1535 gst/playback/gstplaysink.c:1871
-#: gst/playback/gstplaysink.c:1903 gst/playback/gstplaysink.c:2487
-#: gst/playback/gstplaysink.c:2536 gst/playback/gstplaysink.c:2551
-#: gst/playback/gstplaysink.c:2576 gst/playback/gstplaysink.c:2608
-#: gst/playback/gstplaysink.c:2755 gst/playback/gstplaysink.c:2786
-#: gst/playback/gstplaysink.c:3164 gst/playback/gstplaysink.c:3173
-#: gst/playback/gstplaysink.c:3182 gst/playback/gstplaysink.c:3191
-#: gst/playback/gstplaysink.c:3604 gst/playback/gstplaysink.c:4524
+#: gst/playback/gstplaybin2.c:3468 gst/playback/gstplaysink.c:1525
+#: gst/playback/gstplaysink.c:1538 gst/playback/gstplaysink.c:1874
+#: gst/playback/gstplaysink.c:1906 gst/playback/gstplaysink.c:2490
+#: gst/playback/gstplaysink.c:2539 gst/playback/gstplaysink.c:2554
+#: gst/playback/gstplaysink.c:2579 gst/playback/gstplaysink.c:2611
+#: gst/playback/gstplaysink.c:2758 gst/playback/gstplaysink.c:2789
+#: gst/playback/gstplaysink.c:3167 gst/playback/gstplaysink.c:3176
+#: gst/playback/gstplaysink.c:3185 gst/playback/gstplaysink.c:3194
+#: gst/playback/gstplaysink.c:3644 gst/playback/gstplaysink.c:4573
 #: gst/playback/gstplaysinkconvertbin.c:97
 #: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1529
 #: gst/playback/gsturisourcebin.c:1653
@@ -111,65 +111,65 @@ msgstr ""
 msgid "Could not create \"uridecodebin\" element."
 msgstr ""
 
-#: gst/playback/gstplaybin3.c:4607
+#: gst/playback/gstplaybin3.c:4604
 msgid "Could not create \"uridecodebin3\" element."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2002
+#: gst/playback/gstplaysink.c:2005
 #, c-format
 msgid "Both autovideosink and %s elements are missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2006
+#: gst/playback/gstplaysink.c:2009
 msgid "The autovideosink element is missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2011
+#: gst/playback/gstplaysink.c:2014
 #, c-format
 msgid "Configured videosink %s is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2015
+#: gst/playback/gstplaysink.c:2018
 #, c-format
 msgid "Both autovideosink and %s elements are not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2019
+#: gst/playback/gstplaysink.c:2022
 msgid "The autovideosink element is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2524
+#: gst/playback/gstplaysink.c:2527
 msgid "Custom text sink element is not usable."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2901
+#: gst/playback/gstplaysink.c:2904
 msgid "No volume control found"
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2931
+#: gst/playback/gstplaysink.c:2934
 #, c-format
 msgid "Both autoaudiosink and %s elements are missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2935
+#: gst/playback/gstplaysink.c:2938
 msgid "The autoaudiosink element is missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2940
+#: gst/playback/gstplaysink.c:2943
 #, c-format
 msgid "Configured audiosink %s is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2944
+#: gst/playback/gstplaysink.c:2947
 #, c-format
 msgid "Both autoaudiosink and %s elements are not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2948
+#: gst/playback/gstplaysink.c:2951
 msgid "The autoaudiosink element is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:3267 gst/playback/gstplaysink.c:3272
+#: gst/playback/gstplaysink.c:3283 gst/playback/gstplaysink.c:3288
 msgid "Can't play a text file without video or visualizations."
 msgstr ""
 

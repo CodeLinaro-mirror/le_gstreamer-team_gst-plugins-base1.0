@@ -1,7 +1,377 @@
+=== release 1.20.2 ===
+
+2022-05-02 23:29:25 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.20.2
+
+2022-05-02 23:29:19 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* ChangeLog:
+	  Update ChangeLogs for 1.20.2
+
+2022-04-27 10:18:39 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: release stream lock after handling gap events
+	  The stream lock is taken before handling gap events but was not released in all
+	  possible runtime situations. This issue was introduced in:
+	  https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/merge_requests/1274
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2326>
+
+2022-04-28 15:32:27 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  subparse: don't deref a potentially NULL variable
+	  If the html SAMI data is malformed, then retrieving the attribute name
+	  may fail.  We then cannot retrieve the attribute value.
+	  Fixes: https://oss-fuzz.com/testcase-detail/4700130671984640
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2325>
+
+2022-04-27 09:22:40 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	* tools/gst-play.c:
+	  parsebin: Expose streams of unknown type
+	  This actually respects the existing `expose-all-streams` property by exposing
+	  them and having them present in the stream collection (as streams of type
+	  unknown).
+	  Fixes #1179
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2323>
+
+2022-04-27 02:08:00 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasepayload.c:
+	  rtpbasepayload: always store input buffer meta before negotiation
+	  The decision to store the input buffer depends on whether extensions
+	  are to be added to the output buffer, I assume as an optimization.
+	  This creates an issue for subclasses that call negotiate(), where
+	  header_exts is actually populated, from their handle_buffer()
+	  implementation: at chain time, no header extension has been negotiated
+	  yet, which means that we don't add extensions to the first batch of
+	  buffers that comes out.
+	  Keep track of whether negotiate has been called (this is different
+	  from the negotiated field) and always store the input buffer until
+	  then. This fixes the issue while largely preserving the optimization.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2321>
+
+2022-04-26 10:58:08 +0200  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst/videorate/gstvideorate.c:
+	  videorate: fix assertion when pushing last and only buffer without duration
+	  Fixing this pipeline:
+	  gst-launch-1.0 filesrc location=sample.png ! pngdec ! videorate ! fakesink
+	  - videorate receives a single buffer with pts = 0, duration = invalid;
+	  - then it receives eos triggering this buffer to be pushed downstream;
+	  - the pushing code was assuming that a duration was set, which is
+	  impossible as we received a single buffer and no output framerate was
+	  set either. So the best we can do is to push the buffer without
+	  duration.
+	  Fix #1177
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2320>
+
+2022-04-21 11:41:43 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/videorate/gstvideorate.c:
+	  Revert "videorate: Update the base time on segment updates"
+	  This reverts commit 75b4809ebc23814009bebc70c775ab44d85decf2.
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2186
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2255>
+
+2022-04-21 11:41:36 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/check/elements/videorate.c:
+	  Revert "videorate: Add test for segment update"
+	  This reverts commit a76f38b2c7ddbed546bb058c32ebcf8a553c003f.
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2186
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2255>
+
+2022-04-21 11:41:25 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/videorate/gstvideorate.c:
+	* tests/check/elements/videorate.c:
+	  Revert "videorate: Only "close" the segment if it is discontinous"
+	  This reverts commit 6f7922b4dbba5ed780e7b0988669a81848a9e333.
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2186
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2255>
+
+2022-04-21 11:41:15 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/videorate/gstvideorate.c:
+	  Revert "videorate: Drop incoming buffers that are outside of the segment"
+	  This reverts commit 24fd80344dbc059b72e13d813ca82f414a9d6cce.
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2186
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2255>
+
+2022-04-21 11:40:47 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/check/elements/videorate.c:
+	  Revert "videorate: Add unit test for closing a segment and opening a separate one"
+	  This reverts commit 98f2a84a289ed4d4cfac9bc5c73182a56eefa99c.
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2186
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2255>
+
+2022-03-02 03:45:48 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: Remove stale code
+	  Remove now-unused get_stream_type_for_event() function.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2236>
+
+2022-01-18 05:48:08 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: Hold playbin lock on pad-added
+	  Take the playbin lock when accessing the combiner
+	  to add a new pad to link to. Fixes races against
+	  streams-selected messages triggering reconfiguration.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2236>
+
+2022-01-18 02:52:47 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: Reconfigure on streams-selected message.
+	  Don't reconfigure outputs when the select-streams
+	  event is sent from the app, as the selection may
+	  not take effect for some time. Instead, wait
+	  for the pipeline to confirm the new set of
+	  selected streams when it sends the message.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2236>
+
+2021-11-11 03:20:23 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Fix reconfiguration after removing text_sink
+	  If we previously had subtitles coming in, the video
+	  may be chained through a text overlay block. Before,
+	  the code would end up trying to link pads that were
+	  already linked and video would not get reconnected
+	  properly.
+	  To fix that, make sure that the candidate
+	  pads are actually unlinked first. If a textoverlay
+	  is present and no longer needed, it will be cleaned
+	  up later in the reconfiguration sequence.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2236>
+
+2021-05-25 14:41:51 +0200  Guillaume Desmottes <guillaume.desmottes@collabora.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: fix collection leak
+	  get_merged_collection() returns an owned stream collection and was
+	  leaked in the else block.
+	  Fix leak when running:
+	  GST_TRACERS=leaks GST_DEBUG="GST_TRACER:7,leaks:6" gst-play-1.0 --use-playbin3 test.mkv
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2216>
+
+2022-04-15 14:03:08 +0900  hoonhee.lee <hoonhee.lee@lge.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: fix missing lock when unknown stream type in pad-removed cb
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2209>
+
+2022-04-14 15:21:48 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Don't duplicate stream selections
+	  Make sure that the requested stream selection isn't identical to the current
+	  one. If that's the case, just carry on as usual.
+	  This avoids multiple `streams-selected` posting ... when the selection didn't
+	  change.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2208>
+
+2022-04-15 19:55:34 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasepayload.c:
+	  rtpbasepayload: Don't write header extensions if there's no corresponding input buffer for the packet
+	  The GstRTPHeaderExtension API requires the input buffer to exist.
+	  This can happen if the output packet is generated e.g. from a caps or
+	  tags event like in the case for rtpgstpay.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2205>
+
+2022-04-12 01:01:23 +0900  Seungha Yang <seungha@centricular.com>
+
+	* tools/gst-play.c:
+	* tools/meson.build:
+	  win32: Enable high-resolution timer for MinGW build
+	  timeapi.h is missing in our MinGW toolchain. Include mmsystem.h
+	  header instead, which defines struct and APIs in case of our MinGW
+	  toolchain. Note that in case of native Windows10 SDK (MSVC build),
+	  mmsystem.h will include timeapi.h
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2167>
+
+2022-04-14 18:44:48 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: fix annotations
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2189>
+
+2022-04-12 15:23:08 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasepayload.c:
+	  Fix `transfer` gobject-introspection annotation typos
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2163>
+
+2022-04-10 10:55:02 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst/subparse/gstsubparseelement.c:
+	  subparse: don't try to index string with -1
+	  If the len of the string turns out to be 0, str[len - 1] resolved to
+	  str[-1] which is not a good idea.
+	  Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=46543
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2148>
+
+2022-04-08 11:10:49 +1000  Matthew Waters <matthew@centricular.com>
+
+	* ext/ogg/gstoggstream.c:
+	* ext/ogg/vorbis_parse.c:
+	* ext/ogg/vorbis_parse.h:
+	  ogg: fix possible buffer overrun
+	  If an ogg stream does not match our expectations of how the end of a
+	  buffer may be structured, it was possible to read memory past the end of
+	  the buffer parsed by libogg.  Include a bounds check for this case and
+	  stop parsing.
+	  Fixes https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3930
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2138>
+
+2022-04-08 01:52:32 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasepayload.c:
+	  rtpbasepayload: fix transfer annotation for push and push_list
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2137>
+
+2022-04-07 10:08:37 +0900  hoonhee.lee <hoonhee.lee@lge.com>
+
+	* gst-libs/gst/riff/riff-media.c:
+	  riff-media: fix memory leak after usage for g_strjoin
+	  This leak is observed with valgrind.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2136>
+
+2022-04-06 18:08:46 +0200  Bastian Krause <bst@pengutronix.de>
+
+	* ext/gl/gstgltransformation.c:
+	* ext/gl/gstgltransformation.h:
+	  gltransformation: let graphene alloc its structures memory aligned
+	  With NEON instructions enabled, graphene expects the memory passed to it
+	  16-byte-aligned. Otherwise unaligned memory access faults occur causing
+	  SIGBUS signals.
+	  graphene has alloc functions for its structures that take care of this,
+	  so use them.
+	  See also: https://github.com/ebassi/graphene/issues/215#issuecomment-794744829
+	  Suggested-by: Sebastian Dröge <sebastian@centricular.com>
+	  Signed-off-by: Bastian Krause <bst@pengutronix.de>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2128>
+
+2022-04-04 10:46:24 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Clarify buffer ref semantics in signals
+	  The documentation could be read to mean that the caller continuous to
+	  'own' the buffer, and that there is some other mechanism to find out
+	  when to unref it.
+	  Clarify that "not taking ownership" here means "taking a reference",
+	  and specify that you can unref it at any time after calling the
+	  function.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2118>
+
+2021-01-21 16:01:38 +0800  Zhao Zhili <quinkblack@foxmail.com>
+
+	* tests/examples/gl/gtk/gstgtk.c:
+	* tests/examples/playback/playback-test.c:
+	  examples: fix build on macOS with gtk+-quartz-3.0
+	  gdk_quartz_window_get_nsview is not declared in the header file now:
+	  error: implicit declaration of function 'gdk_quartz_window_get_nsview'
+	  is invalid in C99 [-Werror,-Wimplicit-function-declaration]
+	  fixes #979
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2116>
+
+2022-04-01 10:25:23 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gstplaybin2.c:
+	* gst/playback/gstplaybin3.c:
+	  playbin/playbin3: Allow setting a NULL URI
+	  The URI is already initialized to NULL at the beginning and GstPlayer
+	  was assuming that it is possible to set to NULL at a later time too.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/1124
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2105>
+
+2022-03-28 12:13:12 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	  pbutils: Fix wmv screen detection
+	  strncmp vs !strncmp :)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2076>
+
+2022-03-16 10:31:56 +0000  Corentin Damman <c.damman@intopix.com>
+
+	* gst/rawparse/gstrawvideoparse.c:
+	  rawvideoparse: set format from caps in gst_raw_video_parse_set_config_from_caps
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2054>
+
+2022-03-27 16:35:14 +1100  Matthew Waters <matthew@centricular.com>
+
+	* ext/gl/gstglmixerbin.c:
+	  glmixerbin: slightly better pad/element creation
+	  Use the return value from gst_element_link_pads() and gst_bin_add()
+	  Fixes:
+	  ../ext/gl/gstglmixerbin.c:305:12: error: variable 'res' set but not used [-Werror,-Wunused-but-set-variable]
+	  gboolean res = TRUE;
+	  ^
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2053>
+
+2022-03-18 20:43:24 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer-types.c:
+	  discoverer: chain up to parent finalize methods in all our types
+	  Fixes a memory leak:
+	  Direct leak of 32 byte(s) in 1 object(s) allocated from:
+	  #0 0x5ac5cd in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:129:3
+	  #1 0x1007007 in g_malloc /work/glib-2.72.0/_builddir/../glib/gmem.c:125:13
+	  #2 0xf82e82 in g_data_set_internal /work/glib-2.72.0/_builddir/../glib/gdataset.c:464:8
+	  #3 0xf833f7 in g_datalist_id_set_data_full /work/glib-2.72.0/_builddir/../glib/gdataset.c:670:3
+	  #4 0xef81be in g_object_notify_queue_freeze /work/glib-2.72.0/_builddir/../gobject/gobject.c:295:7
+	  #5 0xef79c6 in g_object_unref /work/glib-2.72.0/_builddir/../gobject/gobject.c:3632:16
+	  #6 0x5e58bf in LLVMFuzzerTestOneInput /src/gstreamer/ci/fuzzing/gst-discoverer.c:132:5
+	  #7 0x4dd1a2 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:611:15
+	  #8 0x4dc98a in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:514:3
+	  #9 0x4de6c4 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, std::__Fuzzer::allocator<fuzzer::SizedFile> >&) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:809:5
+	  #10 0x4dea29 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, std::__Fuzzer::allocator<fuzzer::SizedFile> >&) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:857:3
+	  #11 0x4ce4a0 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:912:6
+	  #12 0x4f6f52 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+	  #13 0x7f1c709980b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1996>
+
+2022-03-15 12:57:49 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbuffer.c:
+	  rtpbuffer: The out args for rtp extension data are optional
+	  The code checks that these are != NULL before dereferencing them.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1980>
+
+2021-08-06 19:27:02 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Complete reconfiguration on pad release.
+	  Requesting a new pad can start a reconfiguration cycle, where
+	  playsink will block all input pads and wait for data on them
+	  before doing internal reconfiguration. If a pad is released,
+	  that reconfiguration might never trigger because it's now waiting
+	  for a pad that doesn't exist any more.
+	  In that case, complete the reconfiguration on pad release.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1940>
+
+2022-03-14 14:48:01 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.20.1 ===
 
 2022-03-14 11:33:33 +0000  Tim-Philipp Müller <tim@centricular.com>
 
+	* ChangeLog:
 	* NEWS:
 	* RELEASE:
 	* gst-plugins-base.doap:
