@@ -1,3 +1,11 @@
+gst-plugins-base1.0 (1.20.2-2) unstable; urgency=medium
+
+  * debian/patches/2353.patch:
+    + Fix regression in parsebin, see upstream MR for details
+      https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2353
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 05 May 2022 11:47:16 +0300
+
 gst-plugins-base1.0 (1.20.2-1) unstable; urgency=medium
 
   * New upstream bugfix release.
