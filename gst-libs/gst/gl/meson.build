@@ -1,6 +1,11 @@
+gstgl_dep = dependency('', required : false)
+gstglproto_dep = dependency('', required : false)
+gstglx11_dep = dependency('', required : false)
+gstglwayland_dep = dependency('', required : false)
+gstglegl_dep = dependency('', required : false)
+
 if get_option('gl').disabled()
   message('GStreamer OpenGL integration disabled via options.')
-  gstgl_dep = dependency('', required: false)
   build_gstgl = false
   subdir_done()
 endif
@@ -145,7 +150,7 @@ glconf_options = [
 ]
 
 foreach option : glconf_options
-  glconf.set10(option, false)
+  glconf.set(option, 0)
 endforeach
 
 unneeded_dep = dependency('', required : false)
@@ -489,11 +494,11 @@ endif
 
 if gles2_dep.found()
   gl_lib_deps += gles2_dep
-  glconf.set10('GST_GL_HAVE_GLES2', 1)
+  glconf.set('GST_GL_HAVE_GLES2', 1)
   if gles3_h
-    glconf.set10('GST_GL_HAVE_GLES3', 1)
+    glconf.set('GST_GL_HAVE_GLES3',1)
     if gles3ext3_h
-      glconf.set10('GST_GL_HAVE_GLES3EXT3_H', 1)
+      glconf.set('GST_GL_HAVE_GLES3EXT3_H', 1)
     endif
   endif
   enabled_gl_apis += 'gles2'
@@ -501,7 +506,7 @@ endif
 
 if gl_dep.found()
   gl_lib_deps += gl_dep
-  glconf.set10('GST_GL_HAVE_OPENGL', 1)
+  glconf.set('GST_GL_HAVE_OPENGL', 1)
   enabled_gl_apis += 'gl'
 endif
 
@@ -547,11 +552,11 @@ if need_platform_egl != 'no'
       'egl/gstgldisplay_egl_device.h',
     ])
     gl_platform_deps += egl_dep
-    glconf.set10('GST_GL_HAVE_PLATFORM_EGL', 1)
+    glconf.set('GST_GL_HAVE_PLATFORM_EGL', 1)
 
     if cc.has_header('libdrm/drm_fourcc.h')
       gl_misc_deps += allocators_dep
-      glconf.set10('GST_GL_HAVE_DMABUF', 1)
+      glconf.set('GST_GL_HAVE_DMABUF', 1)
     endif
 
     egl_includes = '''
@@ -650,6 +655,7 @@ if need_platform_glx == 'yes'
   endif
 endif
 
+xcb_dep = unneeded_dep
 if need_win_x11 != 'no'
   xcb_dep = dependency('x11-xcb', required : false)
   if x11_dep.found() and xcb_dep.found()
@@ -756,7 +762,7 @@ if need_win_winrt != 'no' and host_system == 'windows'
 
     if windows_graphics_h and windows_app_dep.found() and runtimeobject_lib.found()
       enabled_gl_winsys += 'winrt'
-      glconf.set10('GST_GL_HAVE_WINDOW_WINRT', 1)
+      glconf.set('GST_GL_HAVE_WINDOW_WINRT', 1)
       gl_priv_sources += [
         'winrt/gstglwindow_winrt_egl.cpp'
       ]
@@ -804,7 +810,7 @@ if host_system == 'darwin'
     if foundation_dep.found() and quartzcore_dep.found() and corefoundation_dep.found()
       gl_platform_deps += [quartzcore_dep, corefoundation_dep, foundation_dep]
       enabled_gl_platforms += 'cgl'
-      glconf.set10('GST_GL_HAVE_PLATFORM_CGL', 1)
+      glconf.set('GST_GL_HAVE_PLATFORM_CGL', 1)
 
       if need_win_cocoa != 'no'
         cocoa_dep = dependency('appleframeworks', modules : ['Cocoa'], required : false)
@@ -817,7 +823,7 @@ if host_system == 'darwin'
           ]
           gl_winsys_deps += cocoa_dep
           enabled_gl_winsys += 'cocoa'
-          glconf.set10('GST_GL_HAVE_WINDOW_COCOA', 1)
+          glconf.set('GST_GL_HAVE_WINDOW_COCOA', 1)
         elif need_win_cocoa == 'yes'
           error('Could not find Cocoa')
         endif
@@ -906,8 +912,8 @@ if need_platform_egl != 'no' and need_win_viv_fb != 'no'
   if egl_dep.found() and cc.has_function ('fbGetDisplay', dependencies : egl_dep)
     if cc.has_function ('glTexDirectVIV', dependencies : gles2_dep)
       enabled_gl_winsys += 'viv-fb'
-      glconf.set10('GST_GL_HAVE_WINDOW_VIV_FB', 1)
-      glconf.set10('GST_GL_HAVE_VIV_DIRECTVIV', 1)
+      glconf.set('GST_GL_HAVE_WINDOW_VIV_FB', 1)
+      glconf.set('GST_GL_HAVE_VIV_DIRECTVIV', 1)
       gl_priv_sources += [
         'viv-fb/gstgldisplay_viv_fb.c',
         'viv-fb/gstglwindow_viv_fb_egl.c',
@@ -930,7 +936,7 @@ endif
 if host_system == 'android' and need_win_android != 'no' and need_platform_egl != 'no'
   if gles2_dep.found() and egl_dep.found()
     enabled_gl_winsys += ['android']
-    glconf.set10('GST_GL_HAVE_WINDOW_ANDROID', 1)
+    glconf.set('GST_GL_HAVE_WINDOW_ANDROID', 1)
     gl_priv_sources += [
       'android/gstglwindow_android_egl.c'
     ]
@@ -965,12 +971,6 @@ if enabled_gl_winsys.length() == 0
   message('No OpenGL Window systems found or requested')
   build_gstgl = false
 endif
-
-gstgl_dep = dependency('', required : false)
-gstglproto_dep = dependency('', required : false)
-gstglx11_dep = dependency('', required : false)
-gstglwayland_dep = dependency('', required : false)
-gstglegl_dep = dependency('', required : false)
 
 if build_gstgl
   # find some types that may or may not be defined
@@ -1143,7 +1143,7 @@ if build_gstgl
         gl_x11_gir = gnome.generate_gir(gstgl, kwargs: gir)
       endif
     endif
-    gstglx11_dep = declare_dependency(dependencies : [gstgl_dep],
+    gstglx11_dep = declare_dependency(dependencies : [gstgl_dep, x11_dep, xcb_dep],
       sources : gl_x11_gir)
     meson.override_dependency('gstreamer-gl-x11-1.0', gstglx11_dep)
   endif
