@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.20.3-1) unstable; urgency=medium
+
+  * New upstream bugfix release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 16 Jun 2022 09:21:35 +0300
+
 gst-plugins-base1.0 (1.20.2-2) unstable; urgency=medium
 
   * debian/patches/2353.patch:
