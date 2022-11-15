@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-base-1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-15 23:36+0100\n"
+"POT-Creation-Date: 2022-10-12 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,12 +97,12 @@ msgstr ""
 #: gst/playback/gstplaysink.c:2539 gst/playback/gstplaysink.c:2554
 #: gst/playback/gstplaysink.c:2579 gst/playback/gstplaysink.c:2611
 #: gst/playback/gstplaysink.c:2758 gst/playback/gstplaysink.c:2789
-#: gst/playback/gstplaysink.c:3167 gst/playback/gstplaysink.c:3176
-#: gst/playback/gstplaysink.c:3185 gst/playback/gstplaysink.c:3194
-#: gst/playback/gstplaysink.c:3644 gst/playback/gstplaysink.c:4573
+#: gst/playback/gstplaysink.c:3168 gst/playback/gstplaysink.c:3177
+#: gst/playback/gstplaysink.c:3186 gst/playback/gstplaysink.c:3195
+#: gst/playback/gstplaysink.c:3645 gst/playback/gstplaysink.c:4574
 #: gst/playback/gstplaysinkconvertbin.c:97
 #: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1529
-#: gst/playback/gsturisourcebin.c:1653
+#: gst/playback/gsturisourcebin.c:1657
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
@@ -142,34 +142,34 @@ msgstr ""
 msgid "Custom text sink element is not usable."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2904
+#: gst/playback/gstplaysink.c:2902
 msgid "No volume control found"
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2934
+#: gst/playback/gstplaysink.c:2932
 #, c-format
 msgid "Both autoaudiosink and %s elements are missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2938
+#: gst/playback/gstplaysink.c:2936
 msgid "The autoaudiosink element is missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2943
+#: gst/playback/gstplaysink.c:2941
 #, c-format
 msgid "Configured audiosink %s is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2947
+#: gst/playback/gstplaysink.c:2945
 #, c-format
 msgid "Both autoaudiosink and %s elements are not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2951
+#: gst/playback/gstplaysink.c:2949
 msgid "The autoaudiosink element is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:3283 gst/playback/gstplaysink.c:3288
+#: gst/playback/gstplaysink.c:3284 gst/playback/gstplaysink.c:3289
 msgid "Can't play a text file without video or visualizations."
 msgstr ""
 
@@ -178,25 +178,25 @@ msgstr ""
 msgid "No decoder available for type '%s'."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1435 gst/playback/gsturisourcebin.c:1547
+#: gst/playback/gsturidecodebin.c:1435 gst/playback/gsturisourcebin.c:1551
 msgid "No URI specified to play from."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1441 gst/playback/gsturisourcebin.c:1553
+#: gst/playback/gsturidecodebin.c:1441 gst/playback/gsturisourcebin.c:1557
 #, c-format
 msgid "Invalid URI \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1448 gst/playback/gsturisourcebin.c:1560
+#: gst/playback/gsturidecodebin.c:1448 gst/playback/gsturisourcebin.c:1564
 msgid "This stream type cannot be played yet."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1466 gst/playback/gsturisourcebin.c:1578
+#: gst/playback/gsturidecodebin.c:1466 gst/playback/gsturisourcebin.c:1582
 #, c-format
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2357 gst/playback/gsturisourcebin.c:2340
+#: gst/playback/gsturidecodebin.c:2357 gst/playback/gsturisourcebin.c:2344
 msgid "Source element is invalid."
 msgstr ""
 
@@ -471,7 +471,7 @@ msgstr ""
 msgid "Plugin or element of unknown type"
 msgstr ""
 
-#: gst-libs/gst/tag/gsttagdemux.c:1259
+#: gst-libs/gst/tag/gsttagdemux.c:1262
 msgid "Failed to read tag: not enough data"
 msgstr ""
 
