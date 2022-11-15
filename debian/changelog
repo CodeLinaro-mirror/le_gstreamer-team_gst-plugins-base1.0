@@ -1,9 +1,11 @@
-gst-plugins-base1.0 (1.20.4-1) UNRELEASED; urgency=medium
+gst-plugins-base1.0 (1.20.4-1) unstable; urgency=medium
 
   * Team upload
   * New upstream release
+  * Build-Depend on dh-sequence-gir
+  * debian/rules: Don't ignore build test failures on amd64
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 15 Nov 2022 09:41:31 -0500
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 15 Nov 2022 09:59:37 -0500
 
 gst-plugins-base1.0 (1.20.3-2) unstable; urgency=medium
 
