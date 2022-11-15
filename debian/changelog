@@ -1,3 +1,10 @@
+gst-plugins-base1.0 (1.20.4-1) UNRELEASED; urgency=medium
+
+  * Team upload
+  * New upstream release
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 15 Nov 2022 09:41:31 -0500
+
 gst-plugins-base1.0 (1.20.3-2) unstable; urgency=medium
 
   [ Debian Janitor ]
