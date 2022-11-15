@@ -1,7 +1,374 @@
+=== release 1.20.4 ===
+
+2022-10-12 16:39:47 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.20.4
+
+2022-10-12 16:39:40 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* ChangeLog:
+	  Update ChangeLogs for 1.20.4
+
+2022-10-01 04:51:21 +1000  Jan Schmidt <jan@centricular.com>
+
+	* sys/xvimage/xvimageallocator.c:
+	  xvimagesink: Don't leak XvShmImage
+	  If allocating an XvShmImage generates an X error, but
+	  still returns some allocated memory, make sure to free it
+	  so it doesn't leak.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3147>
+
+2022-10-01 04:41:06 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Make sure event is writable before modifying
+	  Make sure we're operating on a private copy of an event when
+	  modifying it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3146>
+
+2022-10-01 04:40:09 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Make sure event is writable before modifying.
+	  Make sure we're operating on a private copy of an event before
+	  modifying it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3146>
+
+2022-10-01 04:37:05 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Don't lose a ref on EOS event
+	  Make sure not to give away the ref on the final EOS
+	  event for which the probe handler is returning GST_PAD_PROBE_REMOVE
+	  when pushing the event manually.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3146>
+
+2022-10-06 13:03:26 +0200  Aleksandr Slobodeniuk <aslobodeniuk@fluendo.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: fix mutex leaks
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3130>
+
+2022-10-01 02:33:49 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaysink.c:
+	* gst/playback/gstplaysinkaudioconvert.c:
+	* gst/playback/gstplaysinkaudioconvert.h:
+	  playsink: Hold a reference to the soft volume element
+	  Always hold a reference to the soft volume element
+	  provided by the playsinkaudioconvert bin helper, the
+	  same as when volume is provided by a sink element,
+	  or the soft volume element gets unreffed too soon.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3113>
+
+2022-09-30 00:07:07 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	* tests/check/libs/pbutils.c:
+	  pbutils: descriptions: fix gst_pb_utils_get_caps_description_flags()
+	  And add a little unit test.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3098>
+
+2022-09-29 09:39:15 +0100  James Cowgill <james.cowgill@blaize.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Call gst_tag_register_musicbrainz_tags during init
+	  We need to call this to register the MusixBrainz tags before we use
+	  them in an XMP schema.
+	  Fixes this critical when attempting to run jpegparse on a JPEG
+	  containing MusicBrainz XMP tags:
+	  GStreamer-CRITICAL **: 20:41:07.885: gst_tag_get_type: assertion 'info != NULL' failed
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3095>
+
+2018-03-28 17:54:15 +0200  Philipp Zabel <p.zabel@pengutronix.de>
+
+	* gst-libs/gst/audio/gstaudiodecoder.c:
+	* gst-libs/gst/audio/gstaudioencoder.c:
+	* gst-libs/gst/video/gstvideodecoder.c:
+	* gst-libs/gst/video/gstvideoencoder.c:
+	  buffer: drop parent meta in deep copy/foreach_metadata
+	  The purpose of a deep buffer copy is to be able to release the source
+	  buffer and all its dependencies. Attaching the parent buffer meta to
+	  the newly created deep copy needlessly keeps holding a reference to the
+	  parent buffer.
+	  The issue this solves is the fact you need to allocate more
+	  buffers, as you have free buffers being held for no reason. In the good
+	  cases it will use more memory, in the bad case it will stall your
+	  pipeline (since codecs often need a minimum number of buffers to
+	  actually work).
+	  Fixes #283
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3090>
+
+2022-09-27 13:41:37 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Fix memory issues with active selection list
+	  This had a couple of issues:
+	  * The backing strings (from GstStream) could disappear
+	  * The actual list wasn't properly reset/freed when decodebin3 was re-used
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3087>
+
+2022-09-07 16:35:38 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst/subparse/mpl2parse.c:
+	  subparse: fix crash when parsing invalid timestamps in mpl2
+	  Fixes https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=49245
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2999>
+
+2022-08-30 14:29:41 +0200  Rafael Caricio <rafael@caricio.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: fix buffer mapping to not increase refcount
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2987>
+
+2022-08-12 22:42:28 -0700  Khem Raj <raj.khem@gmail.com>
+
+	* gst/subparse/gstssaparse.c:
+	  ssaparse: include required system headers for isspace() and sscanf() functions
+	  Newer compilers ( clang 15 ) have turned stricter and errors out instead
+	  of warning on implicit function declations
+	  Fixes
+	  gstssaparse.c:297:12: error: call to undeclared library function 'isspace' with type 'int (int)'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+	  while (isspace(*t))
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2882>
+
+2022-08-12 13:16:50 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtspurl.c:
+	* tests/check/libs/rtsp.c:
+	  rtspurl: Use gst_uri_join_strings() in gst_rtsp_url_get_request_uri_with_control() instead of a hand-crafted, wrong version
+	  For example the query string of the base must not be taken over to the
+	  request URL unless there is no control path, and control paths can be
+	  absolute and must not be considered relative if they start with a /.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gst-plugins-good/-/issues/971
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2877>
+
+2022-08-12 13:15:46 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/check/libs/rtsp.c:
+	  rtspurl: Use fail_unless_equals_string() in tests
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2877>
+
+2022-07-27 22:34:42 +1000  Jan Schmidt <jan@centricular.com>
+
+	* ext/pango/gstbasetextoverlay.c:
+	* ext/pango/gstbasetextoverlay.h:
+	  basetextoverlay: Don't miscalculate text running times
+	  When a new segment event arrives, it immediately updates
+	  the current stored segment, which was used for calculating
+	  the running time of the current text buffer for every
+	  passing video frame. This means a segment that arrives
+	  after the text buffer might get used to (mis)calculate
+	  the running times subsequently.
+	  Instead, calculate and store the right running time
+	  using the current segment when storing the buffer. Later
+	  the stored segment can get freely updated.
+	  This fixes the case where pieces of video and text streams
+	  are seamlessly concatenated and fed through the text overlay.
+	  Previously, it could lead to the current text buffer suddenly
+	  have a massive running time and blocking all further input.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2872>
+
+2022-08-09 18:06:41 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/opus/gstopusenc.c:
+	  opusenc: improve inband-fec property documentation
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2855>
+
+2022-06-12 05:35:27 -0600  James Hilliard <james.hilliard1@gmail.com>
+
+	* gst/playback/gstdecodebin3-parse.c:
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: fix EOS event sequence
+	  See docs:
+	  https://gstreamer.freedesktop.org/documentation/additional/design/seqnums.html?gi-language=c#seqnums-sequence-numbers
+	  Per docs:
+	  When a sink element receives an EOS event and creates a new EOS
+	  message to post, it should copy the seqnum from the event to the
+	  message because the EOS message is a consequence of the EOS event
+	  being received.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2837>
+
+2021-12-14 16:14:56 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Handle GAP events before buffers
+	  Make sure we did initial negotiation and segment pushing if we get GAP events
+	  before buffers.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2834>
+
+2021-11-17 15:30:38 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/gsttagdemux.c:
+	  tagdemux: Properly propagate sequence numbers
+	  If we received a time segment from upstream, we need to make sure we propagate
+	  it downstream with the same sequence number.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2834>
+
+2022-08-01 17:25:56 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Avoid crash with unknown streams
+	  With the new addition of handling unknown sream types we *could* end up with a
+	  chain which doesn't have a current_pad (it's an intermediary one)
+	  Fixes #1287
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2827>
+
+2022-05-25 18:40:30 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtsp+rtmp: Forward warning added to tls-validation-flags to our users
+	  With the 2.72 release, glib-networking developers have decided that
+	  TLS certificate validation cannot be implemented correctly by them, so
+	  they've deprecated it.
+	  In a nutshell: a cert can have several validation errors, but there
+	  are no guarantees that the TLS backend will return all those errors,
+	  and things are made even more complicated by the fact that the list of
+	  errors might refer to certs that are added for backwards-compat and
+	  won't actually be used by the TLS library.
+	  Our best option is to ignore the deprecation and pass the warning onto
+	  users so they can make an appropriate security decision regarding
+	  this.
+	  We can't deprecate the tls-validation-flags property because it is
+	  very useful when connecting to RTSP cameras that will never get
+	  updates to fix certificate errors.
+	  Relevant upstream merge requests / issues:
+	  https://gitlab.gnome.org/GNOME/glib/-/merge_requests/2214
+	  https://gitlab.gnome.org/GNOME/glib-networking/-/issues/179
+	  https://gitlab.gnome.org/GNOME/glib-networking/-/merge_requests/193
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2818>
+
+2022-07-27 15:42:44 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtspconnection: protect cancellable by a mutex
+	  It is entirely possible for the cancellable to be cancelled (and freed)
+	  in gst_rtsp_connection_flush() while there may be an ongoing read/write
+	  operation.
+	  Nothing prevents gst_rtsp_connection_flush() from waiting for the
+	  outstanding read/writes.
+	  This could lead to a crash like (where cancellable has been freed
+	  within gst_rtsp_connection_flush()):
+	  #0  0x00007ffff4351096 in g_output_stream_writev (stream=stream@entry=0x7fff30002950, vectors=vectors@entry=0x7ffe2c6afa80, n_vectors=n_vectors@entry=3, bytes_written=bytes_written@entry=0x7ffe2c6af950,  cancellable=cancellable@entry=0x7fff300288a0, error=error@entry=0x7ffe2c6af958) at ../subprojects/glib/gio/goutputstream.c:377
+	  #1  0x00007ffff44b2c38 in writev_bytes (stream=0x7fff30002950, vectors=vectors@entry=0x7ffe2c6afa80, n_vectors=n_vectors@entry=3, bytes_written=bytes_written@entry=0x7ffe2c6afb90, block=block@entry=1, cancellable=0x7fff300288a0) at ../subprojects/gst-plugins-base/gst-libs/gst/rtsp/gstrtspconnection.c:1320
+	  #2  0x00007ffff44b583e in gst_rtsp_connection_send_messages_usec (conn=0x7fff30001370, messages=messages@entry=0x7ffe2c6afcc0, n_messages=n_messages@entry=1, timeout=timeout@entry=3000000) at ../subprojects/gst-plugins-base/gst-libs/gst/rtsp/gstrtspconnection.c:2056
+	  #3  0x00007ffff44d2669 in gst_rtsp_client_sink_connection_send_messages (sink=0x7fffac0192c0, timeout=3000000, n_messages=1, messages=0x7ffe2c6afcc0, conninfo=0x7fffac019610) at ../subprojects/gst-rtsp-server/gst/rtsp-sink/gstrtspclientsink.c:1929
+	  #4  gst_rtsp_client_sink_try_send (sink=sink@entry=0x7fffac0192c0, conninfo=conninfo@entry=0x7fffac019610, requests=requests@entry=0x7ffe2c6afcc0, n_requests=n_requests@entry=1, response=response@entry=0x0, code=code@entry=0x0) at ../subprojects/gst-rtsp-server/gst/rtsp-sink/gstrtspclientsink.c:2845
+	  #5  0x00007ffff44d3077 in do_send_data (buffer=0x7fff38075c60, channel=<optimized out>, context=0x7fffac042640) at ../subprojects/gst-rtsp-server/gst/rtsp-sink/gstrtspclientsink.c:3896
+	  #6  0x00007ffff4281cc6 in gst_rtsp_stream_transport_send_rtp (trans=trans@entry=0x7fff20061f80, buffer=<optimized out>) at ../subprojects/gst-rtsp-server/gst/rtsp-server/rtsp-stream-transport.c:632
+	  #7  0x00007ffff4278e9b in push_data (stream=0x7fff40019bf0, is_rtp=<optimized out>, buffer_list=0x0, buffer=<optimized out>, trans=0x7fff20061f80) at ../subprojects/gst-rtsp-server/gst/rtsp-server/rtsp-stream.c:2586
+	  #8  check_transport_backlog (stream=0x7fff40019bf0, trans=0x7fff20061f80) at ../subprojects/gst-rtsp-server/gst/rtsp-server/rtsp-stream.c:2645
+	  #9  0x00007ffff42793b3 in send_tcp_message (idx=<optimized out>, stream=0x7fff40019bf0) at ../subprojects/gst-rtsp-server/gst/rtsp-server/rtsp-stream.c:2741
+	  #10 send_func (stream=0x7fff40019bf0) at ../subprojects/gst-rtsp-server/gst/rtsp-server/rtsp-stream.c:2776
+	  #11 0x00007ffff7d59fad in g_thread_proxy (data=0x7fffbc062920) at ../subprojects/glib/glib/gthread.c:827
+	  #12 0x00007ffff7a8ce2d in start_thread () from /lib64/libc.so.6
+	  #13 0x00007ffff7b12620 in clone3 () from /lib64/libc.so.6
+	  Fix by adding a cancellable lock and returning an extra reference used
+	  across all read/write operations.  gst_rtsp_connection_flush() can free
+	  the in-use cancellable and it will no longer affect any in progress
+	  read/write.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2816>
+
+2022-07-23 02:49:20 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/video/video-chroma.c:
+	  video: Fix scaling in 4x horizontal co-sited chroma
+	  4x downscaling of chroma with co-sited chroma has never worked
+	  it seems.
+	  Fixes incorrect videotestsrc output and videoconvert conversions
+	  to Y41B, YUV9, YVU9 and IYU9 with co-sited chroma.
+	  e.g.
+	  gst-launch-1.0 videotestsrc ! video/x-raw,format=Y41B,width=1280,height=720 ! \
+	  videoconvert ! autovideosink
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2791>
+
+2022-07-12 14:47:20 +1000  Matthew Waters <matthew@centricular.com>
+
+	* ext/gl/gstglimagesink.c:
+	  glimagesink: only allow setting the GL display/context if it is a valid value
+	  Otherwise, when setting the external application context, then the
+	  display may be cleared and then not used and the asharing mechanism does
+	  not work anymore.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2757>
+
+2022-07-11 20:12:30 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	  videoaggregator: always convert when user provides converter-config
+	  The `converter-config` property may be used to perform cropping,
+	  conversion should always be performed when the user set the property
+	  to a non-NULL value.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2748>
+
+2022-07-08 20:49:21 +0200  Andoni Morales Alastruey <ylatuya@gmail.com>
+
+	* gst-libs/gst/gl/cocoa/gstglwindow_cocoa.m:
+	  glwindow_cocoa: fix a leak of the GstNSView
+	  This leak is also causing a leak of the GstGLCAOpenGLLayer
+	  which leaks the GstGLWrappedContext and the GstGLDisplay
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2744>
+
+2022-07-08 20:38:51 +0200  Andoni Morales Alastruey <ylatuya@gmail.com>
+
+	* gst-libs/gst/gl/cocoa/gstglcontext_cocoa.m:
+	  gl: Fix leak of the whole CGL context
+	  This was leaking the CGL context and several resources
+	  allocated in the context, around 70MB for a 1080p clip
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2744>
+
+2022-06-30 00:13:19 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	* tests/check/elements/subparse.c:
+	  samiparse: fix handling of self-closing tags
+	  We would check the wrong string (rest of line rather than element)
+	  for the / suffix of self-closing tags, which is not only wrong but
+	  also has atrocious performance with certain strings like the garbled
+	  nonsense clusterfuzz feeds us, which might cause discoverer to time
+	  out when processing garbled SAMI files.
+	  Fixes https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47461
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2706>
+
+2022-06-30 09:02:00 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdpmessage: Don't set SDP medias from caps without media/payload/clock-rate fields
+	  Previously it would've silently failed reading the payload/clock-rate
+	  and instead would've used some random value that happened to be on the
+	  stack.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2705>
+
+2022-06-29 10:55:13 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  coding style: allow declarations after statement
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1243/
+	  and https://gitlab.freedesktop.org/gstreamer/gstreamer-project/-/issues/78
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2702>
+
+2022-06-25 19:50:10 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* tests/check/meson.build:
+	  tests: skip unit tests for dependency-less elements that have been disabled
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/-/issues/1136
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2672>
+
+2022-06-16 00:59:00 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2619>
+
 === release 1.20.3 ===
 
 2022-06-15 23:36:18 +0100  Tim-Philipp Müller <tim@centricular.com>
 
+	* ChangeLog:
 	* NEWS:
 	* RELEASE:
 	* gst-plugins-base.doap:
