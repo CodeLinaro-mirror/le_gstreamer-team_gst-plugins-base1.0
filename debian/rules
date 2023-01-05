@@ -29,8 +29,7 @@ GST_PACKAGE_NAME := "GStreamer Base Plugins (Ubuntu)"
 GST_PACKAGE_ORIGIN="https://launchpad.net/distros/ubuntu/+source/gst-plugins-base1.0"
 endif
 
-conf_flags = --libdir=lib/$(DEB_HOST_MULTIARCH) --libexecdir=lib/$(DEB_HOST_MULTIARCH)/gstreamer1.0
-conf_flags += -Dpackage-name=$(GST_PACKAGE_NAME) -Dpackage-origin=$(GST_PACKAGE_ORIGIN)
+conf_flags = -Dpackage-name=$(GST_PACKAGE_NAME) -Dpackage-origin=$(GST_PACKAGE_ORIGIN)
 conf_flags += -Dinstall_plugins_helper="/usr/bin/gstreamer-codec-install"
 
 %:
