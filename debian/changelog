@@ -3,6 +3,7 @@ gst-plugins-base1.0 (1.20.5-1) UNRELEASED; urgency=medium
   * Team upload
   * New upstream bugfix release
   * Add debian/upstream/signing-key.asc and update debian/watch to use it
+  * Use correct machine-readable copyright file URI.
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 05 Jan 2023 11:16:38 -0500
 
