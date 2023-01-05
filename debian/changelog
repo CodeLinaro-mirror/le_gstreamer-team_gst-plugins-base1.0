@@ -5,6 +5,9 @@ gst-plugins-base1.0 (1.20.5-1) UNRELEASED; urgency=medium
   * Add debian/upstream/signing-key.asc and update debian/watch to use it
   * Use correct machine-readable copyright file URI.
   * Update standards version to 4.6.1, no changes needed.
+  * Remove field Section on binary packages gstreamer1.0-alsa, gstreamer1.0-gl,
+    gstreamer1.0-plugins-base, gstreamer1.0-x, libgstreamer-gl1.0-0,
+    libgstreamer-plugins-base1.0-0 that duplicates source.
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 05 Jan 2023 11:16:38 -0500
 
