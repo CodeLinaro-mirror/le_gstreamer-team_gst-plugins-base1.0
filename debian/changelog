@@ -1,3 +1,10 @@
+gst-plugins-base1.0 (1.22.0-1) UNRELEASED; urgency=medium
+
+  * Team upload
+  * New upstream release
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 24 Jan 2023 13:41:10 -0500
+
 gst-plugins-base1.0 (1.20.5-1) unstable; urgency=medium
 
   * Team upload
