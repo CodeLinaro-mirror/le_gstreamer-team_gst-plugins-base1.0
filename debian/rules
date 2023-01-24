@@ -11,22 +11,22 @@ gst_version=$(shell echo $(version) | cut -d '-' -f 1)
 
 CFLAGS += -Wno-error
 CXXFLAGS += -Wno-error
-LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
+LDFLAGS += -Wl,-z,defs
 
 # Let's decide the package name and url depending on the distribution
 DISTRO = "$(shell dpkg-vendor --query vendor)"
 
 GST_PACKAGE_NAME := "GStreamer Base Plugins (unknown Debian derivative)"
-GST_PACKAGE_ORIGIN="http://packages.qa.debian.org/gst-plugins-base1.0"
+GST_PACKAGE_ORIGIN="https://tracker.debian.org/pkg/gst-plugins-base1.0"
 
 ifeq ($(DISTRO),"Debian")
 GST_PACKAGE_NAME := "GStreamer Base Plugins (Debian)"
-GST_PACKAGE_ORIGIN="http://packages.qa.debian.org/gst-plugins-base1.0"
+GST_PACKAGE_ORIGIN="https://tracker.debian.org/pkg/gst-plugins-base1.0"
 endif
 
 ifeq ($(DISTRO),"Ubuntu")
 GST_PACKAGE_NAME := "GStreamer Base Plugins (Ubuntu)"
-GST_PACKAGE_ORIGIN="https://launchpad.net/distros/ubuntu/+source/gst-plugins-base1.0"
+GST_PACKAGE_ORIGIN="https://launchpad.net/ubuntu/+source/gst-plugins-base1.0"
 endif
 
 conf_flags = -Dpackage-name=$(GST_PACKAGE_NAME) -Dpackage-origin=$(GST_PACKAGE_ORIGIN)
@@ -36,7 +36,7 @@ conf_flags += -Dinstall_plugins_helper="/usr/bin/gstreamer-codec-install"
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- --default-library shared $(conf_flags)
+	dh_auto_configure -- $(conf_flags)
 
 override_dh_auto_clean:
 	rm -rf $(CURDIR)/fake-home
@@ -50,15 +50,11 @@ else
 	xvfb-run dh_auto_test || true
 endif
 
-override_dh_strip:
-	dh_strip --dbgsym-migration='gstreamer1.0-plugins-base-dbg (<< 1.17.1-1~)'
-
 override_dh_makeshlibs:
 	dh_makeshlibs -plibgstreamer-plugins-base1.0-0 -X "/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-1.0" -V 'libgstreamer-plugins-base1.0-0 (>= $(gst_version))' -- -c4
 	dh_makeshlibs -plibgstreamer-gl1.0-0 -X "/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-1.0" -V 'libgstreamer-gl1.0-0 (>= $(gst_version))' -- -c4
 
-override_dh_install:
-	dh_install
+execute_after_dh_install:
 ifneq ($(DEB_HOST_ARCH_OS),hurd)
 	dh_install -pgstreamer1.0-plugins-base debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-1.0/libgstcdparanoia.so
 endif
