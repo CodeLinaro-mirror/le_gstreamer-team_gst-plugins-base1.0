@@ -31,6 +31,11 @@ endif
 
 conf_flags = -Dpackage-name=$(GST_PACKAGE_NAME) -Dpackage-origin=$(GST_PACKAGE_ORIGIN)
 conf_flags += -Dinstall_plugins_helper="/usr/bin/gstreamer-codec-install"
+conf_flags += -Dauto_features=enabled -Dexamples=disabled -Dtremor=disabled -Ddoc=disabled
+
+ifeq ($(DEB_HOST_ARCH_OS),hurd)
+conf_flags += -Dcdparanoia=disabled
+endif
 
 %:
 	dh $@
