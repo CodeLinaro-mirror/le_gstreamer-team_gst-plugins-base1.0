@@ -1,7 +1,5 @@
 /* GStreamer
- * Copyright (C) 2004 Thomas Vander Stichele <thomas@apestaart.org>
- *
- * gst-i18n-app.h: internationalization macros for the GStreamer tools
+ * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,26 +17,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#pragma once
 
-#ifndef __GST_I18N_APP_H__
-#define __GST_I18N_APP_H__
+#include "gstvideoconvertscale.h"
 
-#ifdef ENABLE_NLS
+G_BEGIN_DECLS
 
-#include <locale.h>  /* some people need it and some people don't */
-#include "gettext.h" /* included with gettext distribution and copied */
+G_DECLARE_FINAL_TYPE (GstVideoScale, gst_video_scale, GST, VIDEO_SCALE,
+    GstVideoConvertScale);
 
-/* we want to use shorthand _() for translating and N_() for marking */
-#define _(String) gettext (String)
-#define N_(String) gettext_noop (String)
-/* FIXME: if we need it, we can add Q_ as well, like in glib */
+struct _GstVideoScale
+{
+  GstVideoConvertScale parent;
+};
 
-#else
+GST_ELEMENT_REGISTER_DECLARE (videoscale);
 
-#define _(String) String
-#define N_(String) String
-#define ngettext(Singular,Plural,Count) ((Count>1)?Plural:Singular)
-
-#endif
-
-#endif /* __GST_I18N_APP_H__ */
+G_END_DECLS
