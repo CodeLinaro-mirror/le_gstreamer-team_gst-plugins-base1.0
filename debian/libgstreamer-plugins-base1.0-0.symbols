@@ -360,6 +360,7 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_codec_utils_aac_get_profile@Base 1.0.0
  gst_codec_utils_aac_get_sample_rate@Base 1.10.0
  gst_codec_utils_aac_get_sample_rate_from_index@Base 1.0.0
+ gst_codec_utils_caps_from_mime_codec@Base 1.22.0
  gst_codec_utils_caps_get_mime_codec@Base 1.20.0
  gst_codec_utils_h264_caps_set_level_and_profile@Base 1.0.0
  gst_codec_utils_h264_get_level@Base 1.0.0
@@ -1183,6 +1184,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_buffer_add_video_overlay_composition_meta@Base 1.0.0
  gst_buffer_add_video_region_of_interest_meta@Base 1.2.0
  gst_buffer_add_video_region_of_interest_meta_id@Base 1.2.0
+ gst_buffer_add_video_sei_user_data_unregistered_meta@Base 1.22.0
  gst_buffer_add_video_time_code_meta@Base 1.10.0
  gst_buffer_add_video_time_code_meta_full@Base 1.10.0
  gst_buffer_get_video_meta@Base 1.6.0
@@ -1200,12 +1202,29 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_color_balance_value_changed@Base 1.0.0
  gst_is_video_overlay_prepare_window_handle_message@Base 1.0.0
  gst_navigation_command_get_type@Base 1.0.0
+ gst_navigation_event_get_coordinates@Base 1.22.0
  gst_navigation_event_get_type@Base 1.0.0
+ gst_navigation_event_new_command@Base 1.22.0
+ gst_navigation_event_new_key_press@Base 1.22.0
+ gst_navigation_event_new_key_release@Base 1.22.0
+ gst_navigation_event_new_mouse_button_press@Base 1.22.0
+ gst_navigation_event_new_mouse_button_release@Base 1.22.0
+ gst_navigation_event_new_mouse_move@Base 1.22.0
+ gst_navigation_event_new_mouse_scroll@Base 1.22.0
+ gst_navigation_event_new_touch_cancel@Base 1.22.0
+ gst_navigation_event_new_touch_down@Base 1.22.0
+ gst_navigation_event_new_touch_frame@Base 1.22.0
+ gst_navigation_event_new_touch_motion@Base 1.22.0
+ gst_navigation_event_new_touch_up@Base 1.22.0
  gst_navigation_event_parse_command@Base 1.0.0
  gst_navigation_event_parse_key_event@Base 1.0.0
+ gst_navigation_event_parse_modifier_state@Base 1.22.0
  gst_navigation_event_parse_mouse_button_event@Base 1.0.0
  gst_navigation_event_parse_mouse_move_event@Base 1.0.0
  gst_navigation_event_parse_mouse_scroll_event@Base 1.18.0
+ gst_navigation_event_parse_touch_event@Base 1.22.0
+ gst_navigation_event_parse_touch_up_event@Base 1.22.0
+ gst_navigation_event_set_coordinates@Base 1.22.0
  gst_navigation_event_type_get_type@Base 1.0.0
  gst_navigation_get_type@Base 1.0.0
  gst_navigation_message_get_type@Base 1.0.0
@@ -1217,6 +1236,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_navigation_message_parse_event@Base 1.6.0
  gst_navigation_message_parse_mouse_over@Base 1.0.0
  gst_navigation_message_type_get_type@Base 1.0.0
+ gst_navigation_modifier_type_get_type@Base 1.22.0
  gst_navigation_query_get_type@Base 1.0.0
  gst_navigation_query_new_angles@Base 1.0.0
  gst_navigation_query_new_commands@Base 1.0.0
@@ -1229,6 +1249,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_navigation_query_type_get_type@Base 1.0.0
  gst_navigation_send_command@Base 1.0.0
  gst_navigation_send_event@Base 1.0.0
+ gst_navigation_send_event_simple@Base 1.22.0
  gst_navigation_send_key_event@Base 1.0.0
  gst_navigation_send_mouse_event@Base 1.0.0
  gst_navigation_send_mouse_scroll_event@Base 1.18.0
@@ -1297,6 +1318,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_color_primaries_from_iso@Base 1.18.0
  gst_video_color_primaries_get_info@Base 1.6.0
  gst_video_color_primaries_get_type@Base 1.0.0
+ gst_video_color_primaries_is_equivalent@Base 1.22.0
  gst_video_color_primaries_to_iso@Base 1.18.0
  gst_video_color_range_get_type@Base 1.0.0
  gst_video_color_range_offsets@Base 1.0.0
@@ -1304,6 +1326,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_color_transfer_encode@Base 1.6.0
  gst_video_colorimetry_from_string@Base 1.0.0
  gst_video_colorimetry_is_equal@Base 1.6.0
+ gst_video_colorimetry_is_equivalent@Base 1.22.0
  gst_video_colorimetry_matches@Base 1.0.0
  gst_video_colorimetry_to_string@Base 1.0.0
  gst_video_content_light_level_add_to_caps@Base 1.18.0
@@ -1318,6 +1341,8 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_converter_frame_finish@Base 1.20.0
  gst_video_converter_free@Base 1.6.0
  gst_video_converter_get_config@Base 1.6.0
+ gst_video_converter_get_in_info@Base 1.22.0
+ gst_video_converter_get_out_info@Base 1.22.0
  gst_video_converter_new@Base 1.6.0
  gst_video_converter_new_with_pool@Base 1.20.0
  gst_video_converter_set_config@Base 1.6.0
@@ -1417,6 +1442,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_format_get_palette@Base 1.2.0
  gst_video_format_get_type@Base 1.0.0
  gst_video_format_info_component@Base 1.18.0
+ gst_video_format_info_extrapolate_stride@Base 1.22.0
  gst_video_format_to_fourcc@Base 1.0.0
  gst_video_format_to_string@Base 1.0.0
  gst_video_formats_raw@Base 1.18.0
@@ -1451,6 +1477,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_interlace_mode_from_string@Base 1.6.0
  gst_video_interlace_mode_get_type@Base 1.0.0
  gst_video_interlace_mode_to_string@Base 1.6.0
+ gst_video_is_common_aspect_ratio@Base 1.22.0
  gst_video_make_raw_caps@Base 1.18.0
  gst_video_make_raw_caps_with_features@Base 1.18.0
  gst_video_mastering_display_info_add_to_caps@Base 1.18.0
@@ -1547,6 +1574,9 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_scaler_horizontal@Base 1.6.0
  gst_video_scaler_new@Base 1.6.0
  gst_video_scaler_vertical@Base 1.6.0
+ gst_video_sei_user_data_unregistered_meta_api_get_type@Base 1.22.0
+ gst_video_sei_user_data_unregistered_meta_get_info@Base 1.22.0
+ gst_video_sei_user_data_unregistered_parse_precision_time_stamp@Base 1.22.0
  gst_video_sink_center_rect@Base 1.0.0
  gst_video_sink_get_type@Base 1.0.0
  gst_video_tile_get_index@Base 1.4.0
