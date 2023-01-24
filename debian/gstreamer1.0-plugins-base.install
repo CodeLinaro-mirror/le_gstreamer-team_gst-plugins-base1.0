@@ -7,7 +7,6 @@ usr/lib/*/gstreamer-1.0/libgstaudioresample.so
 usr/lib/*/gstreamer-1.0/libgstaudiotestsrc.so
 usr/lib/*/gstreamer-1.0/libgstcompositor.so
 usr/lib/*/gstreamer-1.0/libgstencoding.so
-usr/lib/*/gstreamer-1.0/libgstvideoconvert.so
 usr/lib/*/gstreamer-1.0/libgstgio.so
 usr/lib/*/gstreamer-1.0/libgstlibvisual.so
 usr/lib/*/gstreamer-1.0/libgstogg.so
@@ -20,8 +19,8 @@ usr/lib/*/gstreamer-1.0/libgstsubparse.so
 usr/lib/*/gstreamer-1.0/libgsttcp.so
 usr/lib/*/gstreamer-1.0/libgsttheora.so
 usr/lib/*/gstreamer-1.0/libgsttypefindfunctions.so
+usr/lib/*/gstreamer-1.0/libgstvideoconvertscale.so
 usr/lib/*/gstreamer-1.0/libgstvideorate.so
-usr/lib/*/gstreamer-1.0/libgstvideoscale.so
 usr/lib/*/gstreamer-1.0/libgstvideotestsrc.so
 usr/lib/*/gstreamer-1.0/libgstvolume.so
 usr/lib/*/gstreamer-1.0/libgstvorbis.so
