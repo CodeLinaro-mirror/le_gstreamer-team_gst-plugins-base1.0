@@ -1,7 +1,5 @@
 /* GStreamer
- * Copyright (C) 2004 Thomas Vander Stichele <thomas@apestaart.org>
- *
- * gst-i18n-plugins.h: internationalization macros for the GStreamer plugins
+ * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -18,20 +16,36 @@
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  */
-
-#ifndef __GST_I18N_PLUGIN_H__
-#define __GST_I18N_PLUGIN_H__
-
-#include <locale.h>  /* some people need it and some people don't */
-#include "gettext.h" /* included with gettext distribution and copied */
-
-#ifndef GETTEXT_PACKAGE
-#error You must define GETTEXT_PACKAGE before including this header.
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
 
-/* we want to use shorthand _() for translating and N_() for marking */
-#define _(String) dgettext (GETTEXT_PACKAGE, String)
-#define N_(String) gettext_noop (String)
-/* FIXME: if we need it, we can add Q_ as well, like in glib */
+/**
+ * plugin-videoconvertscale:
+ *
+ * Since: 1.22
+ */
 
-#endif /* __GST_I18N_PLUGIN_H__ */
+#include "gstvideoscale.h"
+#include "gstvideoconvert.h"
+
+static gboolean
+plugin_init (GstPlugin * plugin)
+{
+  if (!GST_ELEMENT_REGISTER (videoscale, plugin))
+    return FALSE;
+
+  if (!GST_ELEMENT_REGISTER (videoconvert, plugin))
+    return FALSE;
+
+  if (!GST_ELEMENT_REGISTER (videoconvertscale, plugin))
+    return FALSE;
+
+  return TRUE;
+}
+
+GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
+    GST_VERSION_MINOR,
+    videoconvertscale,
+    "Convert video colorspaces and resizes video frames",
+    plugin_init, VERSION, GST_LICENSE, GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN)
