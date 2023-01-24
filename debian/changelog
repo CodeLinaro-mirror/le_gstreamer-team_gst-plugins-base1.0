@@ -1,9 +1,15 @@
-gst-plugins-base1.0 (1.22.0-1) UNRELEASED; urgency=medium
+gst-plugins-base1.0 (1.22.0-1) experimental; urgency=medium
 
   * Team upload
   * New upstream release
+  * Bump minimum meson and glib
+  * Build-Depend on libxi-dev
+  * Build-Depend on gstreamer1.0-tools for tests
+  * debian/rules: Set -Dauto_features=enabled
+  * Update debian/gstreamer1.0-plugins-base.install
+  * debian/libgstreamer-plugins-base1.0-0.symbols: Add new symbols
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 24 Jan 2023 13:41:10 -0500
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 24 Jan 2023 14:25:16 -0500
 
 gst-plugins-base1.0 (1.20.5-1) unstable; urgency=medium
 
