@@ -1,3 +1,11 @@
+gst-plugins-base1.0 (1.22.0-2) unstable; urgency=medium
+
+  * Set Rules-Requires-Root: no
+  * Bump Standards-Version to 4.6.2
+  * Release to unstable
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 28 Jan 2023 11:14:28 -0500
+
 gst-plugins-base1.0 (1.22.0-1) experimental; urgency=medium
 
   * Team upload
