@@ -1,3 +1,10 @@
+gst-plugins-base1.0 (1.22.0-3) unstable; urgency=medium
+
+  * Team upload
+  * Fix non-Linux build
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 28 Jan 2023 19:24:07 -0500
+
 gst-plugins-base1.0 (1.22.0-2) unstable; urgency=medium
 
   * Set Rules-Requires-Root: no
