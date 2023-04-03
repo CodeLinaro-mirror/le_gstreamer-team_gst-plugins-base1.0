@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.22.0\n"
+"Project-Id-Version: gst-plugins-base-1.22.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 19:31+0000\n"
+"POT-Creation-Date: 2023-03-04 13:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,30 +17,30 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/alsa/gstalsasink.c:605
+#: ext/alsa/gstalsasink.c:606
 msgid "Could not open device for playback in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:607
+#: ext/alsa/gstalsasink.c:608
 msgid "Could not open device for playback in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:611
+#: ext/alsa/gstalsasink.c:612
 #, c-format
 msgid "Could not open device for playback in %d-channel mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:885
+#: ext/alsa/gstalsasink.c:886
 msgid ""
 "Could not open audio device for playback. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:890
+#: ext/alsa/gstalsasink.c:891
 msgid "Could not open audio device for playback."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:1113
+#: ext/alsa/gstalsasink.c:1116
 msgid "Error outputting to audio device. The device has been disconnected."
 msgstr ""
 
@@ -192,7 +192,11 @@ msgstr ""
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2378 gst/playback/gsturisourcebin.c:2320
+#: gst/playback/gsturidecodebin.c:2382
+msgid "Source element can't be prepared"
+msgstr ""
+
+#: gst/playback/gsturidecodebin.c:2388 gst/playback/gsturisourcebin.c:2320
 msgid "Source element is invalid."
 msgstr ""
 
@@ -725,7 +729,7 @@ msgstr ""
 msgid "Initial key in which the sound starts"
 msgstr ""
 
-#: tools/gst-device-monitor.c:300 tools/gst-play.c:1635
+#: tools/gst-device-monitor.c:300 tools/gst-play.c:1641
 msgid "Print version information and exit"
 msgstr ""
 
@@ -739,230 +743,234 @@ msgstr ""
 msgid "Include devices from hidden device providers."
 msgstr ""
 
-#: tools/gst-play.c:342
+#: tools/gst-play.c:344
 #, c-format
 msgid "Volume: %.0f%%"
 msgstr ""
 
-#: tools/gst-play.c:357
+#: tools/gst-play.c:359
 msgid "Mute: on"
 msgstr ""
 
-#: tools/gst-play.c:359
+#: tools/gst-play.c:361
 msgid "Mute: off"
 msgstr ""
 
-#: tools/gst-play.c:403
+#: tools/gst-play.c:405
 msgid "Buffering..."
 msgstr ""
 
-#: tools/gst-play.c:424
+#: tools/gst-play.c:426
 msgid "Clock lost, selecting a new one\n"
 msgstr ""
 
-#: tools/gst-play.c:454 tools/gst-play.c:501 tools/gst-play.c:982
-#: tools/gst-play.c:1488
+#: tools/gst-play.c:456 tools/gst-play.c:503 tools/gst-play.c:984
+#: tools/gst-play.c:1493
 msgid "Reached end of play list."
 msgstr ""
 
-#: tools/gst-play.c:708
+#: tools/gst-play.c:710
 msgid "Paused"
 msgstr ""
 
-#: tools/gst-play.c:767
+#: tools/gst-play.c:769
 #, c-format
 msgid "Now playing %s\n"
 msgstr ""
 
-#: tools/gst-play.c:833
+#: tools/gst-play.c:835
 #, c-format
 msgid "About to finish, preparing next title: %s"
 msgstr ""
 
-#: tools/gst-play.c:1097
+#: tools/gst-play.c:1102
 #, c-format
 msgid "Playback rate: %.2f"
 msgstr ""
 
-#: tools/gst-play.c:1101
+#: tools/gst-play.c:1106
 #, c-format
 msgid "Could not change playback rate to %.2f"
 msgstr ""
 
-#: tools/gst-play.c:1423
+#: tools/gst-play.c:1428
 msgid "space"
 msgstr ""
 
-#: tools/gst-play.c:1423
+#: tools/gst-play.c:1428
 msgid "pause/unpause"
 msgstr ""
 
-#: tools/gst-play.c:1424
+#: tools/gst-play.c:1429
 msgid "q or ESC"
 msgstr ""
 
-#: tools/gst-play.c:1424
+#: tools/gst-play.c:1429
 msgid "quit"
 msgstr ""
 
-#: tools/gst-play.c:1425
+#: tools/gst-play.c:1430
 msgid "> or n"
 msgstr ""
 
-#: tools/gst-play.c:1425
+#: tools/gst-play.c:1430
 msgid "play next"
 msgstr ""
 
-#: tools/gst-play.c:1426
+#: tools/gst-play.c:1431
 msgid "< or b"
 msgstr ""
 
-#: tools/gst-play.c:1426
+#: tools/gst-play.c:1431
 msgid "play previous"
 msgstr ""
 
-#: tools/gst-play.c:1427
+#: tools/gst-play.c:1432
 msgid "seek forward"
 msgstr ""
 
-#: tools/gst-play.c:1428
+#: tools/gst-play.c:1433
 msgid "seek backward"
 msgstr ""
 
-#: tools/gst-play.c:1429
+#: tools/gst-play.c:1434
 msgid "volume up"
 msgstr ""
 
-#: tools/gst-play.c:1430
+#: tools/gst-play.c:1435
 msgid "volume down"
 msgstr ""
 
-#: tools/gst-play.c:1431
+#: tools/gst-play.c:1436
 msgid "toggle audio mute on/off"
 msgstr ""
 
-#: tools/gst-play.c:1432
+#: tools/gst-play.c:1437
 msgid "increase playback rate"
 msgstr ""
 
-#: tools/gst-play.c:1433
+#: tools/gst-play.c:1438
 msgid "decrease playback rate"
 msgstr ""
 
-#: tools/gst-play.c:1434
+#: tools/gst-play.c:1439
 msgid "change playback direction"
 msgstr ""
 
-#: tools/gst-play.c:1435
+#: tools/gst-play.c:1440
 msgid "enable/disable trick modes"
 msgstr ""
 
-#: tools/gst-play.c:1436
+#: tools/gst-play.c:1441
 msgid "change to previous/next audio track"
 msgstr ""
 
-#: tools/gst-play.c:1437
+#: tools/gst-play.c:1442
 msgid "change to previous/next video track"
 msgstr ""
 
-#: tools/gst-play.c:1438
+#: tools/gst-play.c:1443
 msgid "change to previous/next subtitle track"
 msgstr ""
 
-#: tools/gst-play.c:1439
+#: tools/gst-play.c:1444
 msgid "seek to beginning"
 msgstr ""
 
-#: tools/gst-play.c:1440
+#: tools/gst-play.c:1445
 msgid "show keyboard shortcuts"
 msgstr ""
 
-#: tools/gst-play.c:1444
+#: tools/gst-play.c:1449
 msgid "Interactive mode - keyboard controls:"
 msgstr ""
 
-#: tools/gst-play.c:1585
+#: tools/gst-play.c:1590
 #, c-format
 msgid "Use Windows high-resolution clock, precision: %u ms\n"
 msgstr ""
 
-#: tools/gst-play.c:1630
+#: tools/gst-play.c:1636
 msgid "Output status information and property notifications"
 msgstr ""
 
-#: tools/gst-play.c:1632
+#: tools/gst-play.c:1638
 msgid "Control playback behaviour setting playbin 'flags' property"
 msgstr ""
 
-#: tools/gst-play.c:1637
+#: tools/gst-play.c:1643
 msgid "Video sink to use (default is autovideosink)"
 msgstr ""
 
-#: tools/gst-play.c:1639
+#: tools/gst-play.c:1645
 msgid "Audio sink to use (default is autoaudiosink)"
 msgstr ""
 
-#: tools/gst-play.c:1641
+#: tools/gst-play.c:1647
 msgid "Enable gapless playback"
 msgstr ""
 
-#: tools/gst-play.c:1643
+#: tools/gst-play.c:1649
 msgid "Enable instantaneous uri changes (only with playbin3)"
 msgstr ""
 
-#: tools/gst-play.c:1645
+#: tools/gst-play.c:1651
 msgid "Shuffle playlist"
 msgstr ""
 
-#: tools/gst-play.c:1648
+#: tools/gst-play.c:1654
 msgid "Disable interactive control via the keyboard"
 msgstr ""
 
-#: tools/gst-play.c:1650
+#: tools/gst-play.c:1656
 msgid "Volume"
 msgstr ""
 
-#: tools/gst-play.c:1652
+#: tools/gst-play.c:1658
 msgid "Start position in seconds."
 msgstr ""
 
-#: tools/gst-play.c:1654
-msgid "Playlist file containing input media files"
-msgstr ""
-
-#: tools/gst-play.c:1657
-msgid "Use the experimental instant-rate-change flag when changing rate"
-msgstr ""
-
 #: tools/gst-play.c:1660
-msgid "Do not print any output (apart from errors)"
+msgid "Enable accurate seeking"
 msgstr ""
 
 #: tools/gst-play.c:1662
+msgid "Playlist file containing input media files"
+msgstr ""
+
+#: tools/gst-play.c:1665
+msgid "Use the experimental instant-rate-change flag when changing rate"
+msgstr ""
+
+#: tools/gst-play.c:1668
+msgid "Do not print any output (apart from errors)"
+msgstr ""
+
+#: tools/gst-play.c:1670
 msgid ""
 "Use playbin3 pipeline (default varies depending on 'USE_PLAYBIN' env "
 "variable)"
 msgstr ""
 
-#: tools/gst-play.c:1667
+#: tools/gst-play.c:1675
 msgid ""
 "Keep showing the last frame on EOS until quit or playlist change command "
 "(gapless is ignored)"
 msgstr ""
 
-#: tools/gst-play.c:1671
+#: tools/gst-play.c:1679
 msgid "Do not print current position of pipeline"
 msgstr ""
 
-#: tools/gst-play.c:1749
+#: tools/gst-play.c:1762
 #, c-format
 msgid "Usage: %s FILE1|URI1 [FILE2|URI2] [FILE3|URI3] ..."
 msgstr ""
 
-#: tools/gst-play.c:1753
+#: tools/gst-play.c:1766
 msgid "You must provide at least one filename or URI to play."
 msgstr ""
 
-#: tools/gst-play.c:1810
+#: tools/gst-play.c:1824
 msgid "Press 'k' to see a list of keyboard shortcuts.\n"
 msgstr ""

@@ -281,14 +281,8 @@ static GstGLDisplayType
 gst_gl_display_type_from_environment (void)
 {
   const char *env = g_getenv ("GST_GL_WINDOW");
-  const char *platform = g_getenv ("GST_GL_PLATFORM");
 
-  init_debug ();
-
-  GST_INFO ("creating a display, user choice:%s (platform: %s)",
-      GST_STR_NULL (env), GST_STR_NULL (platform));
-
-  if (!env && !platform)
+  if (!env)
     return GST_GL_DISPLAY_TYPE_ANY;
 
   if (env) {
@@ -620,7 +614,7 @@ gst_context_get_gl_display (GstContext * context, GstGLDisplay ** display)
 /**
  * gst_gl_display_create_context:
  * @display: a #GstGLDisplay
- * @other_context: (transfer none): other #GstGLContext to share resources with.
+ * @other_context: (transfer none) (nullable): other #GstGLContext to share resources with.
  * @p_context: (transfer full) (out): resulting #GstGLContext
  * @error: resulting #GError
  *

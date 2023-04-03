@@ -683,7 +683,7 @@ gst_mikey_payload_key_data_set_spi (GstMIKEYPayload * payload,
  * gst_mikey_payload_key_data_set_interval:
  * @payload: a #GstMIKEYPayload
  * @vf_len: the length of @vf_data
- * @vf_data: (array length=vf_data): the Valid From data
+ * @vf_data: (array length=vf_len): the Valid From data
  * @vt_len: the length of @vt_data
  * @vt_data: (array length=vt_len): the Valid To data
  *
@@ -2377,6 +2377,7 @@ gboolean
 gst_mikey_message_to_caps (const GstMIKEYMessage * msg, GstCaps * caps)
 {
   gboolean res = FALSE;
+  const GstMIKEYMapSRTP *srtp;
   const GstMIKEYPayload *payload;
   const gchar *srtp_cipher;
   const gchar *srtp_auth;
@@ -2384,8 +2385,16 @@ gst_mikey_message_to_caps (const GstMIKEYMessage * msg, GstCaps * caps)
   srtp_cipher = "aes-128-icm";
   srtp_auth = "hmac-sha1-80";
 
-  /* check the Security policy if any */
-  if ((payload = gst_mikey_message_find_payload (msg, GST_MIKEY_PT_SP, 0))) {
+  /* Look for first crypto session */
+  if (!(srtp = gst_mikey_message_get_cs_srtp (msg, 0))) {
+    GST_ERROR ("No crypto session found at index 0");
+    goto done;
+  }
+
+  /* Look for crypto policy corresponding to first crypto session */
+  if ((payload =
+          gst_mikey_message_find_payload (msg, GST_MIKEY_PT_SP,
+              (unsigned int) srtp->policy))) {
     GstMIKEYPayloadSP *p = (GstMIKEYPayloadSP *) payload;
     guint len, i;
     guint enc_alg = GST_MIKEY_ENC_NULL;
@@ -2478,7 +2487,7 @@ gst_mikey_message_to_caps (const GstMIKEYMessage * msg, GstCaps * caps)
     GstMIKEYPayloadKEMAC *p = (GstMIKEYPayloadKEMAC *) payload;
     const GstMIKEYPayload *sub;
     GstMIKEYPayloadKeyData *pkd;
-    GstBuffer *buf;
+    GstBuffer *buf, *saltbuf;
 
     if (p->enc_alg != GST_MIKEY_ENC_NULL || p->mac_alg != GST_MIKEY_MAC_NULL)
       goto done;
@@ -2491,8 +2500,15 @@ gst_mikey_message_to_caps (const GstMIKEYMessage * msg, GstCaps * caps)
 
     pkd = (GstMIKEYPayloadKeyData *) sub;
     buf = gst_buffer_new_memdup (pkd->key_data, pkd->key_len);
+    if (pkd->salt_len) {
+      saltbuf = gst_buffer_new_memdup (pkd->salt_data, pkd->salt_len);
+      gst_buffer_append (buf, saltbuf);
+      gst_buffer_unref (saltbuf);
+    }
     gst_caps_set_simple (caps, "srtp-key", GST_TYPE_BUFFER, buf, NULL);
     gst_buffer_unref (buf);
+
+    gst_caps_set_simple (caps, "roc", G_TYPE_UINT, srtp->roc, NULL);
   }
 
   gst_caps_set_simple (caps,
