@@ -1,4 +1,4 @@
-gst-plugins-base1.0 (1.22.1-1) UNRELEASED; urgency=medium
+gst-plugins-base1.0 (1.22.1-1) experimental; urgency=medium
 
   * Team upload
   * New upstream release (LP: #2015129)
