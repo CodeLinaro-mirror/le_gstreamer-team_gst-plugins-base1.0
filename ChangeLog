@@ -1,3 +1,224 @@
+=== release 1.22.1 ===
+
+2023-03-04 13:42:32 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.1
+
+2023-03-01 16:26:20 -0500  Nicolas Beland <nicolas@inogeni.com>
+
+	* ext/alsa/gstalsasink.c:
+	* ext/alsa/gstalsasink.h:
+	  alsasink: Fix stall when going from PLAYING to NULL (stucked at PAUSED) with uac1 gadget
+	  This happened with a uac1 gadget which for some reason does not behave nicely.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4104>
+
+2023-02-27 08:23:38 +0100  Carlos Falgueras García <cfalgueras@fluendo.com>
+
+	* gst-libs/gst/gl/gstgldisplay.c:
+	  gldisplay: Remove unused code
+	  The code related with environment variable `GST_GL_PLATFORM` is unused
+	  since commit 33c60bdbf9ae2fd2e88099ad89ad836b8b78c2f5.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4091>
+
+2023-01-28 02:32:13 +0900  Seungha Yang <seungha@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	* tools/gst-discoverer.c:
+	* tools/gst-play.c:
+	  tools: Make sure UTF-8 encoded command line arguments on Windows
+	  On Windows, arguments passed in main() are system codepage
+	  encoded and might not be valid UTF-8 string.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4072>
+
+2023-02-22 14:14:15 +0100  Patricia Muscalu <patricia@axis.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	* gst-libs/gst/rtsp/gstrtspmessage.c:
+	  rtspconnection: Annotate RTSP message parameters correctly
+	  These parameters are not actually `out` parameters but must
+	  be allocated and zero-initialized by the calling function.
+	  Marking them as `out caller-allocates` will cause memory
+	  corruptions when calling these APIs from e.g., Python code.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4061>
+
+2023-02-22 15:05:56 +0000  Tristan van Berkom <tristan.vanberkom@codethink.co.uk>
+
+	* gst-libs/gst/gl/x11/gstglwindow_x11.c:
+	  gstglwindow_x11.c: Fix colormap leak
+	  This fixes an X server side memory leak, this is normally not severe
+	  but in some circumstances where the glwindow is recreated frequently
+	  it can result in a very bad memory leak.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4054>
+
+2023-02-22 11:52:14 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* po/af.po:
+	* po/az.po:
+	* po/bg.po:
+	* po/ca.po:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/el.po:
+	* po/en_GB.po:
+	* po/eo.po:
+	* po/es.po:
+	* po/eu.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/fur.po:
+	* po/gl.po:
+	* po/hr.po:
+	* po/hu.po:
+	* po/id.po:
+	* po/it.po:
+	* po/ja.po:
+	* po/ka.po:
+	* po/lt.po:
+	* po/lv.po:
+	* po/nb.po:
+	* po/nl.po:
+	* po/or.po:
+	* po/pl.po:
+	* po/pt_BR.po:
+	* po/ro.po:
+	* po/ru.po:
+	* po/sk.po:
+	* po/sl.po:
+	* po/sq.po:
+	* po/sr.po:
+	* po/sv.po:
+	* po/tr.po:
+	* po/uk.po:
+	* po/vi.po:
+	* po/zh_CN.po:
+	  gst-plugins-base: update translations
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4041>
+
+2023-02-21 18:42:57 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* tools/gst-play.c:
+	  gst-play: update translated string
+	  Make it more consistent with the other option descriptions.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4033>
+
+2023-01-19 18:49:17 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Don't chain up `BaseSrc::negotiate()`
+	  If we have caps then we can only set exactly those caps, if we have no
+	  caps yet then negotiating anything is not very meaningful because the
+	  caps are defined by the application and not downstream.
+	  Avoids, among other things, an unnecessary allocation query and spurious
+	  useless caps being set before the first buffer.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4020>
+
+2023-02-09 17:23:55 +0100  Edward Hervey <edward@centricular.com>
+
+	* tools/gst-play.c:
+	  gst-play: Don't force accurate seeking
+	  This crept in several years ago sadly :(
+	  The usage of accurate seeking should be reserved to use-cases where it is
+	  essential that we seek to that position. This should not be the default.
+	  There is a new option `--acurate-seeks/-a` to be able to force that.
+	  Furthermore, if accurate seeks aren't required, a player should be using the
+	  GST_SEEK_FLAG_KEY_UNIT flag to seek to the closest keyframe and provide the most
+	  reactive experience.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4017>
+
+2023-01-31 13:21:48 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst/playback/gsturidecodebin.c:
+	  uridecodebin: Set source element to READY before querying it
+	  Generating the source element is done when uridecodebin is doing the
+	  READY to PAUSED state change, so it is reasonable to set the new source
+	  element to that state.
+	  This also allows detecting early failures with backing libraries or
+	  hardware (checks done in NULL->READY).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4016>
+
+2023-02-10 08:20:38 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* ext/gl/gstglvideomixer.c:
+	  glvideomixer: Keep a reference to the underlying pad
+	  There was cases where we were accessing the pad while it was already
+	  destroyed. Ensure it can't happen by owning a ref on it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3963>
+
+2023-02-13 11:46:03 -0800  Yang, Xuchen <xuchen.yang@dolby.com>
+
+	* gst-libs/gst/audio/audio-channel-mixer.c:
+	  audio: channel-mix: Fix channel count limit to be able to equal 64
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3958>
+
+2023-02-08 12:00:54 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	* gst/subparse/gstsubparse.h:
+	  subparse: Properly forward segment seqnum
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3917>
+
+2023-02-02 23:20:04 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/gl/cocoa/gstglcaopengllayer.m:
+	  gl/cocoa: Return a strong ref to the parent GstGLContext
+	  If the GstGLCAOpenGLLayer was initialized via a parent
+	  context, make sure to ref the context before returning it
+	  from getGLContext as all callers will unref it.
+	  Follow up to !3729
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3885>
+
+2023-01-27 16:22:06 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/gl/gstglcontext.c:
+	* gst-libs/gst/gl/gstgldisplay.c:
+	  gldisplay: Mark `gst_gl_display_create_context()` `other_context` parameter as nullable
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer-rs/-/issues/438
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3835>
+
+2023-01-25 13:58:16 +0100  Bart Van Severen <bart.vanseveren@barco.com>
+
+	* gst-libs/gst/rtsp/gstrtspurl.c:
+	  rtsp: gstrtspurl: gst_rtsp_url_get_request_uri: fix incorrect scheme for tls transport methods
+	  gst_rtsp_url_get_request_uri returns rtsp://... url when requested url is rtsps://, this is not
+	  in accordance with https://www.rfc-editor.org/rfc/rfc7826.html#section-19.2.
+	  This also impedes setting up a rtsps session with a live555 rtsp server.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3818>
+
+2022-12-14 10:31:14 +0100  Bart Van Severen <bart.vanseveren@barco.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  sdp: gstmikey: gst_mikey_message_to_caps: extract salt and append to srtp-key
+	  A KEMAC can hold both key and salt, so if salt is present, we should extract it
+	  and append it to the srtp-key cap because libsrtp expects the srtp-key to hold
+	  the concantenated srtp master key and salt.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3818>
+
+2022-12-14 10:29:27 +0100  Bart Van Severen <bart.vanseveren@barco.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  sdp: gstmikey: gst_mikey_message_to_caps: extract ROC from first crypto session
+	  We need the ROC to decrypt a SRTP stream as the ROC is part of the AES IV.
+	  So look for first crypto session, from which we can get the ROC and find corresponding
+	  crypto policy.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3818>
+
+2023-01-25 13:19:01 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  sdp: Fix gst_mikey_payload_key_data_set_interval() array length annotation
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/1744
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/3814>
+
+2023-01-25 16:46:42 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.22.0 ===
 
 2023-01-23 19:29:34 +0000  Tim-Philipp Müller <tim@centricular.com>
