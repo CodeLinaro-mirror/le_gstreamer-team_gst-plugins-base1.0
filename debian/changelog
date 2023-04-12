@@ -1,3 +1,10 @@
+gst-plugins-base1.0 (1.22.2-1) UNRELEASED; urgency=medium
+
+  * Team upload
+  * New upstream bugfix release (LP: #2015129)
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 12 Apr 2023 11:36:12 -0400
+
 gst-plugins-base1.0 (1.22.1-1) experimental; urgency=medium
 
   * Team upload
