@@ -329,7 +329,6 @@ gst_rtsp_url_get_request_uri (const GstRTSPUrl * url)
   const gchar *pre_query;
   const gchar *query;
   gchar scheme[SCHEME_SIZE] = "rtsp";
-  guint i;
 
   g_return_val_if_fail (url != NULL, NULL);
 
@@ -337,12 +336,8 @@ gst_rtsp_url_get_request_uri (const GstRTSPUrl * url)
   post_host = url->family == GST_RTSP_FAM_INET6 ? "]" : "";
   pre_query = url->query ? "?" : "";
   query = url->query ? url->query : "";
-  for (i = 0; i < G_N_ELEMENTS (rtsp_schemes_map); i++) {
-    if (url->transports == rtsp_schemes_map[i].transports) {
-      strcpy (scheme, rtsp_schemes_map[i].scheme);
-      break;
-    }
-  }
+  if (url->transports & GST_RTSP_LOWER_TRANS_TLS)
+    g_strlcpy (scheme, "rtsps", SCHEME_SIZE);
 
   if (url->port != 0) {
     uri = g_strdup_printf ("%s://%s%s%s:%u%s%s%s", scheme, pre_host, url->host,

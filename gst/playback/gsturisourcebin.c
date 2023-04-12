@@ -663,7 +663,9 @@ copy_sticky_events (GstPad * pad, GstEvent ** event, gpointer user_data)
 {
   GstPad *gpad = GST_PAD_CAST (user_data);
 
-  GST_DEBUG_OBJECT (gpad, "store sticky event %" GST_PTR_FORMAT, *event);
+  GST_DEBUG_OBJECT (gpad,
+      "store sticky event from %" GST_PTR_FORMAT " %" GST_PTR_FORMAT, pad,
+      *event);
   gst_pad_store_sticky_event (gpad, *event);
 
   return TRUE;
@@ -1125,6 +1127,7 @@ new_output_slot (ChildSrcPadInfo * info, GstPad * originating_pad)
     slot->queue_sinkpad =
         gst_element_request_pad_simple (info->multiqueue, "sink_%u");
     srcpad = gst_pad_get_single_internal_link (slot->queue_sinkpad);
+    gst_pad_sticky_events_foreach (originating_pad, copy_sticky_events, srcpad);
     slot->output_pad = create_output_pad (slot, srcpad);
     gst_object_unref (srcpad);
     gst_pad_link (originating_pad, slot->queue_sinkpad);
@@ -1326,10 +1329,10 @@ expose_output_pad (GstURISourceBin * urisrc, GstPad * pad)
 
   target = gst_ghost_pad_get_target (GST_GHOST_PAD (pad));
 
+  gst_pad_set_active (pad, TRUE);
   gst_pad_sticky_events_foreach (target, copy_sticky_events, pad);
   gst_object_unref (target);
 
-  gst_pad_set_active (pad, TRUE);
   GST_URI_SOURCE_BIN_LOCK (urisrc);
   if (!urisrc->activated) {
     GST_DEBUG_OBJECT (urisrc, "Not fully activated, adding pad once PAUSED !");

@@ -1,3 +1,151 @@
+=== release 1.22.2 ===
+
+2023-04-11 17:29:28 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.2
+
+2023-04-10 13:49:55 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* po/ka.po:
+	* po/sr.po:
+	  gst-plugins-base: update translations
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4390>
+
+2023-04-06 07:58:03 +0200  Rouven Czerwinski <r.czerwinski@pengutronix.de>
+
+	* gst-libs/gst/gl/wayland/gstglwindow_wayland_egl.c:
+	  gst-plugins-base: gl: wayland: cleanup on close
+	  The proxy and queue are created in the gst_gl_window_wayland_egl_open()
+	  function and will be recreated on open. This leaks both objects, the
+	  wayland client documentation mentions that they should be destroyed
+	  using the appropriate destroy functions.
+	  Found during valgrind memory leak testing, these blocks were marked as
+	  definitely lost.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4355>
+
+2023-04-04 19:21:56 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdp: Skip source-specific caps fields when creating an SDP media from caps
+	  Regression from https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2132
+	  We parse the source-specific fields from the SDP and put it into the
+	  caps, but when converting caps into an SDP again this would need special
+	  handling. By default it would end up as part of the fmtp field, which is
+	  simply wrong.
+	  Automatically putting it into the caps and SDP will need some more work.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4344>
+
+2023-03-31 04:40:58 +0900  Seungha Yang <seungha@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	* tools/gst-discoverer.c:
+	* tools/gst-play.c:
+	  tools: Count argc after parsing GOption on Windows
+	  Existing codes rely on modified argc value by g_option_context_parse()
+	  but g_option_context_parse_strv() is used in case of Windows.
+	  Count arguments after the option parsing manually.
+	  Fixing command "gst-inspect-1.0.exe -b"
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4322>
+
+2023-03-30 16:09:06 +0200  Robert Rosengren <robertr@axis.com>
+
+	* ext/alsa/gstalsasink.c:
+	  alsasink: Fix for being stuck in stop_streaming_threads state
+	  Moving from PLAYING to NULL will set the stop_streaming_threads to TRUE,
+	  but when moving back upwards its not reset to FALSE (as only done in
+	  uncalled init and resume callbacks).
+	  Fix by reseting value in the prepare callback.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4321>
+
+2023-03-18 11:54:15 +0200  Ilie Halip <ilie.halip@gmail.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefindfunctions: Increase xml typefinder closing brace limit
+	  If the first XML element in a DASH manifest has its closing brance
+	  beyond the first 512 bytes (because of, e.g. lots of attributes),
+	  the MPD typefinder fails. Try to read a larger block, and then
+	  smaller blocks until 512 bytes.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2385
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4302>
+
+2023-03-28 15:49:36 +0200  Bart Van Severen <bart.vanseveren@barco.com>
+
+	* gst-libs/gst/rtsp/gstrtspurl.c:
+	  rtsp: gstrtspurl: gst_rtsp_url_get_request_uri: use rtsps scheme for tls transport methods
+	  gst_rtsp_url_get_request_uri returns rtsp://... url when requested url is rtsps://, this is not
+	  in accordance with https://www.rfc-editor.org/rfc/rfc7826.html#section-19.2.
+	  This also impedes setting up a rtsps session with a live555 rtsp server.
+	  Don't expose other than rtsp and rtsps internal gstreamer rtsp url schemes
+	  to avoid regression:
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2412
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4298>
+
+2023-03-28 15:38:07 +0200  Bart Van Severen <bart.vanseveren@barco.com>
+
+	* gst-libs/gst/rtsp/gstrtspurl.c:
+	  Revert "rtsp: gstrtspurl: gst_rtsp_url_get_request_uri: fix incorrect scheme for tls transport methods"
+	  This reverts commit 024ef7659d3cb1ceee6628646aa37001399be92d because it causes a regression:
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2412
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4298>
+
+2023-03-27 11:18:09 +0800  Haihua Hu <jared.hu@nxp.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: fix hang issue when remove failing stream
+	  Need mark selection_update to true when update selection,
+	  otherwise, pipeline will not handle this selection update
+	  sometimes when this flag has been reset
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4284>
+
+2023-03-20 16:16:34 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Improve elementary stream handling
+	  The goal of parsebin is to figure out which elements to link together in order
+	  to provide elementary streams given any random input.
+	  The problem is that deciding whether a given stream should still have more
+	  elements plugged in or not was dependent on ... the presence of compatible
+	  decoders (sic).
+	  Instead of that, if we can't plug anymore elements on a given stream *and* it is
+	  detected as being an elementary stream, expose it.
+	  Fixes #2118
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4237>
+
+2023-03-20 11:53:35 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Activate pad before transferring sticky events
+	  Otherwise they get refused since the pad is flushing
+	  Fixes #2384 for good
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4233>
+
+2023-03-17 16:32:45 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/gl/gstglfilterglass.c:
+	  plugins: Fix various trivial clang compiler warnings
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4221>
+
+2023-03-17 09:58:55 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Propagate sticky events from parsebin
+	  If sticky events are present on parsebin source pads, we propagate them to the
+	  multiqueue source pads. Those will be propagated on the new urisourcebin source
+	  pads like in the other code paths.
+	  This ensures that STREAM_START event are present on new source pads. If CAPS
+	  event are also present (not guaranteed), they will also be available.
+	  Fixes #2384
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4218>
+
+2023-03-04 16:13:04 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.22.1 ===
 
 2023-03-04 13:42:32 +0000  Tim-Philipp Müller <tim@centricular.com>
