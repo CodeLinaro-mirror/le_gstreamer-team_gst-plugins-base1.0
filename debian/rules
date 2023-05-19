@@ -2,16 +2,14 @@
 
 include /usr/share/dpkg/default.mk
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,-z,defs
 export HOME=$(CURDIR)/fake-home
 
 # debian package version
 version=$(shell dpkg-parsechangelog | grep ^Version: | cut -d ' ' -f 2)
 # upstream version
 gst_version=$(shell echo $(version) | cut -d '-' -f 1)
-
-CFLAGS += -Wno-error
-CXXFLAGS += -Wno-error
-LDFLAGS += -Wl,-z,defs
 
 # Let's decide the package name and url depending on the distribution
 DISTRO = "$(shell dpkg-vendor --query vendor)"
@@ -44,12 +42,11 @@ endif
 %:
 	dh $@
 
+execute_before_dh_auto_clean:
+	rm -rf $(CURDIR)/fake-home
+
 override_dh_auto_configure:
 	dh_auto_configure -- $(conf_flags)
-
-override_dh_auto_clean:
-	rm -rf $(CURDIR)/fake-home
-	dh_auto_clean
 
 # Only make the tests fail for key architectures
 override_dh_auto_test:
