@@ -1,3 +1,113 @@
+=== release 1.22.3 ===
+
+2023-05-19 09:23:19 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* README.md:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.3
+
+2023-05-17 21:43:21 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  Revert "meson: Install viv-fb GL headers, needed by i.MX"
+	  Missing pkg-config files and gir files as is required from any public
+	  facing GL API for bindings reasons.
+	  This reverts commit c95b7b8e7aa80276c0604dd3dd03eeda634f42b9.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4657>
+
+2023-05-10 16:34:16 +0800  Haihua Hu <jared.hu@nxp.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: fix random hang when remove failing stream
+	  When reconfigure_output_stream entry missing decoder path,
+	  requested_selection should been update with what is really
+	  active/selected immdiately with SELECTION_LOCK hold. So
+	  use an optional message return from reconfigure_output_stream
+	  and post it after release SELECTION_LOCK. This can make sure
+	  other thread call to check_slot_reconfiguration will got
+	  a correct requested_selection.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4656>
+
+2023-03-07 11:40:42 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Ensure atomic urisourcebin state change
+	  When dynamically adding and synchronizing the state of urisourcebin, we need to
+	  ensure that no-one else attempts to change the state in case of failures
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/1803
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4620>
+
+2023-03-09 00:25:51 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  meson: Install viv-fb GL headers, needed by i.MX
+	  Needed by qmlglsink at build time to allocate a viv-fb display.
+	  Without this, the GL fastpath doesn't work, and performance is really
+	  bad.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4618>
+
+2023-04-26 12:20:25 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Handle streams without CAPS or TIME segment
+	  decodebin3 will do its best to figure out whether a parsebin is required to
+	  process the incoming stream.
+	  The problem is that for push-based stream it could happen that the stream would
+	  not provide any caps, resulting in nothing being linked internally.
+	  Furthermore, there is the possibility that a stream *with* caps would not be
+	  using a TIME segment, which is required for multiqueue to properly work.
+	  In order to fix those two issues, we force the usage of parsebin on push-based
+	  streams:
+	  * When the pad is linked, if upstream can't provide any caps
+	  * When we get a non-TIME segment
+	  Fixes #2521
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4499>
+
+2023-04-22 11:42:36 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/audiotestsrc/gstaudiotestsrc.c:
+	  audiotestsrc: Initialize all samples in wave=ticks mode
+	  Previously samples were only initialized in 2 out of 3 cases.
+	  Probably fixes https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/issues/337
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4476>
+
+2023-04-20 10:03:27 +0200  Patricia Muscalu <patricia@axis.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Fix volume leak
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4463>
+
+2023-04-10 16:06:19 +0200  Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+
+	* tests/check/libs/allocators.c:
+	  tests: allocators: Fix fdmem test with recent GLib
+	  The test failed with recent GLib, where `g_close` emits a critical
+	  warning on EBADF. Remove the `g_close` check from `test_fdmem` and add
+	  another version that tests `GST_FD_MEMORY_FLAG_DONT_CLOSE`.
+	  We will depend on the Valgrind test run to warn us about leaked FDs.
+	  Fixes: https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2480
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4422>
+
+2023-04-06 08:54:30 +0200  Matthias Fuchs <matthias1.fuchs@zeiss.com>
+
+	* ext/gl/gstglvideoflip.c:
+	  glvideoflip: fix leaked caps
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4420>
+
+2023-04-05 13:20:19 +0200  Matthias Fuchs <matthias1.fuchs@zeiss.com>
+
+	* gst-libs/gst/gl/wgl/gstglcontext_wgl.c:
+	  glcontext_wgl: fix missing unref
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4419>
+
+2023-04-12 00:31:17 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.22.2 ===
 
 2023-04-11 17:29:28 +0100  Tim-Philipp Müller <tim@centricular.com>
