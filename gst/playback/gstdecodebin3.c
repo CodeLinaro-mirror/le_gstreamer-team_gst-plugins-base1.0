@@ -497,7 +497,7 @@ static DecodebinInput *create_new_input (GstDecodebin3 * dbin, gboolean main);
 static gboolean set_input_group_id (DecodebinInput * input, guint32 * group_id);
 
 static gboolean reconfigure_output_stream (DecodebinOutputStream * output,
-    MultiQueueSlot * slot);
+    MultiQueueSlot * slot, GstMessage ** msg);
 static void free_output_stream (GstDecodebin3 * dbin,
     DecodebinOutputStream * output);
 static DecodebinOutputStream *create_output_stream (GstDecodebin3 * dbin,
@@ -912,6 +912,7 @@ gst_decodebin3_input_pad_link (GstPad * pad, GstObject * parent, GstPad * peer)
   GstDecodebin3 *dbin = (GstDecodebin3 *) parent;
   GstQuery *query;
   gboolean pull_mode = FALSE;
+  gboolean has_caps = TRUE;
   GstPadLinkReturn res = GST_PAD_LINK_OK;
   DecodebinInput *input = g_object_get_data (G_OBJECT (pad), "decodebin.input");
 
@@ -928,12 +929,26 @@ gst_decodebin3_input_pad_link (GstPad * pad, GstObject * parent, GstPad * peer)
 
   GST_DEBUG_OBJECT (dbin, "Upstream can do pull-based : %d", pull_mode);
 
-  /* If upstream *can* do pull-based, we always use a parsebin. If not, we will
-   * delay that decision to a later stage (caps/stream/collection event
-   * processing) to figure out if one is really needed or whether an identity
-   * element will be enough */
+  if (!pull_mode) {
+    /* If push-based, query if it will provide some caps */
+    query = gst_query_new_caps (NULL);
+    if (gst_pad_query (peer, query)) {
+      GstCaps *rescaps = NULL;
+      gst_query_parse_caps_result (query, &rescaps);
+      if (!rescaps || gst_caps_is_any (rescaps) || gst_caps_is_empty (rescaps)) {
+        GST_DEBUG_OBJECT (dbin, "Upstream can't provide caps");
+        has_caps = FALSE;
+      }
+    }
+    gst_query_unref (query);
+  }
+
+  /* If upstream *can* do pull-based OR it doesn't have any caps, we always use
+   * a parsebin. If not, we will delay that decision to a later stage
+   * (caps/stream/collection event processing) to figure out if one is really
+   * needed or whether an identity element will be enough */
   INPUT_LOCK (dbin);
-  if (pull_mode) {
+  if (pull_mode || !has_caps) {
     if (!ensure_input_parsebin (dbin, input))
       res = GST_PAD_LINK_REFUSED;
     else if (input->identity) {
@@ -1407,6 +1422,21 @@ sink_event_function (GstPad * sinkpad, GstDecodebin3 * dbin, GstEvent * event)
         INPUT_UNLOCK (dbin);
       } else {
         GST_DEBUG_OBJECT (sinkpad, "Parsebin accepts new caps");
+      }
+      break;
+    }
+    case GST_EVENT_SEGMENT:
+    {
+      const GstSegment *segment = NULL;
+      gst_event_parse_segment (event, &segment);
+
+      /* All data reaching multiqueue must be in time format. If it's not, we
+       * need to use a parsebin on the incoming stream.
+       */
+      if (segment && segment->format != GST_FORMAT_TIME && !input->parsebin) {
+        GST_DEBUG_OBJECT (sinkpad,
+            "Got a non-time segment, forcing parsebin handling");
+        ensure_input_parsebin (dbin, input);
       }
       break;
     }
@@ -2298,6 +2328,7 @@ static void
 check_slot_reconfiguration (GstDecodebin3 * dbin, MultiQueueSlot * slot)
 {
   DecodebinOutputStream *output;
+  GstMessage *msg = NULL;
 
   SELECTION_LOCK (dbin);
   output = get_output_for_slot (slot);
@@ -2306,7 +2337,7 @@ check_slot_reconfiguration (GstDecodebin3 * dbin, MultiQueueSlot * slot)
     return;
   }
 
-  if (!reconfigure_output_stream (output, slot)) {
+  if (!reconfigure_output_stream (output, slot, &msg)) {
     GST_DEBUG_OBJECT (dbin, "Removing failing stream from selection: %s ",
         gst_stream_get_stream_id (slot->active_stream));
     slot->dbin->requested_selection =
@@ -2314,12 +2345,14 @@ check_slot_reconfiguration (GstDecodebin3 * dbin, MultiQueueSlot * slot)
         gst_stream_get_stream_id (slot->active_stream));
     dbin->selection_updated = TRUE;
     SELECTION_UNLOCK (dbin);
-    reassign_slot (dbin, slot);
-  } else {
-    GstMessage *msg = is_selection_done (dbin);
-    SELECTION_UNLOCK (dbin);
     if (msg)
       gst_element_post_message ((GstElement *) slot->dbin, msg);
+    reassign_slot (dbin, slot);
+  } else {
+    GstMessage *selection_msg = is_selection_done (dbin);
+    SELECTION_UNLOCK (dbin);
+    if (selection_msg)
+      gst_element_post_message ((GstElement *) slot->dbin, selection_msg);
   }
 }
 
@@ -2713,7 +2746,7 @@ keyframe_waiter_probe (GstPad * pad, GstPadProbeInfo * info,
  * associated GstStreams should be disabled */
 static gboolean
 reconfigure_output_stream (DecodebinOutputStream * output,
-    MultiQueueSlot * slot)
+    MultiQueueSlot * slot, GstMessage ** msg)
 {
   GstDecodebin3 *dbin = output->dbin;
   GstCaps *new_caps = (GstCaps *) gst_stream_get_caps (slot->active_stream);
@@ -2821,14 +2854,11 @@ reconfigure_output_stream (DecodebinOutputStream * output,
       if (output->decoder == NULL) {
         GstCaps *caps;
 
-        SELECTION_UNLOCK (dbin);
         /* FIXME : Should we be smarter if there's a missing decoder ?
          * Should we deactivate that stream ? */
         caps = gst_stream_get_caps (slot->active_stream);
-        gst_element_post_message (GST_ELEMENT_CAST (dbin),
-            gst_missing_decoder_message_new (GST_ELEMENT_CAST (dbin), caps));
+        *msg = gst_missing_decoder_message_new (GST_ELEMENT_CAST (dbin), caps);
         gst_caps_unref (caps);
-        SELECTION_LOCK (dbin);
         ret = FALSE;
         goto cleanup;
       }
