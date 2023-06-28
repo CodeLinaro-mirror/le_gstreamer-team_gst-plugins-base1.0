@@ -1,3 +1,185 @@
+=== release 1.22.4 ===
+
+2023-06-20 17:42:25 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.4
+
+2023-06-13 12:58:26 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Skip after the end of a valid closing tag instead of only skipping `<`
+	  This is a small optimization and avoids restarting the next parsing
+	  iteration on already accepted data.
+	  On its own it would also fix ZDI-CAN-20968 (see previous commit) but the
+	  previous commit independently is also a valid fix for it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4898>
+
+2023-06-13 12:53:13 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Look for the closing `>` of a tag after the opening `<`
+	  Previously when fixing up subrip markip, we were looking from the start
+	  of the remaining buffer instead. Due to how skipping over closing tags
+	  works, the remaining buffer will still contain the closing `>` of the
+	  previous tag so if a unexpected closing tag is found after another
+	  closing tag, we would potentially do an out of bounds memmove().
+	  Fixes ZDI-CAN-20968
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2662
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4898>
+
+2023-06-13 13:22:57 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/tags.c:
+	  tags: Don't allow image tags with G_MAXUINT32 length
+	  This will cause an integer overflow a little bit further down because we
+	  allocate a bit more memory to allow for a NUL-terminator.
+	  The caller should've avoided passing that much data in already as it's
+	  not going to be a valid image and there's likely not even that much data
+	  available.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4897>
+
+2023-06-13 10:30:16 +0800  Haihua Hu <jared.hu@nxp.com>
+
+	* gst-libs/gst/gl/gstglfilter.c:
+	  glfilter: add parent meta to output buffer for input buffer
+	  glfilter will unref input buffer after _transform() call immidiately,
+	  but gpu may still reading input buffer for rendering because gl
+	  api is executed async. Need hold reference for input buffer by
+	  adding parent meta to output buffer.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4846>
+
+2023-06-07 14:24:46 -0400  Xavier Claessens <xavier.claessens@collabora.com>
+
+	* ext/opus/gstopusenc.c:
+	  opus: Fix crash when getting unexpected channel position
+	  gst_opus_channel_names is a static array with only 13 items.
+	  GstAudioChannelPosition have bigger values than that.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4843>
+
+2016-06-01 11:52:38 +0100  William Manley <will@williammanley.net>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/pango/gstbasetextoverlay.c:
+	  basetextoverlay: Fix typo in "text-y" property description
+	  Looks like a copy and paste error.
+	  Co-authored-by: Fabian Orccon <cfoch.fabian@gmail.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4827>
+
+2023-06-09 21:08:36 +0800  Kevin Song <kesong@nvidia.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	  appsink: unref gstbuffer in prev sample early
+	  Appsink will unref prev sample in dispose function. Which is later
+	  when V4L2 video decoder link with appsink as V4L2 video decoder
+	  will close V4L2 device fd during GST_STATE_CHANGE_READY_TO_NULL.
+	  If the video buffer return to V4L2 video decoder after the decoder
+	  closed V4L2 device fd, V4L2 can't release the video frame buffer
+	  which allocated with MMAP mode as application can't call
+	  VIDIOC_REQBUFS 0 to release the video frame buffer by V4L2 driver.
+	  The memory of the video frame will leak.
+	  Unref the gstbuffer in stop() function, so V4L2 video decoder
+	  can received all video frame buffers and release it before close
+	  V4L2 device fd.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4820>
+
+2023-06-07 13:46:39 +1000  Matthew Waters <matthew@centricular.com>
+
+	* ext/gl/gstgldownloadelement.c:
+	  gldownload: handle passthrough without a critical
+	  With passthrough mode, gldownload/glbasefilter may not ever retrieve a
+	  relevant GstGLContext as it doesn't actually query the surrounding
+	  elements.  Guard against that.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4800>
+
+2023-05-27 13:06:22 +0100  Philippe Normand <philn@igalia.com>
+
+	* ext/ogg/gstoggdemux.c:
+	* ext/ogg/gstoggdemux.h:
+	* ext/ogg/gstoggstream.c:
+	  oggdemux: vp8: Detect keyframe packets
+	  decodebin3 drops data on video streams until a keyframe or header is detected,
+	  so for Ogg/VP8 we now need to correctly flag and signal keyframes downstream.
+	  The first buffer pushed from each src pad also has the HEADER flag set.
+	  Fixes playback of
+	  https://github.com/web-platform-tests/wpt/raw/master/media/test.ogv in playbin3.
+	  Fixes #1418
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4745>
+
+2023-05-31 16:26:45 +0200  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst/playback/gststreamsynchronizer.c:
+	  streamsynchronizer: check reset-time when handling FLUSH_STOP
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4755>
+
+2023-05-31 16:05:48 +0200  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst/playback/gststreamsynchronizer.c:
+	  streamsynchronizer: reset eos on STREAM_START
+	  self->eos was never reset after streamsynchronizer has sent EOS
+	  (except on explicit flush or switching back to PAUSED).
+	  As a result, synchronization was broken if new streams were pushed later
+	  as gst_stream_synchronizer_wait() does not wait if self->eos is set.
+	  Fix this by reseting self->eos on STREAM_START as that means a new
+	  stream is being sent upstream and so a new EOS will follow later on.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4755>
+
+2023-05-29 02:14:44 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/video-blend.h:
+	  video-blend: Fix linking error with C++
+	  Add missing extern "C"
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4735>
+
+2023-05-19 15:20:16 +0800  He Junyan <junyan.he@intel.com>
+
+	* gst-libs/gst/video/gstvideometa.c:
+	  videometa: Only validate the alignment only when it contains some info
+	  When the alignment contains nothing, all its fields are 0 and always
+	  can be satisfied. So there is no need to validate it in this case.
+	  And there are a lot of places just setting this alignment to default
+	  all zero value, this validation generates lots of warnings.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4704>
+
+2023-05-15 15:57:15 -0400  Nicolas Beland <nicolas@inogeni.com>
+
+	* ext/alsa/gstalsasink.c:
+	* ext/alsa/gstalsasink.h:
+	  alsasink: Fix stall for transition of alsasink from PAUSED to READY with USB speakerphone
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4699>
+
+2022-07-05 05:14:01 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/convertframe.c:
+	  video: convertframe: Add D3D11 specific conversion path
+	  Add d3d11 conversion path to make gst_video_convert_sample() work
+	  for GstD3D11Memory.
+	  Note that just adding "d3d11download" to the exisitng code is
+	  suboptimal from GstD3D11 point of view because:
+	  * d3d11convert element can support crop/colorspace-conversion/scale
+	  all at once while existing software pipeline needs intermediate steps
+	  for the conversion
+	  * "Process everything on GPU then download it to CPU memory" would be likely
+	  faster than "download GPU memory to CPU then processing it on CPU"
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4689>
+
+2022-07-05 04:42:57 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/convertframe.c:
+	  video: convertframe: Remove pointless const qualifier
+	  const keyword for refcounted object does not very make sense
+	  and unnecessary in this case
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4689>
+
+2023-05-19 12:36:19 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4679>
+
 === release 1.22.3 ===
 
 2023-05-19 09:23:19 +0100  Tim-Philipp Müller <tim@centricular.com>
