@@ -1,3 +1,179 @@
+=== release 1.22.5 ===
+
+2023-07-20 15:22:48 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.5
+
+2023-07-18 01:25:47 +0000  Ruslan Khamidullin <ruslank@borisfx.com>
+
+	* tests/check/libs/videotimecode.c:
+	  video: add extensive tests for gst_video_time_code_is_valid()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5061>
+
+2023-07-12 22:45:28 +0000  Ruslan Khamidullin <ruslank@borisfx.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	  video: accept timecode of 119.88 (120/1.001) FPS
+	  The drop-frame rules are specified in “SMPTE ST 12-3:2016” and are
+	  consistent with the traditional ones:
+	  “
+	  To minimize fractional time deviation from real time, the first two
+	  super-frame numbers (00 and 01) shall be omitted from the count at the
+	  start of each minute except minutes 00, 10, 20, 30, 40, and 50. Thus the
+	  first eight frame numbers (0 through 7) are omitted from the count at
+	  the start of each minute except minutes 00, 10, 20, 30, 40, and 50.
+	  ”
+	  Where “super-frame” is a group of 4 frames for 120 FPS.
+	  Fixes #2797
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5061>
+
+2023-04-10 12:54:51 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	* tests/check/libs/videotimecode.c:
+	  video: timecode: Add support for framerates lower than 1fps
+	  These are not explicitly defined but the existing calculations can be
+	  extended to also cover that case by inverting them to avoid floating
+	  point calculations.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2465
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5074>
+
+2023-07-18 15:15:40 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Prevent a critical warning when reassigning output slots
+	  Do not attempt to send a streams-selected message when reassigning
+	  an output slot in case upstream signalled that it is handling stream selection.
+	  In this case decodebin3 doesn't keep track of stream
+	  collections (`dbin->collection` is NULL).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5069>
+
+2023-07-17 15:23:35 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Fix slot input linking when the associated stream has changed
+	  Setting the input field on the empty slot prevents future linking of it and will
+	  result in flow errors later on.
+	  This was observed in WebKit's MediaStream source element, when it changes the
+	  caps on one of its associated streams, from an encoded format to a raw video
+	  format. The associated stream-id on the sticky stream-start event doesn´t
+	  change, but the element creates a new GstStream with a different ID and sets it
+	  on the stream-start event. Stream parsing is disabled in urisourcebin, so
+	  decodebin3 handles the parsing. Without this patch we would end-up with unlinked
+	  pads in decodebin3 after switching to the raw video format.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5067>
+
+2023-01-31 16:12:17 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Set source element to READY before querying it
+	  Generating the source element is done when urisourcebin is doing the READY to
+	  PAUSED state change, so it is reasonable to set the new source element to that
+	  state.
+	  This also allows detecting early failures with backing libraries or
+	  hardware (checks done in NULL->READY).
+	  Finally it makes more sense to have an element in READY when attempting to query
+	  information from it (such as SCHEDULING queries or probing live-ness).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5058>
+
+2023-06-21 13:45:13 +0200  Andoni Morales Alastruey <ylatuya@gmail.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	* tests/check/libs/videodecoder.c:
+	  videodecoder: fix segfault copying buffer metas
+	  The current implementation copies metas without checking if the buffer
+	  is writable.
+	  The operation that needs to be done, replacing the input buffer and
+	  copying the metas, is only part of that process. We create a new function
+	  that does both.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5054>
+
+2023-07-12 17:08:32 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Remove spurious input locking during parsebin reconfiguration
+	  Commit 22917b140ffac5208eff173321fa7cdad8976cca added extra locks in
+	  `reset_input_parsebin()` but all call sites of that function already take the
+	  input lock.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5025>
+
+2023-05-16 21:24:44 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	* gst-libs/gst/gl/viv-fb/gstglviv-fb.h:
+	  gl: provide a pkg-config/gir file for the viv-fb backend
+	  Required to be able to generate coherent bindings for window system
+	  specific APIs due to limitations in gobject-introspection.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4959>
+
+2023-05-16 22:09:48 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  gl: don't install the viv-fb window header file
+	  It is not needed at all by any external implementations and should not
+	  be exposed to the outside world.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4959>
+
+2023-06-30 13:53:19 +0200  Carlos Rafael Giani <crg7475@mailbox.org>
+
+	* gst-libs/gst/gl/meson.build:
+	  gl: Separate viv direct texture checks from viv-fb winsys check
+	  Vivante direct textures do not depend on the viv-fb windowing system.
+	  Decouple these two to be able to use direct textures even when viv-fb
+	  is not enabled.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4959>
+
+2023-03-09 00:25:51 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  meson: Install viv-fb GL headers, needed by i.MX
+	  Needed by qmlglsink at build time to allocate a viv-fb display.
+	  Without this, the GL fastpath doesn't work, and performance is really
+	  bad.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4959>
+
+2023-03-26 16:40:28 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  taglist, plugins: fix compiler warnings with GLib >= 2.76
+	  Fix compiler warnings about not using the return value when
+	  freeing the GString segment with g_string_free(.., FALSE):
+	  ignoring return value of ‘g_string_free_and_steal’ declared with attribute ‘warn_unused_result’
+	  which we get with newer GLib versions. These were all harmless.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5015>
+
+2023-07-07 16:01:33 +0300  Maksym Khomenko <maksym.khomenko@skelia.partners>
+
+	* gst-libs/gst/app/gstappsink.c:
+	  appsink: add missing make_writable call
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5013>
+
+2023-07-05 14:27:22 -0400  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  bad: audioaggregator: Do not post message before being constructed
+	  `gst_aggregator_set_latency` will post a message on the bus which
+	  triggers traces for not constructed objects which fails in rust tracers
+	  as object should have names in all traces.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4984>
+
+2023-07-04 15:37:16 +0200  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst/playback/gstsubtitleoverlay.c:
+	  subtitleoverlay: fix mutex error if sink caps is not video
+	  We were trying to unlock a mutex that was not locked.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4972>
+
+2023-06-20 19:10:38 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4907>
+
 === release 1.22.4 ===
 
 2023-06-20 17:42:25 +0100  Tim-Philipp Müller <tim@centricular.com>
