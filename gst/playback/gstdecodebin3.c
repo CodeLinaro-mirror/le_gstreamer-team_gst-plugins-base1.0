@@ -1035,7 +1035,6 @@ reset_input_parsebin (GstDecodebin3 * dbin, DecodebinInput * input)
 
   GST_DEBUG_OBJECT (dbin, "Resetting %" GST_PTR_FORMAT, input->parsebin);
 
-  INPUT_LOCK (dbin);
   GST_STATE_LOCK (dbin);
   gst_element_set_state (input->parsebin, GST_STATE_NULL);
   input->drained = FALSE;
@@ -1048,7 +1047,6 @@ reset_input_parsebin (GstDecodebin3 * dbin, DecodebinInput * input)
   }
   gst_element_sync_state_with_parent (input->parsebin);
   GST_STATE_UNLOCK (dbin);
-  INPUT_UNLOCK (dbin);
 }
 
 
@@ -2220,6 +2218,11 @@ is_selection_done (GstDecodebin3 * dbin)
 
   GST_LOG_OBJECT (dbin, "Checking");
 
+  if (dbin->upstream_selected) {
+    GST_DEBUG ("Upstream handles stream selection, returning");
+    return NULL;
+  }
+
   if (dbin->to_activate != NULL) {
     GST_DEBUG ("Still have streams to activate");
     return NULL;
@@ -2659,7 +2662,6 @@ get_slot_for_input (GstDecodebin3 * dbin, DecodebinInputStream * input)
 
   if (empty_slot) {
     GST_DEBUG_OBJECT (dbin, "Re-using existing unused slot %d", empty_slot->id);
-    empty_slot->input = input;
     return empty_slot;
   }
 
