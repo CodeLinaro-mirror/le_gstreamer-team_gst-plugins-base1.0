@@ -257,7 +257,8 @@ Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends}
 Description: GObject introspection data for the GStreamer Plugins Base library
- This package contains introspection data for the GStreamer Plugins Base library.
+ This package contains introspection data for the GStreamer Plugins Base
+ library.
  .
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Applications using this library can do
