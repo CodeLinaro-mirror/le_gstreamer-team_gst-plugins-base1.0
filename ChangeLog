@@ -1,3 +1,75 @@
+=== release 1.22.6 ===
+
+2023-09-20 18:10:57 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.6
+
+2023-08-26 15:12:05 +0200  Stephan Seitz <sseitz@nvidia.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdp: fix wrong error message for missing clock-rate in caps
+	  When using `gst_sdp_media_set_media_from_caps` on `application/x-rtp` caps
+	  without `clock-rate` it wrongly reports missing payload type even if `payload`
+	  is present in the caps.
+	  This seems to be a copy&paste error from the error message for missing payload
+	  type.
+	  When using payload=10, both `clock-rate` and some other media properties are
+	  defined by the RTP standard so I was wondering whether I could omit `clock-rate`
+	  and was confused about the error message.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5252>
+
+2023-08-19 01:00:16 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiobasesrc.c:
+	* gst-libs/gst/audio/gstaudioringbuffer.c:
+	  audio: Make sure to stop ringbuffer on error
+	  Add gst_audio_ring_buffer_set_errored() that will mark the
+	  ringbuffer as errored only if it is currently started or paused,
+	  so gst_audio_ringbuffer_stop() can be sure that the error
+	  state means that the ringbuffer was started and needs stop called.
+	  Fixes a crash with osxaudiosrc if the source element posts
+	  an error, because the ringbuffer would not get stopped and CoreAudio
+	  would continue trying to do callbacks.
+	  Also, anywhere that modifies the ringbuffer state, make sure to
+	  use atomic operations, to guarantee their visibility
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5216>
+
+2023-08-09 17:35:39 -0400  Olivier Crête <olivier.crete@collabora.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdpmessage: Parse zero clock-rate as default
+	  It seems there is at least one broken RTSP server out there that returns a clock-rate of 0.
+	  Let's just ignore it and use the default in that case.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5199>
+
+2023-08-01 15:14:29 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Ensure the slot is unlinked before linking to decoder
+	  When switching from a raw stream to an encoded stream we need to make sure the
+	  slot is unlinked, there is code in place for this but it wasn't triggered
+	  because the slot being reconfigured wasn't advertised as linked beforehand.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5133>
+
+2023-05-18 16:08:03 +0800  Haihua Hu <jared.hu@nxp.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: avoid identity, sinkpad, parsebin leakage when reset input
+	  when reset_input, need remove identity/parsebin from decodebin3
+	  when release_pad, need call free or reset input if collection
+	  didn't change
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5086>
+
+2023-07-20 16:57:47 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5082>
+
 === release 1.22.5 ===
 
 2023-07-20 15:22:48 +0100  Tim-Philipp Müller <tim@centricular.com>
