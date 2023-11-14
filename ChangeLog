@@ -1,3 +1,76 @@
+=== release 1.22.7 ===
+
+2023-11-13 11:04:22 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.7
+
+2023-11-07 00:27:57 +0100  Piotr Brzeziński <piotr@centricular.com>
+
+	* ext/pango/gstbasetextoverlay.c:
+	  basetextoverlay: Fix overlay never rendering again if width reaches 1px
+	  If text width ever reached 1px, for example after resizing the output window, the overlay would stop rendering
+	  and never return again. The 1px condition itself does not seem to make much sense here anyway.
+	  This was a chain of events: width reached 1, so the composition was set to NULL. Then, after resizing the output window,
+	  push_frame() was called but would not attempt to renegotiate because composition is NULL. This caused the width/height
+	  to never be updated again, as that only happens during negotiation, so the overlay was gone for good.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5623>
+
+2023-10-19 19:41:27 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Make access to the pad list thread-safe while mixing
+	  When mixing every single buffer the object lock is shortly released and
+	  acquired again. In the meantime the pad list can become invalid because
+	  a pad was removed or added, and equally the current pad might as well
+	  have been finalized in the meantime.
+	  To get around that, take a snapshot of all sinkpads before mixing and
+	  work with that list of pads.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3052
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5553>
+
+2023-10-05 13:49:16 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/gl/gstglfilter.c:
+	  glfiter: Protect GstGLContext access
+	  The propose and decide allocation vfuncs are called directly from
+	  basetransform and need to use the locked accessor function for
+	  retrieving a reliable reference to the GstGLContext (if available)
+	  Fixes spurious crashes on shutdown during pad reconfiguration
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5518>
+
+2023-10-09 14:48:35 +0200  Piotr Brzeziński <piotr@centricular.com>
+
+	* gst-libs/gst/gl/gstglfilter.c:
+	  glfilter: Only add parent meta if inbuf != outbuf
+	  This was causing a memory leak in cases like `gltestsrc ! gltransformation scale-x=0.5 ! glimagesink`.
+	  Parent meta was being added in assumption that those buffers are different, which was not the case here,
+	  creating a reference loop and never freeing the buffer.
+	  Co-authored-by: Matthew Waters <matthew@centricular.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5453>
+
+2023-09-21 08:12:47 -0400  Eric <ekc4yz@virginia.edu>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtspconnection: Ignore trailing whitespace in headers
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5382>
+
+2023-09-20 16:07:35 +0200  Michiel Westerbeek <happylinks@gmail.com>
+
+	* gst-libs/gst/audio/audio-resampler.c:
+	* gst-libs/gst/video/video-scaler.c:
+	  video-scaler, audio-resampler: downgrade 'can't find exact taps' to debug
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5381>
+
+2023-09-20 19:41:00 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5371>
+
 === release 1.22.6 ===
 
 2023-09-20 18:10:57 +0100  Tim-Philipp Müller <tim@centricular.com>
