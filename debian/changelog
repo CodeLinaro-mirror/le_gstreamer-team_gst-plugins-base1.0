@@ -1,7 +1,7 @@
-gst-plugins-base1.0 (1.22.7-1) UNRELEASED; urgency=medium
+gst-plugins-base1.0 (1.22.7-1) unstable; urgency=medium
 
-  * New upstream version 1.22.7
   * Team upload.
+  * New upstream version 1.22.7
 
  -- Marc Leeman <marc.leeman@gmail.com>  Tue, 14 Nov 2023 14:05:15 +0100
 
