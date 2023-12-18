@@ -1,3 +1,73 @@
+=== release 1.22.8 ===
+
+2023-12-18 12:09:37 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.8
+
+2023-11-27 09:01:38 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* gst-libs/gst/audio/gstaudioringbuffer.c:
+	  audioringbuffer: Don't try to map MONO channel
+	  Avoids critical message:
+	  gstaudioringbuffer.c: line 2155 (gst_audio_ring_buffer_set_channel_positions):
+	  should not be reached
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5793>
+
+2023-12-02 00:32:31 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	* tests/check/elements/appsrc.c:
+	  appsrc: Fix flow return when buffer is dropped
+	  Flow EOS on buffer drop (upstream leaky mode) was not
+	  intended behavior. Appsrc should return OK instead.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5755>
+
+2023-12-01 18:46:35 +0900  Jimmy Ohn <yongjin.ohn@lge.com>
+
+	* gst/playback/gstdecodebin2.c:
+	  decodebin2: Properly free when shutting down in gst_decode_bin_expose
+	  missing_plugin_details causes memory leakages when shutting down.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5750>
+
+2023-12-01 17:55:28 +0900  Jimmy Ohn <yongjin.ohn@lge.com>
+
+	* gst-libs/gst/pbutils/encoding-target.c:
+	  encoding-target: Properly free when missing type field in parse_encoding_profile
+	  pname and description in parse_encoding_profile function causes
+	  memory leakages when missing the 'type' field for streamprofile.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5750>
+
+2023-11-27 10:36:01 +0000  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	* tests/check/libs/pbutils.c:
+	  pbutils: Don't include default vp9 parameters in resulting codec mime string
+	  According to the document defining the vp9 codec string, the optional fields
+	  should all be present only if at least one of them has a non-default value.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5719>
+
+2023-11-17 10:48:21 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst/videorate/gstvideorate.c:
+	  videorate: Don't forget last_ts on caps changes
+	  Whenever that caps changes does not imply that a new segment will start.
+	  Don't reset the last_ts if only the caps have changed. This fixes issues
+	  if you have a stream without only first frame with TS=0, and have resolution
+	  change happening. This was a regression introduced by !3059, which issue was
+	  described in #1352. The reported issue is still fix after this change.
+	  Fixes #1034
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5712>
+
+2023-11-13 14:57:09 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5650>
+
 === release 1.22.7 ===
 
 2023-11-13 11:04:22 +0000  Tim-Philipp Müller <tim@centricular.com>
