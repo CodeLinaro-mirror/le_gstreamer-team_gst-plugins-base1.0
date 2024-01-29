@@ -1,3 +1,76 @@
+=== release 1.22.9 ===
+
+2024-01-24 18:21:13 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.9
+
+2023-12-14 12:31:01 +0100  Michael Tretter <m.tretter@pengutronix.de>
+
+	* gst/videorate/gstvideorate.c:
+	  videorate: keep pool if max_buffers is unlimited
+	  The value 0 for max_buffers means unlimited. If the max_buffers are unlimited,
+	  the videorate element shouldn't throw away the bufferpool, but just increase the
+	  min_buffers value.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5957>
+
+2023-08-12 10:43:14 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiobasesink.c:
+	  audiobasesink: Don't wait on gap events
+	  Don't call wait_event() at all for gap events, as basesink will
+	  end up waiting for the time that the gap event would be rendered
+	  out at the audio device. There's no need to render it at all,
+	  just treat it as a handy point to resync the audio if needed,
+	  let the ringbuffer render silence, and place the next buffer
+	  into the ringbuffer where it belongs.
+	  The only thing we really need to do is make sure the ringbuffer
+	  and clock are running, and wait for preroll.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2749
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5953>
+
+2024-01-18 20:32:44 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: Correct transform_caps direction
+	  If GST_PAD_SINK is passed in this means that we're supposed to convert
+	  from sink caps to src caps, not the other way around. In other words, if
+	  GST_PAD_SINK is passed we're supposed to produce the possible output
+	  caps.
+	  Previously this was inverted. This had the effect that glcolorconvert
+	  pretended to be able to convert *to* I420 without glDrawBuffers, which is
+	  not possible, and pretended not to be able to convert *from* I420
+	  without glDrawBuffers, which it always supports.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5947>
+
+2023-12-19 12:01:30 -0500  Damian Hobson-Garcia <damian@hobsong.com>
+
+	* ext/gl/gstgloverlay.c:
+	  gloverlay: Apply updated overlay coordinates correctly
+	  When overlay coordinates are updated, after the initial coordinates
+	  are set, the shader indices are applied to the wrong buffer, resulting
+	  in the background image appearing where the overlay should.
+	  Bind the array buffer before applying subsequent coordinate
+	  updates.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5909>
+
+2023-12-18 10:28:18 +0100  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst/audioconvert/gstaudioconvert.c:
+	  audioconvert: change gst_audio_convert_get_unit_size() log levels
+	  INFO is a bit high for such technical details and best to use WARNING
+	  when it fails.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5832>
+
+2023-12-18 13:52:12 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5826>
+
 === release 1.22.8 ===
 
 2023-12-18 12:09:37 +0000  Tim-Philipp Müller <tim@centricular.com>
