@@ -1,3 +1,12 @@
+gst-plugins-base1.0 (1.23.1-1) experimental; urgency=medium
+
+  * New upstream version 1.23.1
+  * d/install: add libgstbasedebug.so and libgstdsd.so
+  * d/symbols: update to 1.23.1
+  * d/symbols: update to 1.23.1 (gl)
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Thu, 08 Feb 2024 17:33:31 +0100
+
 gst-plugins-base1.0 (1.22.9-1) unstable; urgency=medium
 
   * New upstream version 1.22.9
