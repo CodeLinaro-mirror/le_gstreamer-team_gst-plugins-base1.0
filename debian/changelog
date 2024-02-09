@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.23.1-2) experimental; urgency=medium
+
+  * d/control: bump gst dependency to 1.23.1
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Fri, 09 Feb 2024 08:44:32 +0100
+
 gst-plugins-base1.0 (1.23.1-1) experimental; urgency=medium
 
   * New upstream version 1.23.1
