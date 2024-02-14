@@ -1,3 +1,74 @@
+=== release 1.22.10 ===
+
+2024-02-13 14:39:08 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.22.10
+
+2023-05-11 20:01:45 +0200  Piotr Brzeziński <piotr@centricular.com>
+
+	* gst-libs/gst/gl/cocoa/gstglwindow_cocoa.m:
+	  macos: Set activation policy in osxvideosink and glimagesink
+	  Upon creating a window, glimagesink and osxvideosink now set the policy to
+	  NSApplicationActivationPolicyRegular, which lets us show an icon in the Dock
+	  for convenience and appear in the top menu bar like other apps.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6103>
+
+2024-02-08 15:50:43 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	  musepack: Prefer using FFmpeg musepack decoder/demuxer
+	  * Bump the rank of the musepack v7/v8 FFmpeg demuxers to SECONDARY
+	  * Bump the rank of the musepack v7/v8 FFmpeg audio decoders to SECONDARY
+	  * Demote the rank of the musepackdec element to MARGINAL
+	  This is for two reasons:
+	  * The musepack library is no longer maintained, whereas the FFmpeg
+	  implementation can/will receive fixes
+	  * The `musepackdec` implementation was a all-in-one "parsing and decoding" blob
+	  which doesn't play nicely with decodebin3 and others
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3033
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6085>
+
+2024-01-31 00:10:59 +0100  Alexander Slobodeniuk <aslobodeniuk@fluendo.com>
+
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	  videoaggregator: fix bufferpool leak
+	  that happens if it fails to activate the pool
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6047>
+
+2024-01-26 10:56:19 +0100  Christian Curtis Veng <vengzor@gmail.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: fix wrong RGB to YUV matrix with bt709
+	  Converting from RGB to YUV: When comparing the info.colorimetry to
+	  GST_VIDEO_COLORIMETRY_BT709 it does not make sense to look at the input
+	  signal because that is of type of RGB. The plugin needs to look at the
+	  output YUV-type and compare GST_VIDEO_COLORIMETRY_BT709 to that, because
+	  that is the YUV-type the plugin needs to convert input-RGB into.
+	  Converting from YUV to RGB: Comparing to the input is correct, but because
+	  here the color encoding info BT601/BT709 is on input side of the plugin.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6046>
+
+2024-01-24 03:17:32 +1100  Jan Schmidt <jan@centricular.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstglvideoflip.c:
+	  glvideoflip: fix setting of method property at construction time
+	  A port of the same fix that
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/4536
+	  did for the non-GL videoflip element
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3245
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6010>
+
+2024-01-25 00:18:12 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5990>
+
 === release 1.22.9 ===
 
 2024-01-24 18:21:13 +0000  Tim-Philipp Müller <tim@centricular.com>
