@@ -1,3 +1,103 @@
+=== release 1.23.2 ===
+
+2024-02-15 15:37:17 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.23.2
+
+2024-02-15 09:14:37 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Don't acquire STATE_LOCK if shutting down
+	  If we are shutting down (PAUSED->READY) we shouldn't take the STATE LOCK since
+	  this function is being called from a streaming thread (which is trying to be
+	  deactivated while the STATE LOCK is held)
+	  Fixes #3292
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6121>
+
+2024-02-14 12:26:36 +0100  Edward Hervey <edward@centricular.com>
+
+	* tools/gst-play.c:
+	  gst-play: Default to using playbin3
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6115>
+
+2024-02-14 00:37:02 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* po/fr.po:
+	* po/lv.po:
+	* po/nl.po:
+	* po/sv.po:
+	  gst-plugins-base: update translations
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6113>
+
+2024-02-10 19:47:24 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtsptransport.c:
+	  realmedia: remove RealServer RTSP extension, RDT handling and PNM source
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6091>
+
+2024-02-08 21:51:38 -0500  Damian Hobson-Garcia <damian@hobsong.com>
+
+	* gst-libs/gst/allocators/gstshmallocator.c:
+	  GstShmAllocator: Map/unmap full buffer when padding is added
+	  When allocating buffers with alignment parameters specified, it
+	  may be necessary to overallocate memory to adjust to the requested
+	  alignment.  Previously the padding length was not included in the mmaped
+	  buffer size, leaving unmapped bytes at the end of the buffer.
+	  This caused intermittent SEGV faults and valgrind failures when running
+	  the wayland_threads example.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6104>
+
+2024-02-08 15:50:43 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	  musepack: Prefer using FFmpeg musepack decoder/demuxer
+	  * Bump the rank of the musepack v7/v8 FFmpeg demuxers to SECONDARY
+	  * Bump the rank of the musepack v7/v8 FFmpeg audio decoders to SECONDARY
+	  * Demote the rank of the musepackdec element to MARGINAL
+	  This is for two reasons:
+	  * The musepack library is no longer maintained, whereas the FFmpeg
+	  implementation can/will receive fixes
+	  * The `musepackdec` implementation was a all-in-one "parsing and decoding" blob
+	  which doesn't play nicely with decodebin3 and others
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3033
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6074>
+
+2023-10-02 17:17:36 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/video/video-anc.c:
+	* gst-libs/gst/video/video-anc.h:
+	  video-anc: New GstMeta for SMPTE ST-291M Ancillary Data
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5488>
+
+2024-01-31 20:06:06 +0200  Vivia Nikolaidou <vivia@ahiru.eu>
+
+	* gst/videorate/gstvideorate.c:
+	* tests/check/elements/videorate.c:
+	  videorate: Correct segment-based calculations
+	  It was adding and subtracting the segment base here and there, but it
+	  was also doing so incorrectly, leading to various calculation errors.
+	  Fixed a few bugs uncovered, related to getting a new segment:
+	  * If we reset base_ts/next_ts/out_frame_count, also reset prevbuf
+	  * Only do so if the new segment is different than the previous one
+	  Also replaced a few occurrences of GST_BUFFER_TIMESTAMP with
+	  GST_BUFFER_PTS for consistency.
+	  Integrated the tests of
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/2186
+	  , now passing. The test_segment_update_same test had to be fixed,
+	  because it was wrongly assuming that we would not fill the gap inside
+	  the new-but-same segment.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6031>
+
+2024-02-06 18:09:02 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6066>
+
 === release 1.23.1 ===
 
 2024-02-06 16:37:19 +0000  Tim-Philipp Müller <tim@centricular.com>
