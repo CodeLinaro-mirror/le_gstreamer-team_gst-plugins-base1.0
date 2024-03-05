@@ -1,3 +1,15 @@
+gst-plugins-base1.0 (1.24.0-1) unstable; urgency=medium
+
+  * Revert "d/watch: pin master releases on 1.22.x"
+  * New upstream version 1.24.0
+  * d/install: add libgstbasedebug.so and libgstdsd.so
+  * d/symbols: update to 1.23.1
+  * d/symbols: update to 1.23.1 (gl)
+  * d/symbols: update for 1.23.2
+  * d/control: update gstreamer dependencies to >= 1.24.0
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Tue, 05 Mar 2024 11:55:10 +0100
+
 gst-plugins-base1.0 (1.22.10-1) unstable; urgency=medium
 
   * d/watch: pin master releases on 1.22.x
