@@ -38,7 +38,7 @@ Build-Depends: debhelper-compat (= 13),
                libasound2-dev (>= 0.9.1) [linux-any],
                libdrm-dev (>= 2.4.55) [linux-any],
                libgbm-dev [linux-any],
-               libgudev-1.0-dev (>= 147) [!armel !armhf !hppa !m68k !powerpc !sh4],
+               libgudev-1.0-dev (>= 147) [linux-any],
                libwayland-dev (>= 1.11) [linux-any],
                wayland-protocols (>= 1.15) [linux-any],
                iso-codes,
@@ -113,7 +113,7 @@ Depends: ${misc:Depends},
          libwayland-dev (>= 1.11) [linux-any],
          libdrm-dev (>= 2.4.55) [linux-any],
          libgbm-dev [linux-any],
-         libgudev-1.0-dev (>= 147) [!armel !armhf !hppa !m68k !powerpc !sh4],
+         libgudev-1.0-dev (>= 147) [linux-any],
          gir1.2-gst-plugins-base-1.0 (= ${binary:Version})
 Breaks: libgstreamer-plugins-bad1.0-dev (<< 1.15.1)
 Conflicts: libgstreamer-plugins-bad1.0-dev (<< 1.15.1)
