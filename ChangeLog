@@ -1,3 +1,180 @@
+=== release 1.24.1 ===
+
+2024-03-21 21:47:53 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.1
+
+2024-03-19 09:32:39 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Don't hold lock when posting messages or signals
+	  There's a very good chance that the receiver might react on those synchronously
+	  and call back into uridecodebin3 (ex: for setting the next URI).
+	  Make sure we release the lock if we need to do that.
+	  Fixes #3400
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6403>
+
+2024-03-18 08:47:18 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Handle potential double redirection errors
+	  Some elements (like qtdemux) might post a redirection error message twice. We
+	  only want to handle it once.
+	  Fixes #3390
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6394>
+
+2024-03-13 12:49:41 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiobasesink.c:
+	  Revert "audiobasesink: Don't wait on gap events"
+	  This reverts commit 8e923a8e2d7d9391554371045cfe4d0e2d8d0c7a.
+	  This caused regressions, see #3303.
+	  Without this commit, osxaudiosrc ! osxaudiosink won't work
+	  right, but since that hasn't really been a huge problem
+	  for years it's probably best to revert this until a proper
+	  solution can be figured out.
+	  (cherry picked from commit f04f86f3ee4f9eccfd72f473b8ff848161576a90)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6384>
+
+2024-03-14 09:27:10 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Post error messages if there are no streams to output
+	  This could happen because:
+	  * No streams were selected
+	  * Or we end up with no stream selected
+	  Also post a warning message if we are missing plugins but there are other
+	  streams to output
+	  Fixes #3360
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6377>
+
+2024-03-12 16:36:36 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Remove failing stream from active selection also
+	  It gets added in get_output_slot()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6377>
+
+2024-03-11 13:27:09 +0100  Thomas Klausner <wiz@gatalith.at>
+
+	* gst-libs/gst/allocators/gstshmallocator.c:
+	  shmallocator: fix build on Illumos
+	  Closes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3370
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6362>
+
+2024-03-11 18:30:08 +0100  Piotr Brzeziński <piotr@centricular.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: Don't wrap temporary memory in buffers
+	  Avoids potentially ending up with the buffermemory pointing to already-freed or reused addresses.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6339>
+
+2024-03-11 13:14:51 +0100  Piotr Brzeziński <piotr@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioencoder.c:
+	  audioencoder: Avoid wrapping temporarily mapped memory with a GstBuffer and passing that to subclass
+	  Memory from gst_adapter_map() could live shorter than the GstMemory that the GstBuffer wraps around it, which in lucky
+	  cases 'just' caused a re-use of the same memory for multiple (potentially still in use!) input buffers, but could easily
+	  end up pointing to an already-freed memory.
+	  Manifested when an AudioToolbox encoder kept getting silence inserted in seemingly random circumstances, turned out
+	  to be the memory being re-used by GStreamer at the same time that the AT API was processing it...
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6339>
+
+2024-03-11 11:56:51 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: Do not propose allocators with sysmem
+	  None of the GL allocators actually offer a generic alloc() implementation. As a
+	  side effect, they cannot be offered as they don't work with generic video
+	  buffer pool.
+	  Our specialized buffer pool can be dropped by tee or alphacombine as sharing the
+	  same buffer pool over two branch is not supported by the pool API.
+	  Fixes #3372
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6350>
+
+2024-03-11 15:58:53 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: Remove un-needed URI NULL check
+	  This will mimic the playbin2 behaviour, which sets the "next" entry to be
+	  NULL.
+	  The biggest impact this has is that when going back to READY the current play
+	  entry will be discarded (instead of being kept around for when you go back to
+	  PAUSED/PLAYING).
+	  Fixes #3371
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6338>
+
+2024-03-06 09:48:43 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Handle race switching on pending streams
+	  find_slot_for_stream_id() will return a slot which has the request stream-id as
+	  active_stream *or* pending_stream (i.e. the slot on which that stream is
+	  currently being outputted or will be outputted).
+	  When figuring out which slot to use (if any) we want to consider stream-id
+	  which *will* appear on a given slot which isn't outputting anything yet the same
+	  way as if we didn't find a slot yet.
+	  Fixes races when doing intensive state changes
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6332>
+
+2024-03-04 15:59:14 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Clear select streams seqnum when resetting
+	  At this point there's definitely no pending select streams
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6332>
+
+2024-03-01 17:38:46 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Only post collection message on actual updates
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6332>
+
+2024-03-01 17:37:30 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Clear the global collection when resetting
+	  This avoids having stray collections when re-using decodebin3
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6332>
+
+2024-03-11 09:16:01 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Provide clear error message if no decoders present
+	  If we don't do this we will end up with a more cryptic error message (not-linked
+	  error from some upstream component).
+	  Fixes #3198
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6329>
+
+2024-02-22 16:36:40 +0100  Piotr Brzeziński <piotr@centricular.com>
+
+	* gst-libs/gst/gl/cocoa/gstglwindow_cocoa.m:
+	  macos: Fix glimagesink not respecting preferred size
+	  Cocoa version of glwindow only checks the preferred size upon window creation. glimagesink sets the size right before
+	  calling gst_gl_window_show(), which might be way after the window is created in some cases. If the size was set too
+	  late, glimagesink on macOS would remain 320x240 unless manually resized.
+	  This change makes sure to resize the existing window when _show() is called.
+	  Curiously, this has always been an issue, but went from manifesting every once in a while to being almost completely
+	  broken once old event loop workarounds were removed and gst_macos_main() was introduced.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6276>
+
+2024-03-05 18:37:36 +0800  Xi Ruoyao <xry111@xry111.site>
+
+	* tests/check/meson.build:
+	  gst-plugins-base: meson: Fix the condition to skip theoradec test
+	  Due to operator priority "not a and b" is interpreted "(not a) and b".
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6269>
+
+2024-03-05 13:45:27 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6264>
+
 === release 1.24.0 ===
 
 2024-03-04 23:51:42 +0000  Tim-Philipp Müller <tim@centricular.com>
