@@ -1,3 +1,13 @@
+gst-plugins-base1.0 (1.24.1-1) unstable; urgency=medium
+
+  [ Jeremy Bícha ]
+  * Revert "Disable libgudev Build-Depends on 32-bit for bootstrapping"
+
+  [ Marc Leeman ]
+  * New upstream version 1.24.1
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Fri, 22 Mar 2024 09:56:06 +0100
+
 gst-plugins-base1.0 (1.24.0-2) unstable; urgency=medium
 
   * Team upload
