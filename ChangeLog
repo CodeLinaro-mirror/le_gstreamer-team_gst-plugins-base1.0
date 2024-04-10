@@ -1,3 +1,112 @@
+=== release 1.24.2 ===
+
+2024-04-09 21:48:55 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.2
+
+2024-04-01 14:31:49 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Handle WavPack block sizes > 131072
+	  These are valid nowadays.
+	  Also handle ID_ODD_SIZE and ID_WVX_NEW_BITSTREAM. The parser already
+	  handles the former but not the latter.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3440
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6541>
+
+2024-04-02 16:53:26 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	  pbutils: descriptions: Don't warn on MPEG-1 audio caps without layer field
+	  While this is not ideal and won't give too accurate codec descriptions,
+	  it is what tsdemux produces.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6538>
+
+2024-04-02 12:35:37 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/cocoa/gstglcaopengllayer.m:
+	  glcaopengllayer: NULL some fields when freed
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6524>
+
+2024-04-02 12:34:16 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/cocoa/gstglwindow_cocoa.m:
+	  glwindow/cocoa: keep a window reference across an async callback
+	  Esnures that the window is alive when the callback is fired.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6524>
+
+2024-04-02 12:27:13 +1100  Matthew Waters <matthew@centricular.com>
+
+	* ext/gl/gstglimagesink.c:
+	  glimagesink: avoid a possible critical on shutdown
+	  It is possible that the close callback can be called after glimagesink
+	  is changing state to NULL.  Protect against that by taking the glimagesink
+	  lock and some NULL checking.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6524>
+
+2024-04-02 12:25:08 +1100  Matthew Waters <matthew@centricular.com>
+
+	* ext/gl/gstglimagesink.c:
+	  glimagesink: unref the potential last ref outside of the glimagesink lock
+	  Avoids a deadlock between the state change removing the last ref and
+	  the destructer calling the window's on_close handler and trying to
+	  take the glimagesink lock.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6524>
+
+2024-04-02 12:22:33 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/gstglbufferpool.c:
+	  glbufferpool: protect release_buffer from multiple concurrent access
+	  If two different threads attempt to release buffers at the same time, then the
+	  keep-alive-slightly-longer GQueue may become corrupted.  Guard against that with
+	  some locking.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6524>
+
+2024-04-02 12:17:50 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/cocoa/gstglcontext_cocoa.m:
+	  gl/context/cocoa: ensure pixel format lives as long as the context
+	  Under some circumstances, the CGLPixelFormatObj was being destroyed too
+	  early which could lead to potential use-after-frees.
+	  Fix by returning a reference when asked for the pixel format.
+	  Fixes: https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3154
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6524>
+
+2024-04-01 18:00:53 -0400  Xavier Claessens <xavier.claessens@collabora.com>
+
+	* gst/videorate/gstvideorate.c:
+	* tests/check/elements/videorate.c:
+	  videorate: Reset last_ts when a new segment is received
+	  This fix all buffers being droped when a new segment is received and
+	  average-period property is set.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6522>
+
+2024-04-01 14:26:11 +0900  Chao Guo <chao.guo@nxp.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: Ensure glcolorconvert does not miss supported RGB formats
+	  Add RGB16 and other RGB formats to rgb_formats to ensure glcolorconvert
+	  does not miss the RGB formats it supports
+	  Signed-off-by: Chao Guo <chao.guo@nxp.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6517>
+
+2024-03-29 12:30:28 +0900  Hou Qi <qi.hou@nxp.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebin: Add the parser before timestamper to tosync list
+	  Also need to sync the state of the parser before timestamper with
+	  parent.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6486>
+
+2024-03-22 01:38:06 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development
+
 === release 1.24.1 ===
 
 2024-03-21 21:47:53 +0100  Tim-Philipp Müller <tim@centricular.com>
