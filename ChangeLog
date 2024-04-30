@@ -1,3 +1,95 @@
+=== release 1.24.3 ===
+
+2024-04-30 00:15:23 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.3
+
+2024-04-25 15:21:20 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Prevent integer overflows and out of bounds reads when handling undefined tags
+	  Fixes ZDI-CAN-23896
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3483
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6768>
+
+2024-04-26 10:12:23 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: Handle combiner update in case of errors
+	  The assertion that was present before is a bit too harsh, since there is now
+	  a (understandable) use-case where this could happen.
+	  In gapless use-case, with two files containing the same type (ex:audio). The
+	  first one *does* expose a collection with an audio stream, but decoding
+	  fails (for whatever reason).
+	  That would cause us to have configured a audio combiner, which was never
+	  used (i.e. not active).
+	  Then the second file plays and we (wrongly) assume it should be activated
+	  ... whereas the combiner was indeed present.
+	  Demote the assertion to a warning and properly handle it
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3389
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6742>
+
+2024-04-22 16:05:29 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Remove custom stream-start field if present
+	  This field is added by urisourcebin so that we can avoid double-parsing. It's no
+	  longer needed after.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6716>
+
+2024-04-19 11:31:54 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin2: Adaptive demuxers don't require another parsebin
+	  By setting the same field on the GST_EVENT_STREAM_START decodebin3 will be able
+	  to avoid plugging in an extra parsebin
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6716>
+
+2024-04-14 11:55:56 -0400  F. Duncanh <fduncanh@gmail.com>
+
+	* sys/ximage/ximagesink.c:
+	  ximagesink: initialize mask for XISelectEvents
+	  Fixes #3470
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6654>
+
+2024-04-10 14:58:54 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: don't overread the end of an array
+	  Reverse index iteration needs a - 1 for the initial value.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6605>
+
+2024-04-03 20:35:06 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: remove unused swizzling using "rgba" chars
+	  We use indices now instead.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6605>
+
+2024-04-10 07:22:36 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Ensure non-time subtitle streams get "parsed"
+	  Since https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6153 ,
+	  subtitle "decoders" (i.e. which decode to raw text) are no longer auto-plugged
+	  by parsebin.
+	  But if a given format does not have a parser at all, we would end up outputting
+	  non-time/non-parsed outputs.
+	  In order to mitigate the issue, until such parsers are available, we check if
+	  the subtitle stream is in TIME format or not (i.e. whether it comes from a
+	  parser or demuxer). If not, we attempt to plug in a subtitle "decoder".
+	  Fixes #3463
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6597>
+
+2024-04-10 00:04:02 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.2
+
 === release 1.24.2 ===
 
 2024-04-09 21:48:55 +0100  Tim-Philipp Müller <tim@centricular.com>
