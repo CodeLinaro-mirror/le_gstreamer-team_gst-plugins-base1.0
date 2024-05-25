@@ -1,0 +1,32 @@
+--- gst-plugins-base1.0-1.18.4.orig/gst-libs/gst/tag/tags.c
++++ gst-plugins-base1.0-1.18.4/gst-libs/gst/tag/tags.c
+@@ -530,7 +530,8 @@ gst_tag_image_data_to_image_sample (cons
+   GstStructure *image_info = NULL;
+ 
+   g_return_val_if_fail (image_data != NULL, NULL);
+-  g_return_val_if_fail (image_data_len > 0, NULL);
++  g_return_val_if_fail (image_data_len > 0
++      || image_data_len == G_MAXUINT32, NULL);
+   g_return_val_if_fail (gst_tag_image_type_is_valid (image_type), NULL);
+ 
+   GST_DEBUG ("image data len: %u bytes", image_data_len);
+--- gst-plugins-base1.0-1.18.4.orig/gst/subparse/gstsubparse.c
++++ gst-plugins-base1.0-1.18.4/gst/subparse/gstsubparse.c
+@@ -815,7 +815,7 @@ subrip_fix_up_markup (gchar ** p_txt, gc
+     }
+ 
+     if (*next_tag == '<' && *(next_tag + 1) == '/') {
+-      end_tag = strchr (cur, '>');
++      end_tag = strchr (next_tag, '>');
+       if (end_tag) {
+         const gchar *last = NULL;
+         if (num_open_tags > 0)
+@@ -828,6 +828,8 @@ subrip_fix_up_markup (gchar ** p_txt, gc
+         } else {
+           --num_open_tags;
+           g_ptr_array_remove_index (open_tags, num_open_tags);
++          cur = end_tag + 1;
++          continue;
+         }
+       }
+     }

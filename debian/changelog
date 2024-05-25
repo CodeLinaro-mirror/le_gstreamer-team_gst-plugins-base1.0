@@ -1,3 +1,17 @@
+gst-plugins-base1.0 (1.18.4-2+deb11u2) bullseye-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * exiftag: Prevent integer overflows and out of bounds reads when handling
+    undefined tags (CVE-2024-4453)
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sat, 25 May 2024 11:31:34 +0200
+
+gst-plugins-base1.0 (1.18.4-2+deb11u1) bullseye-security; urgency=medium
+
+  * GST-2023-0001 GST-2023-0002
+
+ -- Moritz Mühlenhoff <moritz@wikimedia.org>  Thu, 29 Jun 2023 18:09:27 +0200
+
 gst-plugins-base1.0 (1.18.4-2) unstable; urgency=medium
 
   * Upload to unstable.
