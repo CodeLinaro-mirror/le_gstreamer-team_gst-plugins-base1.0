@@ -1,3 +1,101 @@
+=== release 1.24.4 ===
+
+2024-05-29 13:44:50 +0300  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.4
+
+2024-05-28 16:04:37 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Fix handling of ID_ODD_SIZE in WavPack typefinder
+	  Chunks are always starting on an even position and this flag only
+	  specifies that the last byte of the chunk is not valid.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3569
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6944>
+
+2024-04-29 12:15:20 +0200  Yacine Bandou <yacine.bandou@softathome.com>
+
+	* gst/playback/gststreamsynchronizer.c:
+	  streamsynchronizer: Fix deadlock when streams have been flushed before others start
+	  To simplify the description, I'm assuming we only have two streams: video and audio.
+	  For the video stream, we have the following events :
+	  - STREAM_START => stream->wait set to true
+	  - NEW_SEGMENT(1) => blocked waiting in gst_stream_synchronizer_wait
+	  - FLUSH_START => unblocked
+	  - FLUSH_STOP => stream->wait reset to false
+	  - NEW_SEGMENT(2) => not waiting, since stream->wait is false
+	  Then for the audio stream, we have the following events :
+	  - STREAM_START => stream->wait set to true
+	  - NEW_SEGMENT(2) => blocked waiting in gst_stream_synchronizer_wait for ever.
+	  Note: The first NEW_SEGMENT event and the FLUSH_START, FLUSH_STOP events of the audio stream
+	  are dropped before being received by the streamsynchronizer element, because the decodebin audio pad src
+	  is not yet linked to the playsink audio pad sink.
+	  To fix this deadlock, we don't reset stream->wait to false in the FLUSH_STOP event when it is not
+	  waiting for the EOS of the other streams.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6887>
+
+2024-05-15 10:58:57 -0700  Joshua Breeden <joshua.breeden@kiswe.com>
+
+	* gst/videotestsrc/gstvideotestsrc.c:
+	* gst/videotestsrc/gstvideotestsrc.h:
+	  videotestsrc: add mutex around cache buffer to prevent race condition
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6889>
+
+2024-05-15 22:17:44 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	* gst/playback/gsturidecodebin3.c:
+	* gst/playback/gsturisourcebin.c:
+	  decodebin3: Fix caps and stream leaks
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6866>
+
+2024-05-09 12:41:45 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/check/elements/audioconvert.c:
+	  audioconvert: Add test for 96 channel conversion
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6828>
+
+2024-05-09 09:57:54 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/audio-channel-mixer.c:
+	* gst-libs/gst/audio/audio-channels.c:
+	  audioconvert: Support converting >64 channels
+	  There's nothing requiring <= 64 channels except for getting the reorder
+	  map and creating a channel mixing matrix, but those won't be possible to
+	  call anyway as channel positions can only express up to 64 channels.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6828>
+
+2024-05-03 22:35:21 -0400  Bill Nottingham <notting@splat.cc>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  pbutils: fix visualization plugins
+	  inbuf is persistent, GST_BUFFER_COPY_MEMORY's append behavior is
+	  not what we want.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6814>
+
+2024-04-29 15:25:28 +0800  Shengqi Yu <shengqi.yu@mediatek.com>
+
+	* ext/gl/gstgldownloadelement.c:
+	* gst-libs/gst/gl/gstglmixer.c:
+	  glmixer: Add GL_SYNC_META option to bufferpool
+	  when pipline is
+	  glvideomixerelement->glcolorconvertelement->gldownloadelement and
+	  glcolorconvertelement is not passthrough, the gl bufferpool between
+	  glvideomixerelement and glcolorconvertelement will not add gl sync meta
+	  during allocating buffer. This will cause that glcolorconvert's inbuf
+	  has no sync meta to wait for.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6784>
+
+2024-04-30 00:36:59 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.3
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/6772>
+
 === release 1.24.3 ===
 
 2024-04-30 00:15:23 +0100  Tim-Philipp Müller <tim@centricular.com>
