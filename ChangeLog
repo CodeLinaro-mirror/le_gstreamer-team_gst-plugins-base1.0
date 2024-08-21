@@ -1,3 +1,82 @@
+=== release 1.24.7 ===
+
+2024-08-21 12:25:15 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.7
+
+2024-08-19 09:37:51 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Actually drop EOS on old-school pad switch
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7376>
+
+2024-08-16 14:25:53 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Don't hold lock when emitting about-to-finish
+	  This could trigger actions that re-enter this element
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7373>
+
+2024-08-14 10:51:13 +0200  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	* tests/check/libs/pbutils.c:
+	  pbutils: descriptions: use subsampling factor to get YUV subsampling
+	  The algorithm used to determine the YUV subsampling string uses width and height
+	  subsampling factor, not the raw subsampling. Otherwise all 4:2:0 YUV frames will
+	  be detected as 4:4:4
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7359>
+
+2024-07-08 11:29:08 +0300  Max Romanov <max.romanov@gmail.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtspconnection: Handle invalid argument properly
+	  In case when conn->input_stream is NULL and glib was built with
+	  "glib_checks" enabled, g_pollable_input_stream_read_nonblocking()
+	  returns -1, but does not set the "err".
+	  The call stack:
+	  read_bytes() ->
+	  fill_bytes() ->
+	  fill_raw_bytes()
+	  The return value -1 passed up to read_bytes() and incorrectly
+	  processed there after "error:" label.
+	  This changes the return value to EINVAL.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7309>
+
+2024-07-31 12:35:20 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* sys/xvimage/xvimagepool.c:
+	  xv: imagepool: Improve error logging
+	  The shm creation function can return a GError, use this to improve the error
+	  reporting.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7292>
+
+2024-07-30 16:18:56 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* sys/xvimage/xvimagepool.c:
+	  xvimagesink: Fix crash in pool on error
+	  The set_config() virtual function is not support to free the config. As a side
+	  effect, when there is protocol error of some sort, we endup with a crash.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7292>
+
+2024-07-26 16:10:59 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglframebuffer.c:
+	  glframebuffer: Improve error tracing
+	  glCheckFrameStatus() can fail by returning 0, and otherwise return a
+	  status. Fix the trace to make it clear when we get an unkown status
+	  compare to having an error, in which case we also trace the error code.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7295>
+
+2024-07-29 16:48:02 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.6
+
 === release 1.24.6 ===
 
 2024-07-29 16:41:37 +0100  Tim-Philipp Müller <tim@centricular.com>
