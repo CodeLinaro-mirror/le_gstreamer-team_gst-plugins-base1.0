@@ -1,3 +1,11 @@
+gst-plugins-base1.0 (1.24.7-3) unstable; urgency=medium
+
+  * Team upload
+  * Apply updated patch to try to fix rust-gstreamer-video test on s390x
+  * Stop ignoring build test failures on arm64 and ppc64el
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 05 Sep 2024 08:41:28 -0400
+
 gst-plugins-base1.0 (1.24.7-2) unstable; urgency=medium
 
   * Team upload
