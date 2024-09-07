@@ -1,3 +1,10 @@
+gst-plugins-base1.0 (1.24.7-4) unstable; urgency=medium
+
+  * Team upload
+  * Try again to fix rust-gstreamer-video test on s390x
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 06 Sep 2024 21:16:21 -0400
+
 gst-plugins-base1.0 (1.24.7-3) unstable; urgency=medium
 
   * Team upload
