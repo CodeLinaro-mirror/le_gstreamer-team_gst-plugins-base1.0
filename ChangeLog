@@ -1,3 +1,69 @@
+=== release 1.24.8 ===
+
+2024-09-19 12:01:21 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.8
+
+2024-04-17 09:46:35 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebin: Fix pad removal for encodebin vs encodebin2
+	  Clarify the fact that `encodebasebin->src_pad` is set when using a static source
+	  pad (`encodebin`) and when not set it's dynamically added source
+	  pads (`encodebin2`).
+	  Fixes usage of encodebin2 when profiles are updated
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7523>
+
+2024-09-05 22:07:24 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	* gst-libs/gst/video/gstvideodecoder.c:
+	* gst-libs/gst/video/gstvideoencoder.c:
+	  video: Don't overshoot QoS earliest time by a factor of 2
+	  By setting the earliest time to timestamp + 2 * diff there would be a difference
+	  of 1 * diff between the current clock time and the earliest time the element
+	  would let through in the future. If e.g. a frame is arriving 30s late at the
+	  sink, then not just all frames up to that point would be dropped but also 30s of
+	  frames after the current clock time.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7518>
+
+2024-09-10 21:25:42 +0200  Carlos Bentzen <cadubentzen@igalia.com>
+
+	* tools/meson.build:
+	  meson: gst-play: link to libm
+	  gst-play.c depends on libm due to using `round`.
+	  Passing by, correct identation of `gst_tools` definition.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7501>
+
+2024-08-13 12:07:12 +0900  Chao Guo <chao.guo@nxp.com>
+
+	* ext/gl/gstglimagesink.c:
+	* ext/gl/gstglimagesink.h:
+	  glimagesink: resize viewport when video size changed in caps
+	  When re-negotiation happends and caps is changed, resize the
+	  viewport to the corresponding video size in changed caps.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7450>
+
+2024-08-21 16:29:03 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Fix collection identity check
+	  Collections can be auto-generated from upstream and yet have exactly the same
+	  streams in it.
+	  Therefore do a more in-depth check for equality.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3742
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7402>
+
+2024-08-21 12:33:28 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.7
+
 === release 1.24.7 ===
 
 2024-08-21 12:25:15 +0100  Tim-Philipp Müller <tim@centricular.com>
