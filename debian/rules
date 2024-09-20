@@ -32,6 +32,7 @@ conf_flags += -Dauto_features=enabled -Dexamples=disabled -Dtremor=disabled -Ddo
 
 ifeq ($(DEB_HOST_ARCH_OS),hurd)
 conf_flags += -Dcdparanoia=disabled
+conf_flags += -Ddrm=disabled
 endif
 
 ifneq ($(DEB_HOST_ARCH_OS),linux)
