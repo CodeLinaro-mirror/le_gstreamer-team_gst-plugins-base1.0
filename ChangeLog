@@ -1,3 +1,310 @@
+=== release 1.24.9 ===
+
+2024-10-30 20:33:30 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.9
+
+2024-10-23 15:39:17 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	* gst/playback/gstplaybackutils.c:
+	* gst/playback/gstplaybackutils.h:
+	* gst/playback/gsturisourcebin.c:
+	  playback: Improve stream list search
+	  There is the possibility than an element/code/helper creates an identical
+	  `GstStream` (same type and stream-id) instance instead of re-using a previous
+	  one.
+	  For those cases, when detecting whether a `GstStream` is already present in a
+	  collection, we need to do more checks than just comparing the pointer.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7764>
+
+2024-10-23 15:17:22 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Aggregate collections from multiple parsebin
+	  In the case where multiple parsebin are present (ex: from rtsp sources), we want
+	  to aggregate the collections provided by the different parsebin and expose a
+	  single "unified" collection.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7764>
+
+2024-10-23 14:25:52 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Store caps on parsepad as early as possible
+	  When analyzing a new pad, we can store the updated caps on the GstStream if they
+	  are fixed.
+	  If they are not fixed, this function will be called again once the element will
+	  provide them.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7764>
+
+2024-10-23 14:24:36 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Don't store bogus caps on GstStream
+	  If we can't get the current caps when receiving a stream-start, that's fine,
+	  they can/will be provided by other means at a later time.
+	  What we definitely should not do is provide the starting caps of the chain,
+	  which are potentially completely different from the end ones (like for example
+	  `application/x-rtp`)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7764>
+
+2024-10-23 14:24:18 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Minor debug statement updates
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7764>
+
+2024-08-19 10:33:23 -0400  Xavier Claessens <xavier.claessens@collabora.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  gl: Fix configure error when libdrm is a subproject
+	  When libdrm is a subproject it cannot be used in a configure time check:
+	  ERROR: Dependencies must be external dependencies
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7761>
+
+2024-05-28 04:23:01 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* ext/gl/meson.build:
+	* gst-libs/gst/gl/egl/gsteglimage.c:
+	* gst-libs/gst/gl/gstglupload.c:
+	* gst-libs/gst/gl/meson.build:
+	  gl: Fix libdrm dependency detection and usage
+	  drm_fourcc.h should be picked up via the pkgconfig dep, not the system
+	  includedir directly. All this allows it to be picked up consistently
+	  (via the subproject, for example).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7760>
+
+2024-10-15 15:58:53 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebasebin: Fix parser selection
+	  If an encoder supports multiple codecs (a bin wrapping/auto-plugging encoders)
+	  then its src pad template caps might list the supported codecs. Without this
+	  patch the selected parser would be the one corresponding to the first codec,
+	  leading to caps negotiation error later on. The proposed fix is to check the
+	  media type on the parser candidates sink pad templates according to the
+	  requested encoded format.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7756>
+
+2024-10-15 15:57:06 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebasebin: Fix parser cleanup
+	  When removing the parser from the stream group, it might not be linked to a
+	  combiner so this needs to be checked.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7756>
+
+2024-10-22 13:23:05 +0100  James Cowgill <james.cowgill@blaize.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Check the result of gst_date_time_new_local_time
+	  Fixes a critical warning when parsing a JPEG containing a malformed
+	  `DateTime` tag (like `0000:00:00 00:00:00`).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7713>
+
+2024-10-18 14:41:44 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/egl/gstglcontext_egl.c:
+	  glcontext: egl: Unrestrict the support base DRM formats
+	  There is no requirement for a base DRM format to be supported by libgstvideo
+	  in order to be uploaded to. Don't limite to DRM fourcc that have a libgstvideo
+	  format mapping. This notably enabled AFBC support, which uses an opaque based
+	  format that does not have a linear definition. This also adds R8/RG88 and
+	  simimlar other formats that are not yet mapped in libgstvideo.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7699>
+
+2024-10-16 17:20:46 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Don't remove probe if not present
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7682>
+
+2024-10-03 17:16:25 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Set pad probe before linking pad
+	  We want to grab all events that pass through, so we need to set the
+	  probe **before** the pad is linked
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7682>
+
+2024-10-03 17:16:08 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Streamline event forwarding code
+	  Instead of two different functions for copying events and rewriting the
+	  stream-start event, just have a single one.
+	  This is needed, since we want to do both of those in one go, with the pad lock
+	  taken.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7682>
+
+2024-10-03 17:09:13 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Set stream collection on pad before exposing it
+	  We want to ensure the stream-collection is present on the pad (as a sticky
+	  event) before we expose the pad.
+	  This is more reliable since it will ensure it is present before any other event
+	  is pushed through.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7682>
+
+2024-10-03 17:07:59 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Use lock when checking input/output items
+	  Otherwise there is the risk that the play items list could have changed in
+	  between
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7682>
+
+2024-10-03 17:05:15 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Free pending events on input pads when unlinking
+	  Otherwise we could end up with *old* events leaking through on the next linking.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7682>
+
+2024-08-14 16:09:06 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst/audioconvert/gstaudioconvert.c:
+	  audioconvert: fix setting of mix matrix at run time
+	  There were two main issues:
+	  The mix matrix was not protected with the object lock
+	  The code was mistakenly assuming that after updating the mix matrix
+	  a reconfigure event sent upstream would be enough to cause upstream to
+	  send caps again, and the converter was only reconstructed in ->set_caps.
+	  That was not actually enough, as if the new matrix didn't affect the
+	  number of input / output channels there was no reason for upstream to do
+	  anything after getting the unchanged caps.
+	  The fix for this was to have ->transform also recreate the converter
+	  when needed, with the added subtlety that depending on the mix matrix
+	  the element could be set to passthrough. This means that when setting
+	  the mix matrix the converter also had to be recreated immediately to
+	  check if the element had to be switched back to non-passthrough.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7399>
+
+2024-07-19 20:14:29 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  Revert "meson: Fix invalid include flag in uninstalled gl pc file"
+	  This reverts commit 9d719b9937e2ef476cf18f800f54ccac1feea8ee.
+	  The old pkg-config implementation errors out if a variable specified
+	  in the pkgconfig file is not defined, so this actually broke
+	  uninstalled pc files.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7606>
+
+2024-09-27 15:09:38 +0200  Théo Maillart <tmaillart@freebox.fr>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: do not attempt to remove a null stream
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7605>
+
+2024-09-26 11:29:08 +0200  Théo Maillart <tmaillart@freebox.fr>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: protect internal reset with SELECTION_LOCK
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7605>
+
+2024-09-25 15:32:20 +0200  Théo Maillart <tmaillart@freebox.fr>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: remove output event probe on remove input stream
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7605>
+
+2024-10-02 11:29:38 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Ensure all stream-start are handled
+	  In order to ensure all initial events (stream-start, caps, ..) are present on
+	  pads that we expose, those various sticky events are propagated (from parsebin
+	  to multiqueue output, from multiqueue output to exposed pads).
+	  The problem was that the "hack" in `urisourcebin` to inform downstream elements
+	  that the stream is parsed data and a collection will be present was only done in
+	  one place : a probe on the output of parsebin ... but the stream-start could
+	  potentially have already been propagated to the output pads before that.
+	  In order to fix that, we make sure any pending sticky stream-start event is
+	  updated before being propagated.
+	  Fixes #3788
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7604>
+
+2024-10-02 10:34:57 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Allow more cases for posting stream-collection
+	  Previously urisourcebin only allows stream-collections messages from adaptive
+	  demuxers or sources to be posted.
+	  This commit also allows the case where they come from a single parsebin. We
+	  still want to prevent it in the case where they are multiple parsebins, since
+	  that would require some form of aggregation to show a single/unified collection.
+	  In order to avoid a regression with uridecodebin3 behavior, we also implement
+	  support for GST_QUERY_SELECTABLE, so that uridecodebin3 can figure out whether
+	  it should let GST_MESSAGE_STREAM_COLLECTION flow upwards (because app/user could
+	  react on it) or whether it drops it in order for decodebin3 to do the collection
+	  aggregation and posting.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7603>
+
+2024-10-01 17:17:01 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Make update/posting of collection messages atomic
+	  The presence (or not) of a collection on an input will determine whether events
+	  will be throttled so that there are only forwarded when that input gets a valid
+	  collection.
+	  Therefore the input lock should be used.
+	  In addition to that, we want to ensure that the application/user has a chance to
+	  reliably (i.e. synchronously) specify what streams it is interested in by
+	  sending a GST_EVENT_SELECT_STREAMS.
+	  But we cannot allow anything to go forward until that message posting has come
+	  back, otherwise we run in various races.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3872
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7602>
+
+2024-09-27 19:45:06 +0900  Elliot Chen <elliot.chen@nxp.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: check and send selected stream message even if no decoder is selected
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7601>
+
+2024-09-27 09:23:26 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/allocators/gstdrmdumb.c:
+	  allocators: drmdump: Add NV15 supports
+	  This is a packed version of P010, names NV14_10LE40 in GStreamer. This
+	  format is used on all Rockchip SoC variants.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7596>
+
+2024-09-27 09:20:37 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/allocators/gstdrmdumb.c:
+	  allocators: drmdumb: Fix bpp value for P010
+	  P010 uses 16 bits per pixel, with least significant being padding. This
+	  code worked with Intel display driver since they roundup that value, but
+	  does not work with the generic DRM helpers which also support NV15,
+	  which does not have any padding.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7596>
+
+2024-05-29 19:12:21 +0200  Jakub Adam <jakub.adam@collabora.com>
+
+	* ext/gl/gstgldownloadelement.c:
+	  gldownload: use gst_gl_sync_meta_wait_cpu()
+	  Simple gst_gl_sync_meta_wait() is not sufficient to ensure GL commands
+	  are executed before dma-buf devices get to see the buffer.
+	  This is the first step that should make the code behave correctly for
+	  everybody, although there may be performance penalty. In the future we
+	  should introduce a more general sync meta that would allow to move the
+	  waiting from gldownload (the producer) to the sink elements (the
+	  consumers).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7595>
+
+2024-09-19 12:12:53 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.8
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7549>
+
 === release 1.24.8 ===
 
 2024-09-19 12:01:21 +0200  Tim-Philipp Müller <tim@centricular.com>

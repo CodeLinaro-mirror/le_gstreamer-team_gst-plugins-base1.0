@@ -122,6 +122,9 @@ struct _ChildSrcPadInfo
   /* use_queue2: TRUE if the contents should be buffered through a queue2
    * element */
   gboolean use_queue2;
+
+  /* Current StreamCollection */
+  GstStreamCollection *collection;
 };
 
 /* Output Slot:
@@ -194,6 +197,9 @@ struct _GstURISourceBin
   gint last_buffering_pct;      /* Avoid sending buffering over and over */
   GMutex buffering_lock;
   GMutex buffering_post_lock;
+
+  /* Current output collection (if provided by internal elements) */
+  GstStreamCollection *collection;
 };
 
 struct _GstURISourceBinClass
@@ -565,6 +571,7 @@ gst_uri_source_bin_finalize (GObject * obj)
   g_mutex_clear (&urisrc->buffering_post_lock);
   g_free (urisrc->uri);
   g_free (urisrc->download_dir);
+  gst_object_replace ((GstObject **) & urisrc->collection, NULL);
 
   G_OBJECT_CLASS (parent_class)->finalize (obj);
 }
@@ -717,11 +724,28 @@ gst_uri_source_bin_get_property (GObject * object, guint prop_id,
   }
 }
 
+typedef struct
+{
+  GstPad *target_pad;
+  gboolean rewrite_stream_start;
+} CopyEventData;
+
 static gboolean
 copy_sticky_events (GstPad * pad, GstEvent ** event, gpointer user_data)
 {
-  GstPad *gpad = GST_PAD_CAST (user_data);
+  CopyEventData *data = user_data;
+  GstPad *gpad = data->target_pad;
 
+  if (data->rewrite_stream_start &&
+      GST_EVENT_TYPE (*event) == GST_EVENT_STREAM_START) {
+    GstStructure *s;
+    /* This is a temporary hack to notify downstream decodebin3 to *not*
+     * plug in an extra parsebin */
+    *event = gst_event_make_writable (*event);
+    s = (GstStructure *) gst_event_get_structure (*event);
+    gst_structure_set (s, "urisourcebin-parsed-data", G_TYPE_BOOLEAN, TRUE,
+        NULL);
+  }
   GST_DEBUG_OBJECT (gpad,
       "store sticky event from %" GST_PTR_FORMAT " %" GST_PTR_FORMAT, pad,
       *event);
@@ -768,6 +792,8 @@ free_child_src_pad_info (ChildSrcPadInfo * info, GstURISourceBin * urisrc)
     remove_buffering_msgs (urisrc, GST_OBJECT_CAST (info->pre_parse_queue));
     gst_bin_remove (GST_BIN_CAST (urisrc), info->pre_parse_queue);
   }
+
+  gst_object_replace ((GstObject **) & info->collection, NULL);
 
   g_free (info);
 }
@@ -866,11 +892,6 @@ new_demuxer_pad_added_cb (GstElement * element, GstPad * pad,
      as-is directly. We still add an event probe to deal with EOS */
   slot = new_output_slot (info, pad);
   output_pad = gst_object_ref (slot->output_pad);
-
-  slot->demuxer_event_probe_id =
-      gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM |
-      GST_PAD_PROBE_TYPE_EVENT_FLUSH, (GstPadProbeCallback) demux_pad_events,
-      slot, NULL);
 
   GST_URI_SOURCE_BIN_UNLOCK (urisrc);
   expose_output_pad (urisrc, output_pad);
@@ -1218,6 +1239,7 @@ new_output_slot (ChildSrcPadInfo * info, GstPad * originating_pad)
   GstElement *queue = NULL;
   const gchar *elem_name;
   gboolean use_downloadbuffer;
+  CopyEventData copy_data = { 0, };
 
   GST_DEBUG_OBJECT (urisrc,
       "use_queue2:%d use_downloadbuffer:%d, demuxer:%d, originating_pad:%"
@@ -1247,10 +1269,28 @@ new_output_slot (ChildSrcPadInfo * info, GstPad * originating_pad)
     slot->queue_sinkpad =
         gst_element_request_pad_simple (info->multiqueue, "sink_%u");
     srcpad = gst_pad_get_single_internal_link (slot->queue_sinkpad);
-    gst_pad_sticky_events_foreach (originating_pad, copy_sticky_events, srcpad);
+    if (urisrc->is_adaptive || (info->demuxer_is_parsebin)) {
+      copy_data.rewrite_stream_start = TRUE;
+    }
+    copy_data.target_pad = slot->queue_sinkpad;
+    gst_pad_sticky_events_foreach (originating_pad, copy_sticky_events,
+        &copy_data);
+    copy_data.target_pad = srcpad;
+    gst_pad_sticky_events_foreach (originating_pad, copy_sticky_events,
+        &copy_data);
+
+    if (info->demuxer) {
+      /* Make sure we add the event probe *before* linking */
+      slot->demuxer_event_probe_id =
+          gst_pad_add_probe (originating_pad,
+          GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM | GST_PAD_PROBE_TYPE_EVENT_FLUSH,
+          (GstPadProbeCallback) demux_pad_events, slot, NULL);
+    }
+
     slot->output_pad = create_output_pad (slot, srcpad);
     gst_object_unref (srcpad);
     gst_pad_link (originating_pad, slot->queue_sinkpad);
+    GST_PAD_STREAM_UNLOCK (originating_pad);
   }
   /* If buffering is required, create the element. If downloadbuffer is
    * required, it will take precedence over queue2 */
@@ -1447,6 +1487,7 @@ static void
 expose_output_pad (GstURISourceBin * urisrc, GstPad * pad)
 {
   GstPad *target;
+  CopyEventData copy_data = { 0, };
 
   if (gst_object_has_as_parent (GST_OBJECT (pad), GST_OBJECT (urisrc)))
     return;                     /* Pad is already exposed */
@@ -1454,7 +1495,8 @@ expose_output_pad (GstURISourceBin * urisrc, GstPad * pad)
   target = gst_ghost_pad_get_target (GST_GHOST_PAD (pad));
 
   gst_pad_set_active (pad, TRUE);
-  gst_pad_sticky_events_foreach (target, copy_sticky_events, pad);
+  copy_data.target_pad = pad;
+  gst_pad_sticky_events_foreach (target, copy_sticky_events, &copy_data);
   gst_object_unref (target);
 
   GST_URI_SOURCE_BIN_LOCK (urisrc);
@@ -1492,8 +1534,10 @@ demuxer_pad_removed_cb (GstElement * element, GstPad * pad,
   slot = output_slot_for_originating_pad (info, pad);
   g_assert (slot);
 
-  gst_pad_remove_probe (pad, slot->demuxer_event_probe_id);
-  slot->demuxer_event_probe_id = 0;
+  if (slot->demuxer_event_probe_id) {
+    gst_pad_remove_probe (pad, slot->demuxer_event_probe_id);
+    slot->demuxer_event_probe_id = 0;
+  }
 
   if (slot->pending_pad) {
     /* Switch over to pending pad */
@@ -2852,7 +2896,8 @@ handle_parsebin_collection (ChildSrcPadInfo * info,
   for (iter = info->outputs; iter; iter = iter->next) {
     OutputSlotInfo *output = iter->data;
 
-    if (output->stream && !g_list_find (streams, output->stream)) {
+    if (output->stream
+        && !gst_playback_utils_stream_in_list (streams, output->stream)) {
       GST_DEBUG_OBJECT (output->originating_pad,
           "No longer used in new collection");
       unused_slots = g_list_append (unused_slots, output);
@@ -2874,8 +2919,80 @@ handle_parsebin_collection (ChildSrcPadInfo * info,
 
   g_list_free (unused_slots);
   g_list_free (streams);
+
+  /* Store the collection */
+  gst_object_replace ((GstObject **) & info->collection,
+      (GstObject *) collection);
 }
 
+/* uri_source_bin_aggregate_collection:
+ *
+ * Go over the collections provided by the various parsebin (via
+ * ChildSrcPadInfo) and provide a unified collection.
+ *
+ * If there are more than one collection and they are different, a new
+ * aggregated collection will be returned.
+ *
+ * In all cases, the collection will be stored as the uri source bin main
+ * collection.
+ *
+ * Return: (transfer full): The collection, or %NULL.
+ */
+static GstStreamCollection *
+uri_source_bin_aggregate_collection (GstURISourceBin * urisrc)
+{
+  GList *iter;
+  GList *streams = NULL;
+  gboolean collections_need_merging = FALSE;
+  GstStreamCollection *res = NULL;
+
+  for (iter = urisrc->src_infos; iter; iter = iter->next) {
+    ChildSrcPadInfo *info = iter->data;
+
+    GST_DEBUG_OBJECT (info->demuxer, "collection %" GST_PTR_FORMAT,
+        info->collection);
+    if (res && info->collection && info->collection != res) {
+      collections_need_merging = TRUE;
+      break;
+    }
+
+    if (info->collection)
+      res = info->collection;
+  }
+
+  if (!collections_need_merging) {
+    GST_DEBUG_OBJECT (urisrc, "No need to aggregate");
+    goto store_exit;
+  }
+
+  res = gst_stream_collection_new ("urisourcebin");
+  for (iter = urisrc->src_infos; iter; iter = iter->next) {
+    ChildSrcPadInfo *info = iter->data;
+    if (info->collection) {
+      guint i, len;
+      len = gst_stream_collection_get_size (info->collection);
+      for (i = 0; i < len; i++) {
+        GstStream *stream =
+            gst_stream_collection_get_stream (info->collection, i);
+        if (!gst_playback_utils_stream_in_list (streams, stream)) {
+          streams = g_list_append (streams, stream);
+        }
+      }
+    }
+  }
+
+  for (iter = streams; iter; iter = iter->next) {
+    GstStream *stream = iter->data;
+    gst_stream_collection_add_stream (res, gst_object_ref (stream));
+  }
+  if (streams)
+    g_list_free (streams);
+
+store_exit:
+  gst_object_replace ((GstObject **) & urisrc->collection, (GstObject *) res);
+  GST_DEBUG_OBJECT (urisrc, "Aggregated collection %" GST_PTR_FORMAT, res);
+  return res ? gst_object_ref (res) : NULL;
+}
 
 static void
 handle_message (GstBin * bin, GstMessage * msg)
@@ -2896,10 +3013,14 @@ handle_message (GstBin * bin, GstMessage * msg)
     case GST_MESSAGE_STREAM_COLLECTION:
     {
       ChildSrcPadInfo *info;
-      /* We only want to forward stream collection from the source element *OR*
-       * from adaptive demuxers. We do not want to forward them from the
-       * potential parsebins since there might be many and require aggregation
-       * to be useful/coherent. */
+      /* We only want to forward stream collections:
+       * * from the source element
+       * * OR from adaptive demuxers
+       * * OR from parsebin if there is only a single ChildSrcPadInfo
+       *
+       * We do not want to forward them if there are multiple parsebins since it
+       * requires them to be aggregated to be coherent to the outside world.
+       */
       GST_URI_SOURCE_BIN_LOCK (urisrc);
       info =
           find_adaptive_demuxer_cspi_for_msg (urisrc,
@@ -2909,14 +3030,21 @@ handle_message (GstBin * bin, GstMessage * msg)
         if (info->demuxer_is_parsebin) {
           GstStreamCollection *collection = NULL;
           gst_message_parse_stream_collection (msg, &collection);
-          GST_DEBUG_OBJECT (bin, "Dropping stream-collection from parsebin");
+          GST_DEBUG_OBJECT (bin, "Seen collection %" GST_PTR_FORMAT,
+              collection);
           /* Check if some output slots can/could be re-used with this new collection */
           if (collection) {
+            GstStreamCollection *aggregated = NULL;
             handle_parsebin_collection (info, collection);
+            aggregated = uri_source_bin_aggregate_collection (urisrc);
+            if (aggregated != collection) {
+              gst_message_unref (msg);
+              msg =
+                  gst_message_new_stream_collection ((GstObject *) urisrc,
+                  aggregated);
+            }
             gst_object_unref (collection);
           }
-          gst_message_unref (msg);
-          msg = NULL;
         }
       } else if (GST_MESSAGE_SRC (msg) != (GstObject *) urisrc->source) {
         GST_LOG_OBJECT (bin, "Collection %" GST_PTR_FORMAT, msg);
@@ -3176,6 +3304,26 @@ gst_uri_source_bin_query (GstElement * element, GstQuery * query)
       fold_init = uri_source_query_init;
       fold_done = uri_source_query_seeking_done;
       break;
+    case GST_QUERY_SELECTABLE:
+      /* This is a special case, we need to respond to it potentially before any
+       * pads are present, so we directly target childsrcpadinfos or the source */
+      if (urisrc->is_adaptive) {
+        /* Forward directly to adaptive demuxer */
+        if (urisrc->src_infos) {
+          ChildSrcPadInfo *child = urisrc->src_infos->data;
+          if (child->demuxer) {
+            return gst_element_query (child->demuxer, query);
+          }
+        }
+        GST_ERROR_OBJECT (urisrc,
+            "Source is adaptive ... but no adaptive demuxer present ?");
+        return FALSE;
+      }
+      /* FIXME: Theoretically we should fold/try on all chilsrcpadinfo, but they
+       * might not have exposed any pads yet and as of this implementation there
+       * are no known SELECTABLE support in other elements, so we fallback on the
+       * source element */
+      return gst_element_query (urisrc->source, query);
     default:
       fold_func = (GstIteratorFoldFunction) uri_source_query_generic_fold;
       break;
