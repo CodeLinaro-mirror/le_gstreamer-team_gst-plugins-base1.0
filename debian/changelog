@@ -1,3 +1,13 @@
+gst-plugins-base1.0 (1.24.9-1) unstable; urgency=medium
+
+  [ Samuel Thibault ]
+  * fix hurd-any builds (Closes: #1072224)
+
+  [ Marc Leeman ]
+  * New upstream version 1.24.9
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Thu, 31 Oct 2024 08:45:19 +0100
+
 gst-plugins-base1.0 (1.24.8-1) unstable; urgency=medium
 
   * New upstream version 1.24.8
