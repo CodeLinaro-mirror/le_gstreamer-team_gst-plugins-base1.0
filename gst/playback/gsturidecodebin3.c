@@ -675,10 +675,19 @@ db_src_probe (GstPad * pad, GstPadProbeInfo * info, OutputPad * output)
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:
     {
+      gboolean drop_event = FALSE;
+      GstPlayItem *last;
+
+      PLAY_ITEMS_LOCK (uridecodebin);
+      last = g_list_last (uridecodebin->play_items)->data;
+
       /* If there is a next input, drop the EOS event */
       if (uridecodebin->input_item != uridecodebin->output_item ||
-          uridecodebin->input_item !=
-          g_list_last (uridecodebin->play_items)->data) {
+          uridecodebin->input_item != last) {
+        drop_event = TRUE;
+      }
+      PLAY_ITEMS_UNLOCK (uridecodebin);
+      if (drop_event) {
         GST_DEBUG_OBJECT (uridecodebin,
             "Dropping EOS event because in gapless mode");
         return GST_PAD_PROBE_DROP;
@@ -2213,6 +2222,35 @@ gst_uri_decode_bin3_handle_message (GstBin * bin, GstMessage * msg)
   GstURIDecodeBin3 *uridecodebin = (GstURIDecodeBin3 *) bin;
 
   switch (GST_MESSAGE_TYPE (msg)) {
+    case GST_MESSAGE_STREAM_COLLECTION:
+    {
+      GstSourceHandler *handler;
+      GST_DEBUG_OBJECT (uridecodebin, "Handle stream collection");
+      PLAY_ITEMS_LOCK (uridecodebin);
+      /* Find the matching handler (if any) */
+      if ((handler = find_source_handler_for_element (uridecodebin, msg->src))) {
+        gboolean selectable = FALSE;
+        GstQuery *query = gst_query_new_selectable ();
+        /* We only want to forward this message if the source is selectable,
+         * else we will let decodebin3 do its emission. */
+        if (gst_element_query ((GstElement *) msg->src, query)) {
+          gst_query_parse_selectable (query, &selectable);
+          GST_DEBUG_OBJECT (uridecodebin,
+              "%s is selectable : %d",
+              GST_ELEMENT_NAME (handler->urisourcebin), selectable);
+        }
+        gst_query_unref (query);
+        if (!selectable) {
+          GST_DEBUG_OBJECT (uridecodebin,
+              "%s doesn't handle selection, dropping stream-collection message",
+              GST_ELEMENT_NAME (handler->urisourcebin));
+          gst_message_unref (msg);
+          msg = NULL;
+        }
+      }
+      PLAY_ITEMS_UNLOCK (uridecodebin);
+      break;
+    }
     case GST_MESSAGE_STREAMS_SELECTED:
     {
       GstSourceHandler *handler;
