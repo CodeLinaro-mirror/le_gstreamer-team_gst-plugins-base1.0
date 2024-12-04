@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.24.9\n"
+"Project-Id-Version: gst-plugins-base-1.24.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-30 20:34+0000\n"
+"POT-Creation-Date: 2024-12-03 23:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -102,7 +102,7 @@ msgstr ""
 #: gst/playback/gstplaysink.c:3652 gst/playback/gstplaysink.c:4581
 #: gst/playback/gstplaysinkconvertbin.c:97
 #: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1569
-#: gst/playback/gsturisourcebin.c:1807
+#: gst/playback/gsturisourcebin.c:1815
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
@@ -174,29 +174,29 @@ msgstr ""
 msgid "No decoder available for type '%s'."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1478 gst/playback/gsturisourcebin.c:1727
+#: gst/playback/gsturidecodebin.c:1478 gst/playback/gsturisourcebin.c:1735
 msgid "No URI specified to play from."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1484 gst/playback/gsturisourcebin.c:1733
+#: gst/playback/gsturidecodebin.c:1484 gst/playback/gsturisourcebin.c:1741
 #, c-format
 msgid "Invalid URI \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1491 gst/playback/gsturisourcebin.c:1740
+#: gst/playback/gsturidecodebin.c:1491 gst/playback/gsturisourcebin.c:1748
 msgid "This stream type cannot be played yet."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1509 gst/playback/gsturisourcebin.c:1758
+#: gst/playback/gsturidecodebin.c:1509 gst/playback/gsturisourcebin.c:1766
 #, c-format
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2417 gst/playback/gsturisourcebin.c:2552
+#: gst/playback/gsturidecodebin.c:2417 gst/playback/gsturisourcebin.c:2560
 msgid "Source element can't be prepared"
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2423 gst/playback/gsturisourcebin.c:2546
+#: gst/playback/gsturidecodebin.c:2423 gst/playback/gsturisourcebin.c:2554
 msgid "Source element is invalid."
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Failed to create download directory '%s'."
 msgstr ""
 
-#: gst/playback/gsturisourcebin.c:2558
+#: gst/playback/gsturisourcebin.c:2566
 msgid "Source element has no pads."
 msgstr ""
 

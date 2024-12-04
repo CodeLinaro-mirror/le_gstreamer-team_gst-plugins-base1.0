@@ -1,3 +1,297 @@
+=== release 1.24.10 ===
+
+2024-12-03 23:29:07 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.10
+
+2024-10-02 16:52:51 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* ext/ogg/gstoggstream.c:
+	  oggstream: review and fix per-format min_packet_size
+	  This addresses all manually detected invalid reads in setup functions.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8050>
+
+2024-10-02 15:16:30 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* ext/ogg/vorbis_parse.c:
+	  vorbis_parse: check writes to GstOggStream.vorbis_mode_sizes
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-117 Fixes gstreamer#3875
+	  Also perform out-of-bounds check for accesses to op->packet
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8050>
+
+2024-09-30 18:19:30 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tools/gst-discoverer.c:
+	  discoverer: Don't print channel layout for more than 64 channels
+	  64+ channels are always unpositioned / unknown layout.
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-248
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3864
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8046>
+
+2024-10-09 11:23:47 -0400  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Check for NULL return of strchr() when parsing LRC subtitles
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-263
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3892
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8051>
+
+2024-10-01 13:22:50 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopusdec.c:
+	  opusdec: Set at most 64 channels to NONE position
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-116
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3871
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8049>
+
+2024-09-30 18:36:19 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstssaparse.c:
+	* meson.build:
+	  ssaparse: Don't use strstr() on strings that are potentially not NULL-terminated
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8048>
+
+2024-09-30 21:40:44 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstssaparse.c:
+	  ssaparse: Search for closing brace after opening brace
+	  Otherwise removing anything between the braces leads to out of bound writes if
+	  there is a closing brace before the first opening brace.
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-228
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3870
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8048>
+
+2024-09-30 21:35:07 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/vorbis/gstvorbisdec.c:
+	  vorbisdec: Set at most 64 channels to NONE position
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-115
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3869
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8047>
+
+2024-09-26 13:43:06 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Don't try parsing extended header if not enough data is available
+	  Thanks to Antonio Morales for finding and reporting the issue.
+	  Fixes GHSL-2024-235
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3842
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8045>
+
+2024-11-29 17:33:29 +0000  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/rtp/gstrtcpbuffer.c:
+	* tests/check/libs/rtp.c:
+	  rtp: Fix precision loss in gst_rtcp_ntp_to_unix()
+	  Without this patch the UNIX timestamp resulting from the translation from NTP
+	  would be off by one nano-second.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8022>
+
+2024-11-25 12:27:03 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gststreamsynchronizer.c:
+	  streamsynchronizer: Only send GAP events out of source pads
+	  If streamsynchronizer is waiting on the stream's sinkpad and srcpad at the same
+	  time, it can happen that the GAP event is otherwise sent out of the sinkpad,
+	  which is in the wrong direction.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7997>
+
+2024-11-26 15:20:45 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer-types.c:
+	  discoverer: Also copy missing element details when copying a GstDiscovererInfo
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7986>
+
+2024-11-26 15:41:24 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer-types.c:
+	* gst-libs/gst/pbutils/gstdiscoverer.c:
+	  discoverer: Make sure the missing elements details array is NULL-terminated in a thread-safe way
+	  And also avoid a possible out-of-bounds read if the array contains no elements.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7986>
+
+2024-10-28 12:38:39 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer.c:
+	  discoverer: Fix typos
+	  discovererd / discoverered -> discovered
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7986>
+
+2024-11-26 06:40:34 +0100  Tomáš Polomský <1155369-polomsky@users.noreply.gitlab.freedesktop.org>
+
+	* gst-libs/gst/app/gstappsink.c:
+	  appsink: fix timeout logic for gst_app_sink_try_pull_sample
+	  In case of gst_app_sink_try_pull_object returns an object instead of a sample,
+	  the whole process must be restarted with the reduced timeout, otherwise requested
+	  timeout could be easily exceeded.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7980>
+
+2024-11-22 11:50:05 +0100  Edward Hervey <bilboed@bilboed.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Unify collection switching checks
+	  We only want to switch to a selection of an output collection if all streams are
+	  present.
+	  This was previously only done in one place (when triggering by new incoming
+	  streams) but not when triggered by user/application.
+	  Avoid this by moving the check to handle_stream_switch()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7956>
+
+2024-11-20 13:32:20 +0100  Andoni Morales Alastruey <ylatuya@gmail.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer.c:
+	* tests/check/libs/discoverer.c:
+	  discoverer: fix segfault in race condition adding a new uri's
+	  There is a race condition adding new uri's right after receiving
+	  the `discovered` event. We must wait until we have cleaned-up
+	  the last discovery to start processing the new one
+	  Fix #3758
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7934>
+
+2024-11-20 04:23:32 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* ext/gl/meson.build:
+	  meson: Don't use libdrm_dep in cc.has_header()
+	  It can't handle subproject dependencies. Pointed out in
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4033#note_2665974
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7932>
+
+2024-10-10 15:51:36 -0400  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdp: Add debug categories for message and mikey modules
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7926>
+
+2024-11-16 18:24:23 +0000  Philippe Normand <philn@igalia.com>
+
+	* gst/playback/gstplaybackutils.c:
+	  playbackutils: Fix caps leak in get_n_common_capsfeatures()
+	  The gst_static_caps_get() return value is transfer-full.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7909>
+
+2024-11-14 15:15:43 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: Upgrade uploader selection message to INFO
+	  This allow using INFO log to quickly see what uploader we
+	  picked. This is very useful as the DEBUG category has became
+	  very noisy.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7907>
+
+2024-11-14 15:13:50 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: dmabuf: Fix emulated tiled import
+	  The added check for LINEAR modifier broke dmabuf import for
+	  NV12 emulation (R8/RG88) of all sort (linear and tiled).
+	  Fixes !5461
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7907>
+
+2024-11-14 15:58:58 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiostreamalign.c:
+	  audiostreamalign: Don't report disconts for every buffer if alignment-threshold is too small
+	  If it is too small, the maximum allowed diff becomes 0 samples which would then
+	  trigger if there is no discontinuity at all.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7906>
+
+2024-11-04 09:21:44 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Also use event probe for HLS use-cases
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3957
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7857>
+
+2024-11-06 18:51:21 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/video/convertframe.c:
+	  video-converter: Set TIME segment format on appsrc
+	  Combine the appsrc and appsink settings into one place and ensure that
+	  the appsrc will output a TIME segment, to avoid incorrect segment format
+	  criticals in some situations.
+	  The D3D11 path was already setting the segment format correctly.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7842>
+
+2024-11-05 00:01:56 +0100  Andoni Morales Alastruey <ylatuya@gmail.com>
+
+	* gst-libs/gst/gl/cocoa/gstglwindow_cocoa.m:
+	  cocoa: fix rendering artefacts in retina displays
+	  Set the correct contentsScale in the CALayer instead of using
+	  the default (1.0) which causes rendering artefacts in retina
+	  displays due to using a smaller bitamp than the display size.
+	  See: https://developer.apple.com/documentation/quartzcore/calayer/1410746-contentsscale?language=objc
+	  Fix: #3942
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7834>
+
+2024-11-03 17:36:38 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* po/af.po:
+	* po/az.po:
+	* po/bg.po:
+	* po/ca.po:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/el.po:
+	* po/en_GB.po:
+	* po/eo.po:
+	* po/es.po:
+	* po/eu.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/fur.po:
+	* po/gl.po:
+	* po/hr.po:
+	* po/hu.po:
+	* po/id.po:
+	* po/it.po:
+	* po/ja.po:
+	* po/ka.po:
+	* po/lt.po:
+	* po/lv.po:
+	* po/nb.po:
+	* po/nl.po:
+	* po/or.po:
+	* po/pl.po:
+	* po/pt_BR.po:
+	* po/ro.po:
+	* po/ru.po:
+	* po/sk.po:
+	* po/sl.po:
+	* po/sq.po:
+	* po/sr.po:
+	* po/sv.po:
+	* po/tr.po:
+	* po/uk.po:
+	* po/vi.po:
+	* po/zh_CN.po:
+	  gst-plugins-base: update translations
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7820>
+
+2024-10-25 10:38:36 +0200  Albert Sjolund <alberts@axis.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Fix use-after-free when making buffer / buffer-lists writable
+	  make_writable can cause a reallocation of the buffer, meaning that obj
+	  would point to an invalid object, both for buffer and for bufferlist.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7806>
+
+2024-10-30 20:40:12 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.9
+
 === release 1.24.9 ===
 
 2024-10-30 20:33:30 +0000  Tim-Philipp Müller <tim@centricular.com>
