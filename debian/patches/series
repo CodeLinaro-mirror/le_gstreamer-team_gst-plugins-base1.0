@@ -1,2 +1,9 @@
 GST-2023-0001_GST-2023-0002.patch
 exiftag-Prevent-integer-overflows-and-out-of-bounds-.patch
+CVE-2024-47538.patch
+CVE-2024-47541.patch
+0005-CVE-2024-47542-id3v2-Don-t-try-parsing-extended-head.patch
+CVE-2024-47600.patch
+CVE-2024-47607.patch
+CVE-2024-47615.patch
+CVE-2024-47835.patch
