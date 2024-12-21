@@ -1,3 +1,30 @@
+gst-plugins-base1.0 (1.18.4-2+deb11u3) bullseye-security; urgency=medium
+
+  * Non-maintainer upload by the LTS Team.
+  * Fix CVE-2024-47538: A stack-buffer overflow has been detected
+    in the `vorbis_handle_identification_packet`
+    function within `gstvorbisdec.c`
+  * Fix CVE-2024-47541: An OOB-write vulnerability has been
+    identified in the gst_ssa_parse_remove_override_codes
+    function of the gstssaparse.c file.
+  * Fix CVE-2024-47542: A null pointer dereference has been
+    discovered in the id3v2_read_synch_uint function, located
+    in id3v2.c
+  * Fix CVE-2024-47600: An OOB-read vulnerability has been
+    detected in the format_channel_mask function in
+    gst-discoverer.c
+  * Fix CVE-2024-47607: A stack-buffer overflow has been
+    detected in the gst_opus_dec_parse_header function
+    within `gstopusdec.c'.
+  * Fix CVE-2024-47615: An OOB-Write has been detected
+    in the function gst_parse_vorbis_setup_packet within
+    vorbis_parse.c.
+  * Fix CVE-2024-47835: A null pointer dereference vulnerability
+    has been detected in the parse_lrc function within
+    gstsubparse.c
+
+ -- Bastien Roucariès <rouca@debian.org>  Sat, 21 Dec 2024 15:58:38 +0000
+
 gst-plugins-base1.0 (1.18.4-2+deb11u2) bullseye-security; urgency=high
 
   * Non-maintainer upload by the Security Team.
@@ -451,7 +478,7 @@ gst-plugins-base1.0 (1.7.2-1) experimental; urgency=medium
       - Update for new symbols.
     + debian/control.in:
       - Add Breaks for gstreamer1.0-plugins-bad << 1.7.1 because
-        of GstAudioVisualizer moved from a plugin to a library here.
+	of GstAudioVisualizer moved from a plugin to a library here.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Feb 2016 11:07:18 +0200
 
@@ -1343,7 +1370,7 @@ gst-plugins-base0.10 (0.10.25.2-1) experimental; urgency=low
       debian/rules,
       debian/control.in:
       - Build depend on Pango 1.16.0, GLib 2.18.0, iso-codes,
-        GStreamer 0.10.25.2.
+	GStreamer 0.10.25.2.
     + debian/gstreamer-plugins-base.install:
       - Drop queue2 plugin, it's in core now.
     + debian/libgstreamer-plugins-base.symbols:
@@ -1461,7 +1488,7 @@ gst-plugins-base0.10 (0.10.24.2-1) experimental; urgency=low
       debian/libgstreamer-plugins-base.install,
       debian/libgstreamer-plugins-base-dev.install:
       - Enable GObject-Introspection support and ship the generated
-        files in the -dev and shared library package.
+	files in the -dev and shared library package.
     + debian/patches/11_fix_skew_clock_slaving.patch:
       - Dropped, merged upstream.
   * debian/control.in:
@@ -1675,7 +1702,7 @@ gst-plugins-base0.10 (0.10.21.2-1) experimental; urgency=low
       debian/patches/02_gnome-vfs-modules.patch,
       debian/patches/99_autoconf.patch:
       - Add plugin dependencies for the GnomeVFS, GIO, GVfs
-        modules.
+	modules.
     + debian/libgstreamer-plugins-base.symbols:
       - Add new symbols.
 
@@ -1835,7 +1862,7 @@ gst-plugins-base0.10 (0.10.17.4-1) experimental; urgency=low
     + debian/libgstreamer-plugins-base.symbols,
       debian/rules:
       - Update symbols for 0.10.17.4 and use file versionize magic to
-        get the correct filename for the symbols file.
+	get the correct filename for the symbols file.
     + debian/patches/02_werror.patch:
       - Don't build with -Werror.
     + debian/rules:
@@ -1946,7 +1973,7 @@ gst-plugins-base0.10 (0.10.15.2-1) experimental; urgency=low
       - Dropped, merged upstream.
     + debian/gstreamer-plugins-base.install:
       - Drop removed uridecodebin plugin, GstURIDecodeBin is in the decodebin2
-        plugin now.
+	plugin now.
   * debian/rules:
     + Update gstreamer build dependency.
   * debian/control.in:
@@ -2113,11 +2140,11 @@ gst-plugins-base0.10 (0.10.12-2) unstable; urgency=low
     + New upstream release 0.10.12, "Zombie Horde":
       - Updated german translations (Closes: #379505)
       - debian/rules:
-        . Update gstreamer build dependency to >= 0.10.11.1
+	. Update gstreamer build dependency to >= 0.10.11.1
       - debian/libgstreamer-plugins-base.install:
-        . Add libgstpbutils-0.10 library
+	. Add libgstpbutils-0.10 library
       - debian/patches/20_oggdemux-check-bos.patch:
-        . Dropped, applied upstream
+	. Dropped, applied upstream
     + Let libgstreamer-plugins-base0.10-dev depend on the same version of
       libgstreamer0.10-dev as the one gst-plugins-base0.10 build-depends on.
       (Loic Minier)
@@ -2125,13 +2152,13 @@ gst-plugins-base0.10 (0.10.12-2) unstable; urgency=low
       - Updated to use my debian.org mail address
     + New upstream release 0.10.11, "Dumb things":
       - debian/patches/70_relibtoolize.patch:
-        . Dropped, upstream uses Debian's libtool
+	. Dropped, upstream uses Debian's libtool
       - debian/build-deps.in:
-        . Raise liboil0.3-dev build dependency to >= 0.3.8
+	. Raise liboil0.3-dev build dependency to >= 0.3.8
       - debian/rules:
-        . Raise gstreamer0.10 build-dependency to >= 0.10.10.1
+	. Raise gstreamer0.10 build-dependency to >= 0.10.10.1
       - debian/gstreamer-plugins-base.install:
-        . Add decodebin2 plugin
+	. Add decodebin2 plugin
 
  -- Sebastian Dröge <slomo@debian.org>  Mon,  9 Apr 2007 23:40:49 +0200
 
@@ -2665,20 +2692,20 @@ gst-plugins0.8 (0.8.9-1) unstable; urgency=low
     * New upstream release "Old Hat".
       - Fix SIGFPE in alsasrc. (Closes: #279399)
       - New Musepack plugin package.
-        . Add libmpcdec-dev build-dep for Musepack support, this is now
-          detected in a Debian compatible manner via mpcdec/mpcdec.h and
-          -lmpcdec. [debian/build-deps.in, debian/build-deps, debian/control]
-        . Add package description and file listing.
-          [debian/gstreamer-musepack.install, debian/control.in,
-          debian/control]
-        . List package in plugins build-list. [debian/rules]
-        . List package in gstreamer-plugins deps.
-          [debian/control.in, debian/control]
+	. Add libmpcdec-dev build-dep for Musepack support, this is now
+	  detected in a Debian compatible manner via mpcdec/mpcdec.h and
+	  -lmpcdec. [debian/build-deps.in, debian/build-deps, debian/control]
+	. Add package description and file listing.
+	  [debian/gstreamer-musepack.install, debian/control.in,
+	  debian/control]
+	. List package in plugins build-list. [debian/rules]
+	. List package in gstreamer-plugins deps.
+	  [debian/control.in, debian/control]
       - Renamed and updated "ladspa" patch.
-        [debian/patches/ladspa-quiet.patch,
-        debian/patches/50_ladspa-quiet.patch]
+	[debian/patches/ladspa-quiet.patch,
+	debian/patches/50_ladspa-quiet.patch]
       - Add video4linuxradio plugin to the gstreamer-misc package.
-        [debian/rules]
+	[debian/rules]
     * Add compatibility block for older dpkg and use DEB_HOST_ARCH_OS.
     * Add myself as uploader. [debian/control.in, debian/control]
     * Fix indentation and executable permission of package maintaining
