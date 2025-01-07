@@ -1,3 +1,153 @@
+=== release 1.24.11 ===
+
+2025-01-06 19:48:08 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.11
+
+2024-12-27 14:27:54 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Free main input even if it is not part of the list of inputs
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8232>
+
+2024-12-23 09:49:51 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Gracefully handle missing data without prior input segment
+	  Exit early in case the decoder has been resetted and hasn't received a new
+	  segment event yet.
+	  This was detected with netsim dropping buffers in a WebRTC pipeline.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8206>
+
+2024-12-16 16:36:06 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Avoid deadlock on shutdown
+	  The reason why the STATE lock was taken was to avoid issues where we would be
+	  adding (and activating) elements at the same time as urisourcebin would be
+	  brought down to READY. That would cause those new elements to potentially return
+	  ERRORS because of not-negotiated/flushing-pads
+	  But that creates a really bad deadlock (state lock is taken to deactivate the
+	  streaming thread which .. is currently grabbing the state lock).
+	  Instead, we can just ignore the warning/error messages that might occur when
+	  shutting down.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4075
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8187>
+
+2024-12-13 15:51:20 +0300  Max Romanov <max.romanov@gmail.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Decrease log level for item drop
+	  Leaky appsrc feature was implemented similar to queue. Dropping item
+	  is a normal case because it is configured so. Warning messages
+	  is too severe for this event.
+	  Level changed to DEBUG just like in queue.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8151>
+
+2024-12-13 10:07:58 +0800  Dean Zhang (张安迪) <dean.zhang@mediatek.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: set decode only flag by decode only buffer
+	  This is used for optimize frame drop issue. Some video streams such as av1
+	  contains decode-only frames. These frames are handled by decoder but not show
+	  by display, which will cause input frame count unmatch the output frame count.
+	  After collecting more decoder only frame, it will cause error report "so many
+	  frame droped". So attach the flag GST_BUFFER_FLAG_DECODE_ONLY with the input
+	  buffer, the v4l2videodecoder can further handle the decode-only buffer in
+	  output list.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8148>
+
+2024-12-12 10:43:26 +0100  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst-libs/gst/gl/gbm/gstgldisplay_gbm.c:
+	  gl: raise WARNING instead of ERROR when no connector is connected
+	  This is a valid and working use case when rendering on a headless
+	  server.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8139>
+
+2024-12-12 05:51:09 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Only rewrite stream-start event once
+	  If the custom field is already present, we don't want to rewrite the event
+	  again. Otherwise it would cause downstream into believing that a *new*
+	  stream-start event has arrived ... which isn't the case.
+	  Fixes #4097
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8144>
+
+2024-11-28 11:57:57 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Don't use decodebin3 static sink pad
+	  Makes the code leaner, and fixes the issue which would happen when the
+	  urisourcebin stream that was linked to the sink pad goes away (without any
+	  replacement).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8119>
+
+2024-11-28 11:55:36 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Make usage of static sink pad optional
+	  There is no reason why we should mandate people to "at least" use the static
+	  sink pad. This caused issues, like mandating that it should always have valid
+	  content linked to it (problematic in case of upstream stream changes).
+	  Instead we only use it if it's actually linked to, in which case it gets added
+	  to the list of inputs.
+	  This actually simplifies the code too.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8119>
+
+2024-11-25 10:50:34 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Fix issue re-using outputs
+	  When checking whether a no-longer used output could be re-used for another slot,
+	  we only want to do that for streams which are not still used.
+	  Otherwise we end up potentially re-assigning a demuxer stream to a completely
+	  different one
+	  Furthermore, if we *are* re-using an output slot, indicate what the replacement
+	  GstStream will be so slot matching can work properly (which can happen in the
+	  case of demuxers which add/remove all pads even if only a single one changed)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8119>
+
+2024-12-04 18:45:30 +0800  Cheung Yik Pang <pang.cheung@harmonicinc.com>
+
+	* gst-libs/gst/video/video-format.c:
+	  video: fix AV12 format lacking the GST_VIDEO_FORMAT_FLAG_ALPHA flag
+	  The GST_VIDEO_FORMAT_FLAG_ALPHA indicates whether a video format has an
+	  alpha channel.  AV12 does have an alpha plane.  Switching from
+	  MAKE_YUV_FORMAT to MAKE_YUVA_FORMAT to generate GST_VIDEO_FORMAT_AV12.
+	  Fixes #4081
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8084>
+
+2024-12-05 09:21:04 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Fix collection leak
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8081>
+
+2024-11-20 14:16:23 +0100  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst-libs/gst/video/video-sei.c:
+	  h264parse: parse unregistered SEI without user data
+	  We get loads of warnings when parsing videos from users:
+	  gsth264parser.c:1115:gst_h264_parser_parse_user_data_unregistered: No more remaining payload data to store
+	  gsth264parse.c:646:gst_h264_parse_process_sei:<h264parse0> failed to parse one or more SEI message
+	  Those are raised because of unregistered SEI without user data.
+	  The spec does not explicitly state that unregistered SEI needs to have
+	  data and I suppose the UUID by itself can carry valuable information.
+	  FFmpeg also parses and exposes such SEI so there is no reason for us no
+	  too as well.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8071>
+
+2024-12-03 23:39:54 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.10
+
 === release 1.24.10 ===
 
 2024-12-03 23:29:07 +0000  Tim-Philipp Müller <tim@centricular.com>
