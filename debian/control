@@ -29,7 +29,7 @@ Build-Depends: debhelper-compat (= 13),
                libbrotli-dev,
                libpng-dev,
                libjpeg-dev,
-               libcdparanoia-dev (>= 3.10.2) [!hurd-i386],
+               libcdparanoia-dev (>= 3.10.2) [!hurd-any],
                libvisual-0.4-dev (>= 0.4.0),
                libx11-xcb-dev,
                libxi-dev,
@@ -114,6 +114,7 @@ Depends: ${misc:Depends},
          libdrm-dev (>= 2.4.55) [linux-any],
          libgbm-dev [linux-any],
          libgudev-1.0-dev (>= 147) [linux-any],
+         libopengl-dev [hurd-any],
          gir1.2-gst-plugins-base-1.0 (= ${binary:Version})
 Breaks: libgstreamer-plugins-bad1.0-dev (<< 1.15.1)
 Conflicts: libgstreamer-plugins-bad1.0-dev (<< 1.15.1)
