@@ -1,3 +1,80 @@
+=== release 1.24.12 ===
+
+2025-01-29 20:12:29 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.24.12
+
+2025-01-13 16:19:26 +0100  Tomas Granath <tomas.granath@outlook.com>
+
+	* ext/ogg/gstoggdemux.c:
+	  oggdemux: Do not change total duration until new duration is found
+	  After calculating a correct duration the oggdemux in some cases sets the duration to GST_CLOCK_TIME_NONE.
+	  After that any seek will fail due to the oggdemux calculating a target time after the actual duration.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8368>
+
+2025-01-12 12:44:29 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/video-overlay-composition.c:
+	  video-overlay-composition: Handle the SCALE meta transformation
+	  Simply update the render rectangle according to the scale factor. As only the
+	  render rectangle is changed, the seqnum of the rectangle stays intact and no
+	  additional GPU uploads are necessary.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8344>
+
+2025-01-12 12:43:54 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/video-overlay-composition.c:
+	  video-overlay-composition: Declare the video/size/orientation tags for the meta
+	  If any of these change then the meta needs to be updated one way or another.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8344>
+
+2024-02-23 15:20:41 +0100  François Laignel <francois@centricular.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdp: accept empty attribute value represented as a NULL pointer
+	  Some empty media attribute values are set to an empty string, others as a NULL
+	  pointer. It seems that code is able to deal with both, except for the UTF8
+	  validation.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8314>
+
+2025-01-03 12:01:37 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/audiorate/gstaudiorate.c:
+	  audiorate: Fix unsigned integer comparision
+	  next_offset uses a magic "-1" value for unset values. Use that value and not
+	  checking whether it's positive (it always is, it's unsigned)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8293>
+
+2025-01-03 11:59:43 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/videorate/gstvideorate.c:
+	  videorate: Avoid overflow in calculations
+	  base_ts and next_end_ts are both guint64. Use explicit check to avoid "negative"
+	  timestamps (which would overflow, not be negative).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8293>
+
+2025-01-03 11:59:05 +0100  Edward Hervey <edward@centricular.com>
+
+	* tests/check/libs/rtspconnection.c:
+	  test: Fix unsigned integer usage
+	  num_queued is unsigned, it'll never be below 0.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8293>
+
+2025-01-03 11:57:57 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Add missing break in switch
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8293>
+
+2025-01-06 20:11:58 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.24.11
+
 === release 1.24.11 ===
 
 2025-01-06 19:48:08 +0000  Tim-Philipp Müller <tim@centricular.com>
