@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.25.1-4) experimental; urgency=medium
+
+  * d/patches: test for latomic
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Tue, 04 Feb 2025 14:52:20 +0100
+
 gst-plugins-base1.0 (1.25.1-3) experimental; urgency=medium
 
   * d/patches: disable some GL/Mesa tests for ppc64el failures
