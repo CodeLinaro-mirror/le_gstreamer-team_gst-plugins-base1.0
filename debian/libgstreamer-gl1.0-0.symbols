@@ -37,7 +37,7 @@ libgstgl-1.0.so.0 libgstreamer-gl1.0-0 #MINVER#
  gst_egl_image_cache_ref@Base 1.25.1
  gst_egl_image_cache_store@Base 1.25.1
  gst_egl_image_cache_unref@Base 1.25.1
- gst_egl_image_can_emulate@Base 1.25.1
+ (arch=linux-any)gst_egl_image_can_emulate@Base 1.25.1
  (arch=linux-any kfreebsd-any)gst_egl_image_export_dmabuf@Base 1.14.0
  (arch=linux-any kfreebsd-any)gst_egl_image_from_dmabuf@Base 1.14.0
  (arch=linux-any kfreebsd-any)gst_egl_image_from_dmabuf_direct@Base 1.16.0
