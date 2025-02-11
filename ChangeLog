@@ -1,3 +1,184 @@
+=== release 1.25.50 ===
+
+2025-02-09 17:35:17 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.25.50
+
+2025-02-05 15:28:35 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/video/video-info-dma.c:
+	  video: Add DRM for NV12_10LE40 to DRM_FORMAT_NV15
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8426>
+
+2025-02-03 13:20:21 +0100  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/video/video-info-dma.c:
+	  video: dma-drm: Extend the format mapping
+	  These formats were mapped in video4linux2 plugin, but not here. Add them
+	  so te video4linux2 plugin can use the global mapping.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8404>
+
+2025-02-03 15:31:47 +0100  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/video/video-info-dma.c:
+	* tests/check/libs/video.c:
+	  video: Add support for big endian DRM formats
+	  When a format is big endian, the 8bith of the fourcc is set. Handle this by
+	  using a "_BE" suffix in serialization. The patch also update the design document
+	  and introduce a unit test.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8404>
+
+2019-04-11 11:24:34 +0100  Philippe Normand <philn@igalia.com>
+
+	* ext/ogg/gstoggdemux.c:
+	  oggdemux: Fix racy decode error
+	  Sometimes the seek to the end of file to determine the duration would trigger a
+	  reset of the source pads, that would confuse the decoder downstream and trigger
+	  an error. So the proposed fix is to not reset pads when the segment event being
+	  processed is the consequence of a seek performed to determine the duration.
+	  Fixes #4212
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/937>
+
+2025-02-03 11:12:59 +0100  Michael Tretter <m.tretter@pengutronix.de>
+
+	* gst/videotestsrc/meson.build:
+	  videotestsrc: fix build if adder is disabled
+	  The videotestsrc is not build if the adder plugin is disabled. This is a
+	  copy/paste error introduced in Commit 3de86b2b9725 ("docs: port plugins to
+	  explicit sources").
+	  Fix the check to actually test the 'videotestsrc' option.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8399>
+
+2024-06-11 17:46:11 +0200  Ruben Gonzalez <rgonzalez@fluendo.com>
+
+	* meson.build:
+	  meson: use nls option to ENABLE_NLS
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7017>
+
+2023-09-29 18:10:09 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* scripts/update-orc-dist-files.py:
+	  scripts: update update-orc-dist-files.py scripts for new gst-indent
+	  And fix python indentation with autopep8
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5192>
+
+2024-11-14 08:40:19 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/video/video-info-dma.c:
+	  video: Add DMA_DRM mapping for NV12_16L32S / MT2110T / MT2110R
+	  This is used on Meditek SoC and Mesa Panfrost [0] has enabled the 8bit variant
+	  with a faster GL shader implementation then ours.
+	  [0] https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/31899
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7892>
+
+2025-01-28 13:48:16 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/video/ext/drm_fourcc.h:
+	* gst-libs/gst/video/video-info-dma.c:
+	  video: Import a verbatim copy of drm_fourcc.h
+	  Imported from drm-tip [0] at commit 3ab334814dc7dff39075e055e12847d51878916e.
+	  As the copied definition became bigger an bigger, it was quite apparent this
+	  was more work then needed. Simply replace manual copies with a verbatim
+	  official copy of it.
+	  [0] https://gitlab.freedesktop.org/drm/tip/-/blob/drm-tip
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7892>
+
+2025-01-13 16:19:26 +0100  Tomas Granath <tomas.granath@outlook.com>
+
+	* ext/ogg/gstoggdemux.c:
+	  oggdemux: Do not change total duration until new duration is found
+	  After calculating a correct duration the oggdemux in some cases sets the duration to GST_CLOCK_TIME_NONE.
+	  After that any seek will fail due to the oggdemux calculating a target time after the actual duration.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8296>
+
+2025-01-24 08:29:24 +0100  Jochen Henneberg <jochen@centricular.com>
+
+	* gst/audiorate/gstaudiorate.c:
+	* tests/check/elements/audiorate.c:
+	  audiorate: Account for in buffer samples if fill samples are added
+	  If fill buffers are added to compensate for missing samples the input
+	  buffer is pushed as well and has to be added to output samples count.
+	  This ensure that add - drop == out - in.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8358>
+
+2025-01-12 12:44:29 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/video-overlay-composition.c:
+	  video-overlay-composition: Handle the SCALE meta transformation
+	  Simply update the render rectangle according to the scale factor. As only the
+	  render rectangle is changed, the seqnum of the rectangle stays intact and no
+	  additional GPU uploads are necessary.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8288>
+
+2025-01-12 12:43:54 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/video-overlay-composition.c:
+	  video-overlay-composition: Declare the video/size/orientation tags for the meta
+	  If any of these change then the meta needs to be updated one way or another.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8288>
+
+2025-01-20 13:23:50 +0100  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* docs/meson.build:
+	  docs: explicitly list gir files as depends for generating configs
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8324>
+
+2025-01-15 17:36:00 +0100  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* docs/meson.build:
+	* gst-libs/gst/allocators/meson.build:
+	* gst-libs/gst/app/meson.build:
+	* gst-libs/gst/audio/meson.build:
+	* gst-libs/gst/gl/meson.build:
+	* gst-libs/gst/pbutils/meson.build:
+	* gst-libs/gst/riff/meson.build:
+	* gst-libs/gst/rtp/meson.build:
+	* gst-libs/gst/rtsp/meson.build:
+	* gst-libs/gst/sdp/meson.build:
+	* gst-libs/gst/tag/meson.build:
+	* gst-libs/gst/video/meson.build:
+	* gst-libs/meson.build:
+	  docs: generate hotdoc configs for libraries with our helper script
+	  With this patch, configure time is identical no matter whether doc is
+	  enabled or not.
+	  The configuration files also now contain explicitly-listed sources with
+	  no wildcards.
+	  For the four libraries where hotdoc needs to use clang to generate the
+	  documentation (as opposed to the rest of the libraries where hotdoc uses
+	  the gir), the script will call pkg-config to determine the appropriate
+	  C flags.
+	  This means a side effect of this patch is that pkg-config files are now
+	  generated for the gstadaptivedemux and gstopencv libraries.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8312>
+
+2025-01-17 16:51:22 +0100  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* meson.build:
+	  meson: bump minimum version to 1.4 in every subprojects
+	  36c01d05797ad9c7778939c54870f979bdcbba1f bumped to 1.4 for gst-devtools
+	  and the root project, but we usually keep those in sync everywhere.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8312>
+
+2025-01-07 18:55:02 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst/videoconvertscale/gstvideoconvertscale.c:
+	  videoconvertscale: Handle large pixel aspect ratios
+	  Some pixel aspect ratios found in dash streams have very large numerators and
+	  denominators (while being close to 1:1). These values can cause integer overflow
+	  during multiplication, leading to negotiation failures.
+	  Add fallback path using gdouble when integer multiplication would overflow,
+	  trading some precision for reliability instead of failing outright.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8262>
+
+2025-01-14 15:00:43 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.25.1
+
 === release 1.25.1 ===
 
 2025-01-14 14:52:48 +0000  Tim-Philipp Müller <tim@centricular.com>
