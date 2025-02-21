@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.25.50-2) experimental; urgency=medium
+
+  * d/patches: add 0003-urisourcebin-Make-parsebin-activation-more-reliable
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Fri, 21 Feb 2025 10:05:57 +0100
+
 gst-plugins-base1.0 (1.25.50-1) experimental; urgency=medium
 
   * New upstream version 1.25.50
