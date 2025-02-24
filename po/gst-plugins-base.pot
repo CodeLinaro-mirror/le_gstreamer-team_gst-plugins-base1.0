@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.25.50\n"
+"Project-Id-Version: gst-plugins-base-1.25.90\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 17:35+0000\n"
+"POT-Creation-Date: 2025-02-23 23:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -375,81 +375,81 @@ msgstr ""
 msgid "Raw %d-bit %s audio"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:988
+#: gst-libs/gst/pbutils/descriptions.c:1012
 msgid "Audio CD source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:991
+#: gst-libs/gst/pbutils/descriptions.c:1015
 msgid "DVD source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:994
+#: gst-libs/gst/pbutils/descriptions.c:1018
 msgid "Real Time Streaming Protocol (RTSP) source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:998
+#: gst-libs/gst/pbutils/descriptions.c:1022
 msgid "Microsoft Media Server (MMS) protocol source"
 msgstr ""
 
 #. TODO: find out how to add a comment for translators to the source code
 #. * (and tell them to make the first letter uppercase below if they move
 #. * the protocol to the middle or end of the string)
-#: gst-libs/gst/pbutils/descriptions.c:1006
+#: gst-libs/gst/pbutils/descriptions.c:1030
 #, c-format
 msgid "%s protocol source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1079
+#: gst-libs/gst/pbutils/descriptions.c:1103
 #, c-format
 msgid "%s video RTP depayloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1081
+#: gst-libs/gst/pbutils/descriptions.c:1105
 #, c-format
 msgid "%s audio RTP depayloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1083
+#: gst-libs/gst/pbutils/descriptions.c:1107
 #, c-format
 msgid "%s RTP depayloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1090
+#: gst-libs/gst/pbutils/descriptions.c:1114
 #, c-format
 msgid "%s demuxer"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1092
+#: gst-libs/gst/pbutils/descriptions.c:1116
 #, c-format
 msgid "%s decoder"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1130
+#: gst-libs/gst/pbutils/descriptions.c:1154
 #, c-format
 msgid "%s video RTP payloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1132
+#: gst-libs/gst/pbutils/descriptions.c:1156
 #, c-format
 msgid "%s audio RTP payloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1134
+#: gst-libs/gst/pbutils/descriptions.c:1158
 #, c-format
 msgid "%s RTP payloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1141
+#: gst-libs/gst/pbutils/descriptions.c:1165
 #, c-format
 msgid "%s muxer"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1143
+#: gst-libs/gst/pbutils/descriptions.c:1167
 #, c-format
 msgid "%s encoder"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:1176
+#: gst-libs/gst/pbutils/descriptions.c:1200
 #, c-format
 msgid "GStreamer element %s"
 msgstr ""
