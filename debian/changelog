@@ -1,3 +1,12 @@
+gst-plugins-base1.0 (1.25.90-1) experimental; urgency=medium
+
+  * New upstream version 1.25.90
+  * d/control: update dependency version to 1.25.90
+  * d/symbols: update with new h265 codec utils
+  * d/control: update with EGL symbol
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Mon, 24 Feb 2025 15:48:59 +0100
+
 gst-plugins-base1.0 (1.25.50-2) experimental; urgency=medium
 
   * d/patches: add 0003-urisourcebin-Make-parsebin-activation-more-reliable
