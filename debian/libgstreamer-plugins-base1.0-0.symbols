@@ -414,6 +414,11 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_codec_utils_h265_get_level_idc@Base 1.4.0
  gst_codec_utils_h265_get_profile@Base 1.4.0
  gst_codec_utils_h265_get_tier@Base 1.4.0
+ gst_codec_utils_h266_caps_set_level_tier_and_profile@Base 1.25.90
+ gst_codec_utils_h266_get_level@Base 1.25.90
+ gst_codec_utils_h266_get_level_idc@Base 1.25.90
+ gst_codec_utils_h266_get_profile@Base 1.25.90
+ gst_codec_utils_h266_get_tier@Base 1.25.90
  gst_codec_utils_mpeg4video_caps_set_level_and_profile@Base 1.0.0
  gst_codec_utils_mpeg4video_get_level@Base 1.0.0
  gst_codec_utils_mpeg4video_get_profile@Base 1.0.0
