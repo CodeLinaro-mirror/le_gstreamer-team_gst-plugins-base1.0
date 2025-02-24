@@ -500,6 +500,8 @@ gst_gl_video_mixer_input_dispose (GObject * object)
   GstGLVideoMixerInput *self = (GstGLVideoMixerInput *) object;
 
   gst_clear_object (&self->mixer_pad);
+
+  G_OBJECT_CLASS (gst_gl_video_mixer_input_parent_class)->dispose (object);
 }
 
 static GstGhostPad *
@@ -570,6 +572,8 @@ static void
 gst_gl_video_mixer_bin_constructed (GObject * self)
 {
   GstGLMixerBin *mix_bin = GST_GL_MIXER_BIN (self);
+
+  G_OBJECT_CLASS (gst_gl_video_mixer_bin_parent_class)->constructed (self);
 
   gst_gl_mixer_bin_finish_init_with_element (mix_bin,
       g_object_new (GST_TYPE_GL_VIDEO_MIXER,
