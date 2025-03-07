@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.25.90-2) unstable; urgency=medium
+
+  * upload to unstable
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Fri, 07 Mar 2025 16:23:13 +0100
+
 gst-plugins-base1.0 (1.25.90-1) unstable; urgency=medium
 
   * New upstream version 1.25.90
