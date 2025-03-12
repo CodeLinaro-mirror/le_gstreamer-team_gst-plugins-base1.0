@@ -1,3 +1,20 @@
+gst-plugins-base1.0 (1.26.0-1) unstable; urgency=medium
+
+  * Revert "d/watch: pin on 1.24.x"
+  * New upstream version 1.26.0
+  * d/patches: remove video-Move-Y410-into-the-correct-place-for-big-endian-pla.patch
+  * d/symbols: add 1.25.1 new symbols
+  * d/control: bump GStreamer version dependency
+  * d/patches: test for latomic
+  * d/symbols: remove gst_egl_image_can_emulate for hurd
+  * d/patches: add 0003-urisourcebin-Make-parsebin-activation-more-reliable
+  * d/control: update dependency version to 1.25.90
+  * d/symbols: update with new h265 codec utils
+  * d/control: update with EGL symbol
+  * d/control: update GStreamer dependencies to >= 1.26.0
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Wed, 12 Mar 2025 09:42:36 +0100
+
 gst-plugins-base1.0 (1.24.12-1) unstable; urgency=medium
 
   * New upstream version 1.24.12
