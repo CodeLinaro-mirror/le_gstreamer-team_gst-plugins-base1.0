@@ -1,5 +1,5 @@
 project('gst-plugins-base', 'c',
-  version : '1.26.0',
+  version : '1.26.1',
   meson_version : '>= 1.4',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -397,6 +397,15 @@ else
   message('Orc Compiler not found or disabled, will use backup C code')
   core_conf.set('DISABLE_ORC', 1)
 endif
+
+base_platform_dep = []
+# Check for libatomic for use of C11 atomics: some architectures need
+# to link explicitly to this library.
+# TODO: Once meson 1.7 is in use, this can be updated to
+# dependency('atomic')
+atomic_dep = cc.find_library('atomic', required: false)
+
+base_platform_dep += [atomic_dep]
 
 # Used to build SSE* things in audio-resampler
 sse_args = '-msse'
