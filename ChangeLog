@@ -1,3 +1,203 @@
+=== release 1.26.1 ===
+
+2025-04-24 20:20:14 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.1
+
+2025-04-15 14:24:12 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideoencoder.c:
+	  videoencoder: Use the correct segment and buffer timestamp in the chain function
+	  The only thing that can be used in the chain function is the input segment. The
+	  output segment might not be available at all yet or out of sync with the current
+	  input segment.
+	  Also because of that, the unadjusted timestamp has to be used for the
+	  calculations as the adjustment is only part of the output segment.
+	  This fixes the deadline calculation and the handling of force-keyunit events for
+	  encoders using frame reordering (i.e. setting a minimum PTS).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8843>
+
+2025-04-07 15:07:56 +0100  Philippe Normand <philn@igalia.com>
+
+	* ext/ogg/gstoggdemux.c:
+	  oggdemux: Don't push new packets if there is a pending seek
+	  There was a race condition where the demuxer would seek back to beginning after
+	  determining the duration and while that seek was in progress one pad would
+	  attempt to push a new buffer downstream, leading to a critical warning in
+	  gst_pad_push().
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8834>
+
+2025-04-10 16:19:42 +0900  Hou Qi <qi.hou@nxp.com>
+
+	* ext/gl/gstgldownloadelement.c:
+	  gldownload: unref glcontext after usage
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8813>
+
+2025-03-11 09:30:29 +0100  Carlos Rafael Giani <crg7475@mailbox.org>
+
+	* gst-libs/gst/audio/gstaudiobasesink.c:
+	  audiobasesink: Fix custom slaving driftsamples calculation
+	  driftsamples currently uses the requested skew directly, even if it
+	  exceeds cexternal.
+	  Use the approach that skew_slaving uses to fix this. As a side benefit,
+	  this makes the custom_slaving and skew_slaving code easier to compare.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8811>
+
+2025-03-09 22:00:06 +0100  Carlos Rafael Giani <crg7475@mailbox.org>
+
+	* tests/examples/audio/audiobasesink-custom-clock-slaving.c:
+	* tests/examples/audio/meson.build:
+	  examples: Add custom audio clock slaving callback example
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8811>
+
+2025-04-03 13:20:50 +1100  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: fix YUVA<->RGBA conversions
+	  Alpha should not impact the YUV/RGB conversion and should simply be copied
+	  over.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4339
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8769>
+
+2025-03-31 12:18:42 +0200  Alexander Slobodeniuk <aslobodeniuk@fluendo.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: fix chaining up to parent class (again)
+	  An error was added in !8416, it was calling to the
+	  wrong parent class
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8743>
+
+2025-03-14 22:10:56 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Free various props before being set
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8714>
+
+2025-03-14 22:10:10 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/theora/gsttheoraenc.c:
+	  theoraenc: Free various props before being set
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8714>
+
+2025-03-14 22:09:21 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/gl/gstglbumper.c:
+	* ext/gl/gstgldifferencematte.c:
+	* ext/gl/gstgloverlay.c:
+	  gl: Free various props during cleanup
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8714>
+
+2025-03-14 22:07:04 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/alsa/gstalsamidisrc.c:
+	  alsamidisrc: free ports during finalize()
+	  If the element is never start/stopped the ports variable will leak.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8714>
+
+2025-03-14 19:14:43 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/alsa/gstalsadeviceprovider.c:
+	  all: Annotate *_set_property() contructor only props without free
+	  Properties that are marked constructor only aren't required to be freed
+	  before g_value_dup_string() as they can only be called once during construction.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8714>
+
+2025-03-24 15:56:01 +0100  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst-libs/gst/gl/egl/gsteglimage.c:
+	  gl: eglimage: warn the reason of export failure
+	  So people debugging could know what's happening at debugging.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8713>
+
+2025-03-24 16:53:46 +0100  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst-libs/gst/gl/egl/gsteglimage.c:
+	  gl: eglExportDMABUFImageQueryMESA expects modifiers to be an array
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8713>
+
+2025-03-15 12:07:22 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	* tests/check/libs/videotimecode.c:
+	  videotimecode: Add missing 119.88fps support to some functions
+	  And while at it generalize the drop frame handling to all integer multiples
+	  of 30000/1001 fps.
+	  Also adjust tests accordingly and add some other missing test.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8704>
+
+2025-03-15 11:00:52 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	* tests/check/libs/videotimecode.c:
+	  videotimecode: Fix conversion of timecode to datetime with drop-frame timecodes
+	  gst_video_time_code_to_date_time() simply calculated the date time based on
+	  adding the hours/minutes/seconds to the daily jam. This causes a gap every full
+	  minute (except for every 10th minute) with drop-frame timecodes as the first 2
+	  (29.97fps) or 4 (59.94fps) timecodes are skipped (not frames!), e.g. with
+	  29.97fps:
+	  timecode: 12:00:59;28  12:00:59;29  12:01:00;02  12:01:00;03
+	  time    : 12:00:59.950 12:00:59.983 12:01:00.017 12:01:00.050
+	  and not
+	  time    : 12:00:59.934 12:00:59.968 12:01:00.067 12:01:00.100
+	  |-- gap of 2 frames --|
+	  The correct calculation would be to use gst_video_time_code_nsec_since_daily_jam()
+	  and add that to the daily jam.
+	  Also add a test for this.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8704>
+
+2025-01-22 15:02:03 +0100  Marc Leeman <marc.leeman@gmail.com>
+
+	* gst-libs/gst/audio/meson.build:
+	* meson.build:
+	  meson.build: test for and link against libatomic if it exists
+	  It's needed on some platforms for some subset (or all) atomic operations and
+	  checking for the cases when it's actually needed is quite complex.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4300
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8647>
+
+2025-03-14 09:37:16 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Don't avoid `parsebin` even if we have a matching decoder
+	  This is too brittle, there is no guarantee that the input stream has been
+	  properly parsed.
+	  There is another check above (is_input_parsed) that will skip that if the
+	  content came from `urisourcebin` and had a parser applied
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4308
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8643>
+
+2025-03-12 10:30:04 +0100  Olivier Blin <olivier.blin@softathome.com>
+
+	* ext/alsa/gstalsadeviceprovider.c:
+	  alsadeviceprovider: Fix leak of Alsa longname
+	  Detected by ASan.
+	  As a drive-by fix, use free() instead of g_free() in gstalsadeviceprovider.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8632>
+
+2025-02-18 15:53:46 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Make parsebin activation more reliable
+	  `parsebin` is potentially added by a `typefind` callback.
+	  That `typefind` was activated by a `READY_TO_PAUSED` state change on `urisourcebin`
+	  We want to ensure that it is the "setup_parsebin_for_slot" method that activates
+	  the underlying `parsebin`, and not the external state-change.
+	  Otherwise we would risk a potential deadlock where elements activating in
+	  `parsebin`, and which would cause the upstream `typefind` to switch scheduling
+	  mode, would not be able to acquire the STREAM_LOCK of the `typefind` task.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4225
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8622>
+
+2025-03-11 20:23:16 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.0
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8618>
+
 === release 1.26.0 ===
 
 2025-03-11 20:14:44 +0000  Tim-Philipp Müller <tim@centricular.com>

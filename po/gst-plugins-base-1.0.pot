@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.26.0\n"
+"Project-Id-Version: gst-plugins-base-1.26.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 20:15+0000\n"
+"POT-Creation-Date: 2025-04-24 20:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -192,11 +192,11 @@ msgstr ""
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2417 gst/playback/gsturisourcebin.c:2552
+#: gst/playback/gsturidecodebin.c:2417 gst/playback/gsturisourcebin.c:2561
 msgid "Source element can't be prepared"
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2423 gst/playback/gsturisourcebin.c:2546
+#: gst/playback/gsturidecodebin.c:2423 gst/playback/gsturisourcebin.c:2555
 msgid "Source element is invalid."
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Failed to create download directory '%s'."
 msgstr ""
 
-#: gst/playback/gsturisourcebin.c:2558
+#: gst/playback/gsturisourcebin.c:2567
 msgid "Source element has no pads."
 msgstr ""
 
