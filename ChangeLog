@@ -1,3 +1,278 @@
+=== release 1.26.2 ===
+
+2025-05-29 23:56:43 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.2
+
+2025-05-08 12:46:40 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Make sure that subrip time string is not too long before zero-padding
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4419
+	  Fixes CVE-2025-47806
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9135>
+
+2025-05-08 09:14:15 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Check for valid UTF-8 before cleaning up lines and check for regex replace errors
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4418
+	  Fixes CVE-2025-47807
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9135>
+
+2025-05-08 09:04:52 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/tmplayerparse.c:
+	  tmplayer: Don't append NULL + 1 to the string buffer when parsing lines without text
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4417
+	  Fixes CVE-2025-47808
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9135>
+
+2025-05-29 00:14:50 +0300  Vasiliy Doylov <nekocwd@mainlining.org>
+
+	* ext/gl/gstglfiltershader.c:
+	  glshader: recompile shader on pipeline restart
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9125>
+
+2025-05-26 19:00:36 +0200  Wim Taymans <wtaymans@redhat.com>
+
+	* gst-libs/gst/riff/riff-media.c:
+	  riff-media: fix MS and DVI ADPCM av_bps calculations
+	  Align the calculations for the number of samples per block with the
+	  calculations in adpcmdec.
+	  For MS ADPCM we have in adpcmdec:
+	  samples = (blocksize - 7 * dec->channels) * 2 + 2 * dec->channels;
+	  outsize = 2 * samples;
+	  outbuf = gst_buffer_new_and_alloc (outsize);
+	  This gives us the total output byte size in 16 bits samples. To get back
+	  to the samples, dividing by the channels and 2, we get the right samples per
+	  block as:
+	  int spb = ((strf->blockalign / strf->channels) - 7) * 2 + 2;
+	  Which we can then use to calculate the bitrate in riff-media.
+	  A similar calculation for DVI ADPCM is needed to get the right bitrate
+	  in all cases.
+	  Tested with the sample in https://bugzilla.gnome.org/show_bug.cgi?id=636245
+	  and another (failing before this patch) sample.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9121>
+
+2025-05-27 19:20:35 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* ext/pango/gstbasetextoverlay.c:
+	  textoverlay: fix shading for RGBx/RGBA pixel format variants
+	  ... for cases where there's padding at the end of each row.
+	  Fixes #4414.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9111>
+
+2025-05-21 10:01:24 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst/playback/gstdecodebin3.c:
+	  gstreamer: A few small memory cleanups
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9101>
+
+2025-05-21 10:04:59 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst-libs/gst/gl/egl/gstglcontext_egl.c:
+	  glcontext/egl: Free dma_formats if someone else already initialized
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9101>
+
+2025-05-14 13:54:55 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/opus.c:
+	* tests/check/meson.build:
+	  tests: opus: Update channel support and add to meson
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9090>
+
+2025-05-14 14:42:19 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/audioresample.c:
+	  tests: Switch to GST_AUDIO_NE()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9089>
+
+2025-05-14 14:39:17 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst/volume/gstvolume.c:
+	* tests/check/elements/volume.c:
+	  volume: Switch to GST_AUDIO_NE()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9089>
+
+2025-05-14 14:38:41 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst/audiomixer/gstaudiointerleave.c:
+	* gst/audiomixer/gstaudiomixer.c:
+	  audiomixer: Switch to GST_AUDIO_NE()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9089>
+
+2025-05-14 14:37:47 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst/adder/gstadder.c:
+	* tests/check/elements/adder.c:
+	  adder: Switch to GST_AUDIO_NE()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9089>
+
+2025-05-13 19:42:37 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/gl/gstglfiltershader.c:
+	  gstglfiltershader: Free various props before set & during cleanup
+	  gst_object_replace() takes a reference so no need to dup object.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9088>
+
+2025-05-21 20:29:06 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* meson_options.txt:
+	  meson: Add a monorepo-wide qt-method option and yield to it
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9063>
+
+2025-05-21 20:25:26 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	  meson: Rework build files for qt examples in -base
+	  The build files had quite a few things wrong:
+	  * Not using the method: kwarg, which can cause the wrong Qt to be
+	  used for building
+	  * There was no way to enable the build for them
+	  * Qt was being detected multiple times, differently
+	  * Unnecessary check for libGL
+	  * have_cxx was being used incorrectly
+	  * Qt tool detection was outdated
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9063>
+
+2025-05-17 11:40:51 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/gl/gstglcolorbalance.c:
+	* ext/gl/gstglcolorconvertelement.c:
+	* ext/gl/gstglcolorscale.c:
+	* ext/gl/gstgldownloadelement.c:
+	* ext/gl/gstgluploadelement.c:
+	* ext/gl/gstglutils.c:
+	* ext/gl/gstglutils.h:
+	* ext/gl/gstopengl.c:
+	  gl: Implement basetransform meta transform function
+	  This makes sure we can pass through more metas correctly, e.g.
+	  GstVideoOverlayComposition meta.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4422
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9041>
+
+2025-05-18 11:30:24 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/videoconvertscale/gstvideoconvertscale.c:
+	  videoconvertscale: Use new gst_meta_api_type_tags_contain_only() API
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9041>
+
+2025-05-20 08:21:51 +0200  Guillaume Desmottes <guillaume.desmottes@onestream.live>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Don't hold play items lock while releasing pads
+	  Releasing the pad can cause messages that call back into the message
+	  handler of uridecodebin3 and take exactly the same lock again.
+	  Fix #4443
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9047>
+
+2025-05-18 12:00:55 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gstsubtitleoverlay.c:
+	  subtitleoverlay: Remove 0.10 hardware caps handling
+	  This also reverts c02d41c2. videoconvert and videoscale are supposed to support
+	  raw video with any caps features as long as no conversion is actually necessary,
+	  and assuming they don't breaks usage of GstVideoOverlayCompositionMeta with e.g.
+	  dmabuf or GL memory caps.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4353
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9045>
+
+2025-05-13 08:20:30 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/audiomixer.c:
+	  audiomixer: Change test to use native endian audio format
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9025>
+
+2025-05-13 08:19:54 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst/videoconvertscale/gstvideoconvertscale.c:
+	  videoconvertscale: Use correct variable size for gst_structure_get()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9025>
+
+2025-04-13 19:31:23 +0200  Adrian Perez de Castro <aperez@igalia.com>
+
+	* ext/alsa/gstalsa.c:
+	  alsa: Avoid infinite loop in DSD rate detection
+	  Stop testing DSD rates in gst_alsa_detect_dsd_rates() if the rate becomes zero
+	  or negative. This avoids an infinite loop if gst_alsa_probe_supported_formats()
+	  is used on a PCM sink defined like the following in the ALSA configuration file:
+	  pcm.buggy {
+	  type plug
+	  slave.pcm "buggy_volume"
+	  hint.description "Causes an infinite loop in GStreamer"
+	  }
+	  pcm.buggy_volume {
+	  type softvol
+	  slave.pcm "buggy_dmix"
+	  control.name "buggy_volume"
+	  }
+	  pcm.buggy_dmix {
+	  type dmix
+	  ipc_key 12345
+	  slave {
+	  pcm "hw:0,0"
+	  period_size 1024
+	  buffer_size 4096
+	  }
+	  }
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9005>
+
+2025-04-26 15:04:01 +0200  Robert Mader <robert.mader@collabora.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: Only add texture-target field to GL caps
+	  So far we simply ignored it for MEMORY_DMABUF passthrough caps
+	  without known negative cosequences, but with upcoming more complicated
+	  caps negotiations it's becoming an issue, thus fix it.
+	  Fixes: 7e71d4f753 ("gl: upload: Add DMA_DRM passthrough upload")
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8998>
+
+2025-05-02 08:56:19 +0200  Alexander Slobodeniuk <aslobodeniuk@fluendo.com>
+
+	* ext/pango/gstbasetextoverlay.c:
+	* gst-libs/gst/allocators/gstdrmdumb.c:
+	* gst-libs/gst/rtp/gstrtpbasedepayload.c:
+	  properties: add G_PARAM_STATIC_STRINGS where missing
+	  "Hold on, I know you need to generate the registry, but let me just
+	  create copies of all those strings first", Framework whispered
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8962>
+
+2025-05-01 11:48:30 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  mikey: Avoid infinite loop while parsing MIKEY payload with unhandled payload types
+	  Skip over the unhandled payload types for now, and error out if an unknown
+	  payload type is found.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3314
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8947>
+
+2025-04-26 13:38:06 +0000  Biswapriyo Nath <nathbappai@gmail.com>
+
+	* gst-libs/gst/audio/gstaudioutilsprivate.c:
+	  gstaudioutilsprivate: Fix gcc 15 compiler error with function pointer
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8910>
+
+2025-04-01 17:58:14 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* ext/vorbis/meson.build:
+	  meson: Add include_type: 'system' everywhere to squelch wrap warnings
+	  Wrap dependencies add a ton of warnings with the latest GCC in Fedora
+	  42. Squelch them by specifying that these dependencies are not
+	  a part of the gstreamer project, and should be treated as system deps.
+	  libsoup needs some porting work for the bump, and vorbis/lame are
+	  already at their latest releases.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8919>
+
+2025-04-24 20:26:57 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.1
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8890>
+
 === release 1.26.1 ===
 
 2025-04-24 20:20:14 +0100  Tim-Philipp Müller <tim@centricular.com>
