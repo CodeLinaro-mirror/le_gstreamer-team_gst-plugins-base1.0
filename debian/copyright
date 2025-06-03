@@ -647,10 +647,6 @@ Files: gst/audioresample/fixed_bfin.h
 Copyright: 2005, Analog Devices
 License: BSD (3 clause)
 
-Files: ext/ogg/vorbis_parse.c
-Copyright: 2003, Commonwealth Scientific and Industrial Research
-License: BSD (3 clause)
-
 Files: gst/audioresample/resample_sse.h
 Copyright: 2007-2008, Jean-Marc Valin
   2008, Thorvald Natvig
