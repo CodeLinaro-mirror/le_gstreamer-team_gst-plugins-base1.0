@@ -387,7 +387,7 @@ Files: gst/audioresample/arch.h
  gst/audioresample/fixed_generic.h
 Copyright: 2003, Jean-Marc Valin */
   2004, Jean-Marc Valin */
-License: BSD (3 clause)
+License: BSD-3-clause
 
 Files: gst/tcp/gstmultihandlesink.h
  gst/tcp/gstmultisocketsink.h
@@ -645,21 +645,21 @@ License: BSD (2 clause)
 
 Files: gst/audioresample/fixed_bfin.h
 Copyright: 2005, Analog Devices
-License: BSD (3 clause)
+License: BSD-3-clause
 
 Files: gst/audioresample/resample_sse.h
 Copyright: 2007-2008, Jean-Marc Valin
   2008, Thorvald Natvig
-License: BSD (3 clause)
+License: BSD-3-clause
 
 Files: gst/audioresample/speex_resampler.h
 Copyright: 2007, Jean-Marc Valin
-License: BSD (3 clause)
+License: BSD-3-clause
 
 Files: gst/audioresample/resample.c
 Copyright: 2007-2008, Jean-Marc Valin
   2008, Thorvald Natvig
-License: BSD (3 clause)
+License: BSD-3-clause
 
 Files: ltmain.sh
 Copyright: 1996-2001, 2003-2006
