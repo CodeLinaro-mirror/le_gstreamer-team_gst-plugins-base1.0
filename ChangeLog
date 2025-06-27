@@ -1,3 +1,179 @@
+=== release 1.26.3 ===
+
+2025-06-26 21:25:24 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.3
+
+2025-06-12 16:32:51 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst/audioconvert/gstaudioconvert.c:
+	* tests/check/elements/audioconvert.c:
+	  audioconvert: Fix setting mix-matrix when input caps changes
+	  When the number of input channels changes, application might have to set
+	  a new mix-matrix. Application must set the new matrix before
+	  audioconvert receives updated caps, otherwise negotiation would fail.
+	  That means it should be allowed to set an invalid mix-matrix until we
+	  receive new caps or next buffer.
+	  This fixes a regression in GStreamer >=1.24.9 caused by:
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7363
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9290>
+
+2025-06-13 09:54:33 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst/audioconvert/gstaudioconvert.c:
+	  audioconvert: Replace g_warning with GST_WARNING_OBJECT
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9290>
+
+2025-06-05 17:03:12 +0200  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst/playback/gstplaysink.c:
+	* gst/playback/gststreamsynchronizer.c:
+	  playsink: Fix race condition in stream synchronizer pad cleanup during state changes
+	  Prevent race condition where gst_play_sink_do_reconfigure() could be called
+	  from a pad probe while stream synchronizer pads are being released during
+	  GST_STATE_CHANGE_PAUSED_TO_READY transition.
+	  The race occurred when:
+	  1. State change starts releasing stream synchronizer pads
+	  2. Pads are unblocked earlier in the state change, allowing events to flow
+	  3. A streaming thread triggers sinkpad_blocked_cb -> gst_play_sink_do_reconfigure
+	  4. Reconfiguration tries to use already-released pad pointers
+	  5. New pad creation fails with assertion in gst_pad_iterate_internal_links
+	  The fix adds GST_PLAY_SINK_LOCK around the pad cleanup to ensure atomic
+	  cleanup and prevent concurrent access during state transitions.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9263>
+
+2025-06-18 19:03:17 +0200  Loïc Le Page <llepage@igalia.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  GstAudioAggregator: fix structure unref in peek_next_sample
+	  The GstStructure attached to the audio sample in peek_next_sample() was
+	  freed prematurely before usage as gst_sample_new() is taking full
+	  ownership on it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9260>
+
+2025-01-31 17:56:44 +0100  Théo Maillart <tmaillart@freebox.fr>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: never manually store stream-start
+	  The copy of the exact same stream-start event prevents the multiqueue's sink
+	  event function from being called because it is already stored on both pads at
+	  link time
+	  The text streams are no longer considered sparse by the multiqueue, so
+	  interleave calculation is broken and makes us consume a lot of ram and we can
+	  end up killed by the kernel because of this
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9250>
+
+2025-06-07 13:32:18 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* ext/gl/gstglutils.c:
+	* ext/gl/gstglutils.h:
+	* ext/gl/gstopengl.c:
+	  gl: simplify private gst_gl_gst_meta_api_type_tags_contain_only()
+	  Follow-up to backport commit 7dd465ba.
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9041#note_2923013
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9195>
+
+2025-05-30 12:41:24 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	  python: Fix pulling events from appsink
+	  appsink.pull_object() is introspectable, but it needs a way to convert
+	  the GstMiniObject to its GstEvent/GstSample subclass.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9178>
+
+2025-06-04 11:57:38 +0200  Philippe Normand <philn@igalia.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebasebin: GstPad and GstStructure leak fixes
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9173>
+
+2025-06-04 12:41:35 +0200  Philippe Normand <philn@igalia.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebasebin: Make profile ownership explicit in StreamGroup
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9173>
+
+2025-06-04 12:40:54 +0200  Philippe Normand <philn@igalia.com>
+
+	* gst/encoding/gstencodebasebin.c:
+	  encodebasebin: Encoding profile ownership fixes
+	  The profile argument passed to gst_encode_base_bin_set_profile is now
+	  transfer-full. This issue was noticed after commit
+	  6beb709d43d2023e7e5dc8f1ee1323bc28c9d1d8 which fixed profile refcount handling
+	  in transcodebin.
+	  Driving-by, an encoding profile leak was also fixed in _set_profile, in case
+	  it's called for an already active element.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9173>
+
+2025-05-30 09:40:21 +0200  Thibault Saunier <tsaunier@igalia.com>
+
+	* sys/xvimage/xvimagesink.c:
+	  doc: Add some explanation about the logic of when to post navigation message in code
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9169>
+
+2024-11-14 21:36:19 +0100  Enrique Ocaña González <eocanha@igalia.com>
+
+	* gst/playback/gststreamsynchronizer.c:
+	* tests/check/elements/streamsynchronizer.c:
+	  streamsynchronizer: Consider streams having received stream-start as waiting
+	  When using the custom WebKitMediaSrc element (used by WebKit and able to
+	  perform an initial seek in playbin), a stall caused by streamsynchronizer
+	  was detected during an initial seek. The flow of events revealed that the
+	  intertwining of the initial configuration of the streams with the reset
+	  caused by the flush events from the seek left streamsynchronizer in an
+	  inconsistent state:
+	  streamsynchronizer0:sink_0 (video) events, starting before the seek:
+	  stream-start --> Sets the stream to wait
+	  flush-stop --> Clears the stream wait flag
+	  caps
+	  tag
+	  segment
+	  stream-collection
+	  (buffers start to come and flow properly)
+	  streamsynchronizer0:sink_1 (audio) events, happening after seek:
+	  (no flush events, because the stream hadn't been initialized when the seek happened)
+	  stream-start --> Sets the stream to wait
+	  caps
+	  segment
+	  (stalled because the stream is in wait mode!)
+	  The code in streamsynchronizer expects that all the streams are in wait
+	  state before releasing all of them at once. The flush on the video stream
+	  broke that assumption and that's why the audio stream is never released in
+	  that scenario.
+	  Avoiding the clearing of the wait flag on flush-stop isn't an actual solution
+	  to the problem, as it creates other side effects and at least makes the
+	  gst-editing-services/seek_with_stop test to timeout. The alternate solution
+	  implemented in this patch consists on analyzing if the other streams different
+	  from the one newly added (after the flush) aren't waiting (which would mean
+	  that they've all been unlocked after all of them were waiting before), and,
+	  in that case, mark the new stream as also not waiting.
+	  A new test_stream_start_wait test case has been added to demonstrate this
+	  problem. The test case creates a video stream, pushes a buffer, then
+	  simulates a seek by pushing flush-start, flush-stop, stream-start and segment
+	  events. Note that the flush-stop clears the video stream waiting flag.
+	  After that, a new audio stream is created and stream-start and new segment
+	  events are sent. Note that stream-start will set the audio stream to wait.
+	  Then a buffer is pushed on each stream. In the failing case, the test hangs.
+	  In the working case (after this fix), the test runs properly because the
+	  fact of having seen a stream-start also helps to clear the wait flag.
+	  A second new test_stream_start_wait_sparse test has also been added to prove
+	  that this mechanism can also work with sparse streams (a special case of the
+	  current stream-start handling code). This test behaves like the previous one,
+	  but there's no video buffer after the seek (it'll come in the future, as the
+	  stream is sparse, but actually never comes). The buffer after the seek in the
+	  audio stream starts at its due time. Streamsynchronizer is able to ignore
+	  the wait for the video stream and produce audio buffers on time.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9160>
+
+2025-05-30 00:03:12 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.2
+
 === release 1.26.2 ===
 
 2025-05-29 23:56:43 +0100  Tim-Philipp Müller <tim@centricular.com>
