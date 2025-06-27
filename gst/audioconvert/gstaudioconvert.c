@@ -1343,6 +1343,7 @@ static void
 gst_audio_convert_fixate_channels (GstBaseTransform * base, GstStructure * ins,
     GstStructure * outs)
 {
+  GstAudioConvert *this = GST_AUDIO_CONVERT (base);
   gint in_chans, out_chans;
   guint64 in_mask = 0, out_mask = 0;
   gboolean has_in_mask = FALSE, has_out_mask = FALSE;
@@ -1394,8 +1395,7 @@ gst_audio_convert_fixate_channels (GstBaseTransform * base, GstStructure * ins,
           GST_AUDIO_CHANNEL_POSITION_MASK (FRONT_RIGHT);
       has_in_mask = TRUE;
     } else if (in_chans > 2)
-      g_warning ("%s: Upstream caps contain no channel mask",
-          GST_ELEMENT_NAME (base));
+      GST_WARNING_OBJECT (base, "Upstream caps contain no channel mask");
   }
 
   if (!has_out_mask && out_chans == 1 && (in_chans != out_chans
@@ -1421,8 +1421,8 @@ gst_audio_convert_fixate_channels (GstBaseTransform * base, GstStructure * ins,
 
     if (n_bits_set (out_mask) < in_chans) {
       /* Not much we can do here, this shouldn't just happen */
-      g_warning ("%s: Invalid downstream channel-mask with too few bits set",
-          GST_ELEMENT_NAME (base));
+      GST_WARNING_OBJECT (base,
+          "Invalid downstream channel-mask with too few bits set");
     } else {
       guint64 intersection;
 
@@ -1460,6 +1460,10 @@ gst_audio_convert_fixate_channels (GstBaseTransform * base, GstStructure * ins,
       intersection = find_suitable_mask (out_mask, out_chans);
       gst_structure_set_static_str (outs, "channel-mask", GST_TYPE_BITMASK,
           intersection, NULL);
+      return;
+    } else if (this->mix_matrix_is_set) {
+      /* Assume the matrix matches the number of in/out channels. This will be
+       * validated when creating the converter. */
       return;
     }
 
@@ -1849,22 +1853,9 @@ gst_audio_convert_prepare_output_buffer (GstBaseTransform * base,
 static void
 gst_audio_convert_set_mix_matrix (GstAudioConvert * this, const GValue * value)
 {
-  gboolean mix_matrix_was_set;
-  GstAudioConverter *old_converter;
-  GValue old_mix_matrix = G_VALUE_INIT;
-  gboolean restore = FALSE;
-
-  g_value_init (&old_mix_matrix, GST_TYPE_ARRAY);
-
   GST_OBJECT_LOCK (this);
 
-  mix_matrix_was_set = this->mix_matrix_is_set;
-  old_converter = this->convert;
-  if (mix_matrix_was_set) {
-    g_value_copy (&this->mix_matrix, &old_mix_matrix);
-  }
-
-  this->convert = NULL;
+  g_clear_pointer (&this->convert, gst_audio_converter_free);
 
   if (!gst_value_array_get_size (value)) {
     g_value_copy (value, &this->mix_matrix);
@@ -1876,40 +1867,20 @@ gst_audio_convert_set_mix_matrix (GstAudioConvert * this, const GValue * value)
       g_value_copy (value, &this->mix_matrix);
       this->mix_matrix_is_set = TRUE;
     } else {
-      g_warning ("Empty mix matrix's first row.");
-      restore = TRUE;
-      goto done;
+      GST_WARNING_OBJECT (this, "Empty mix matrix's first row.");
+      this->mix_matrix_is_set = FALSE;
     }
   }
 
   GST_OBJECT_UNLOCK (this);
 
-  /* We need to call this here already because gst_audio_convert_transform
-   * might never get called otherwise if the element was set to passthrough.
-   *
-   * In any case if this succeeds we still want to reconfigure the sink to give
-   * upstream a chance to renegotiate channels.
-   */
-  if (gst_audio_convert_ensure_converter (GST_BASE_TRANSFORM (this),
-          &this->in_info, &this->out_info)) {
-    gst_base_transform_reconfigure_sink (GST_BASE_TRANSFORM (this));
-  } else {
-    g_warning ("Cannot build converter with this mix matrix");
-    restore = TRUE;
-    goto done;
-  }
-
-done:
-  if (restore) {
-    this->mix_matrix_is_set = mix_matrix_was_set;
-    if (mix_matrix_was_set) {
-      g_value_copy (&old_mix_matrix, &this->mix_matrix);
-    }
-    this->convert = old_converter;
-  } else if (old_converter) {
-    gst_audio_converter_free (old_converter);
-  }
-  g_value_unset (&old_mix_matrix);
+  /* We can't create the converter here because the application could be setting
+   * a new mix-matrix for caps we haven't received yet (e.g. number of input
+   * channels changed). Assume for now we can't be passthrough and in-place,
+   * that will be revised once new caps or next buffer arrives. */
+  gst_base_transform_set_in_place (GST_BASE_TRANSFORM_CAST (this), FALSE);
+  gst_base_transform_set_passthrough (GST_BASE_TRANSFORM_CAST (this), FALSE);
+  gst_base_transform_reconfigure_sink (GST_BASE_TRANSFORM_CAST (this));
 }
 
 static void
