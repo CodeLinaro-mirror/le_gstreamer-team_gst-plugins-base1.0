@@ -1,3 +1,17 @@
+gst-plugins-base1.0 (1.26.3-1) experimental; urgency=medium
+
+  * d/copyright: duplicate-globbing-patterns ext/ogg/vorbis_parse.c
+  * d/copyright: BSD (3 clause) -> BSD-3-clause
+  * d/copyright: fix <thiago.sousa.santos collabora co uk>
+  * d/copyright: add LGPL-2.1+
+  * d/copyright: add GPL-2 paragraph
+  * d/copyright: add MIT paragraph
+  * d/copyright: superfluous-file-pattern
+  * d/control: bump Standards-Version to 4.7.2
+  * New upstream version 1.26.3
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Fri, 27 Jun 2025 08:55:58 +0200
+
 gst-plugins-base1.0 (1.26.2-1) unstable; urgency=medium
 
   * d/copyright: review with licenserecon
