@@ -1,3 +1,88 @@
+=== release 1.26.4 ===
+
+2025-07-16 15:26:21 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.4
+
+2025-07-08 17:06:25 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* po/hr.po:
+	* po/ka.po:
+	  gst-plugins-base: update translations
+
+2025-06-11 01:45:43 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/alsa/gstalsasink.c:
+	* ext/alsa/gstalsasrc.c:
+	  alsa: free conf cache under valgrind
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9362>
+
+2025-05-30 15:11:31 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/videoscale.c:
+	  videoscale: Fix test for allowed caps
+	  videoscale_get_allowed_caps_for_method() could leave holes in the
+	  returned array, causing the test to skip some caps and not free them.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9347>
+
+2025-05-30 15:08:32 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst-libs/gst/gl/gstglviewconvert.c:
+	  glviewconvert: Fix a memory leak
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9347>
+
+2025-05-30 15:07:07 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* ext/gl/gstglstereosplit.c:
+	  glstereosplit: Fix a leaked event
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9347>
+
+2025-07-08 02:33:59 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  gst-device-monitor: Fix caps filter splitting
+	  max_tokens=-1 means we will split on `:` in the caps as well, for
+	  example caps features, and then discard those tokens.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9346>
+
+2025-05-28 08:36:28 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/appsrc.c:
+	  tests: appsrc: fix race accessing expected list
+	  Without synchronization, a thread may still see an old value.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9343>
+
+2025-05-28 08:42:15 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst-libs/gst/pbutils/encoding-target.c:
+	  encoding-target: free fullname on failure
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9343>
+
+2025-06-22 03:13:00 -0400  Doug Nazar <nazard@nazar.ca>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Print correct frame variable
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9314>
+
+2025-06-30 09:26:29 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gststreamsynchronizer.c:
+	* tests/check/elements/streamsynchronizer.c:
+	  Revert "streamsynchronizer: Consider streams having received stream-start as waiting"
+	  This reverts commit a1a189c07cb66af06d7047c74f6421bd36e3d66c.
+	  It breaks the uriplaylistbin tests and needs further investigation.
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4506
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9312>
+
+2025-06-26 21:29:34 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.3
+
 === release 1.26.3 ===
 
 2025-06-26 21:25:24 +0100  Tim-Philipp Müller <tim@centricular.com>
