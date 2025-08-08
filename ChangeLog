@@ -1,3 +1,112 @@
+=== release 1.26.5 ===
+
+2025-08-07 19:06:46 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.5
+
+2025-08-06 15:27:32 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Add missing locking and NULL checks when adding URIs to messages
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4559
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9501>
+
+2025-08-03 16:31:32 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst/audioconvert/gstaudioconvert.c:
+	* tests/check/elements/audioconvert.c:
+	  audioconvert: Fix regression when using a mix matrix
+	  This fixes regression introduced by commit da3a1011. When a mix matrix
+	  is set, we still want to set the default channel-mask on output caps.
+	  Fixes: #4579
+	  Co-authored-by: Sebastian Dröge <sebastian@centricular.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9499>
+
+2025-08-05 12:44:38 +0100  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Also accept utf8 in launch lines
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9498>
+
+2025-08-05 12:40:21 +0100  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Fix criticals when dumping non-string values
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9498>
+
+2025-07-31 20:54:20 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Don't error out for unknown streams in default selection
+	  If there is only unknown stream-type streams in the current collection
+	  don't post an error straight away. This fixes a problem with RTSP
+	  cameras and legacy upstream collection building, if the first
+	  stream that rtspsrc outputs is the ONVIF metadata track. That
+	  happens often on bandwidth-constrained camera inputs, as the
+	  video and audio will naturally take longer to arrive.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9488>
+
+2025-07-31 12:50:18 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  gst-device-monitor: Add shell quoting for launch lines
+	  Launch-lines will be pasted into a shell, and `gst_value_serialize()`
+	  yields strings that will likely be interpreted by the shell. For
+	  example:
+	  `gst-launch-1.0 ... ! osxaudiosink unique-id="AppleUSBAudioEngine:BEHRINGER:UMC202HD\ 192k:12345678:1\,2"`
+	  The shell will remove the double-quotes `"` but keep the `\ ` which
+	  means the output of `gst_value_deserialize()` will not be the original
+	  string, and the launch line will not work.
+	  So let's use `gst_value_serialize()` only if the string is non-ASCII,
+	  and if it's ASCII and needs quoting, we do some shell quoting.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9486>
+
+2025-07-31 12:49:32 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  gst-device-monitor: Don't loop unnecessarily when printing properties
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9486>
+
+2025-07-31 20:05:15 +0900  Seungha Yang <seungha@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Use gst_print instead of g_print
+	  Avoid broken stdout output on Windows. Same change was made for
+	  gst-launch in commit 493a3261a9757b5ade7aec289eb07221966f9eed
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9470>
+
+2025-07-22 15:23:30 +0200  Jaslo Ziska <jaslo@ziska.de>
+
+	* ext/gl/gstgloverlay.c:
+	  gloverlay: Recompute geometry when caps change
+	  Set geometry_changed when setting caps so that the geometry is
+	  recomputed correctly with the new dimensions.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9462>
+
+2025-07-22 15:21:23 +0200  Jaslo Ziska <jaslo@ziska.de>
+
+	* ext/gl/gstgloverlay.c:
+	  gloverlay: Load texture after stopping and starting again
+	  Set location_has_changed when stopping so that the texture will be
+	  loaded when starting again.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9462>
+
+2025-03-04 01:29:27 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* gst/videorate/gstvideorate.c:
+	  videorate: add support for JPEG-XS
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9421>
+
+2025-07-16 15:33:19 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.4
+
 === release 1.26.4 ===
 
 2025-07-16 15:26:21 +0200  Tim-Philipp Müller <tim@centricular.com>
