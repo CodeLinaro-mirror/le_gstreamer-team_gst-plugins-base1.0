@@ -163,6 +163,7 @@ gst_gl_overlay_gl_stop (GstGLBaseFilter * base_filter)
   if (overlay->image_memory) {
     gst_memory_unref ((GstMemory *) overlay->image_memory);
     overlay->image_memory = NULL;
+    overlay->location_has_changed = TRUE;
   }
 
   if (overlay->vao) {
@@ -396,6 +397,7 @@ gst_gl_overlay_set_caps (GstGLFilter * filter, GstCaps * incaps,
 
   overlay->window_width = width;
   overlay->window_height = height;
+  overlay->geometry_change = TRUE;
 
   return TRUE;
 }
