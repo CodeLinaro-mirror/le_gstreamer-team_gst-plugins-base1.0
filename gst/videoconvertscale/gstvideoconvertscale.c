@@ -182,7 +182,6 @@ static GstStaticCaps gst_video_convert_scale_format_caps =
 
 static GQuark _size_quark;
 static GQuark _scale_quark;
-static GQuark _tags_quark;
 
 #define GST_TYPE_VIDEO_SCALE_METHOD (gst_video_scale_method_get_type())
 static GType
@@ -395,7 +394,6 @@ gst_video_convert_scale_class_init (GstVideoConvertScaleClass * klass)
 
   _size_quark = g_quark_from_static_string (GST_META_TAG_VIDEO_SIZE_STR);
   _scale_quark = gst_video_meta_transform_scale_get_quark ();
-  _tags_quark = g_quark_from_static_string ("tags");
 
   gst_type_mark_as_plugin_api (GST_TYPE_VIDEO_SCALE_METHOD, 0);
   trans_class->transform_caps =
@@ -695,28 +693,6 @@ gst_video_convert_scale_transform_caps (GstBaseTransform * trans,
   }
 
   return ret;
-}
-
-/* This is public API in 1.28 */
-static gboolean
-gst_meta_api_type_tags_contain_only (GType api, const gchar ** valid_tags)
-{
-  const gchar **tags, **curr;
-  g_return_val_if_fail (api != 0, FALSE);
-
-  tags = g_type_get_qdata (api, _tags_quark);
-
-  if (!tags)
-    return TRUE;
-
-  for (curr = tags; *curr; ++curr) {
-
-    if (!g_strv_contains (valid_tags, *curr)) {
-      return FALSE;
-    }
-  }
-
-  return TRUE;
 }
 
 static gboolean

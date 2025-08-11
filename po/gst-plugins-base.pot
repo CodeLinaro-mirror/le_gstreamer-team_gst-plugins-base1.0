@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.26.5\n"
+"Project-Id-Version: gst-plugins-base-1.27.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-07 19:07+0100\n"
+"POT-Creation-Date: 2025-07-08 19:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,57 +17,57 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/alsa/gstalsasink.c:621
+#: ext/alsa/gstalsasink.c:611
 msgid "Could not open device for playback in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:623
+#: ext/alsa/gstalsasink.c:613
 msgid "Could not open device for playback in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:627
+#: ext/alsa/gstalsasink.c:617
 #, c-format
 msgid "Could not open device for playback in %d-channel mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:924
+#: ext/alsa/gstalsasink.c:914
 msgid ""
 "Could not open audio device for playback. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:929
+#: ext/alsa/gstalsasink.c:919
 msgid "Could not open audio device for playback."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:1152
+#: ext/alsa/gstalsasink.c:1142
 msgid "Error outputting to audio device. The device has been disconnected."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:515
+#: ext/alsa/gstalsasrc.c:505
 msgid "Could not open device for recording in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:517
+#: ext/alsa/gstalsasrc.c:507
 msgid "Could not open device for recording in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:521
+#: ext/alsa/gstalsasrc.c:511
 #, c-format
 msgid "Could not open device for recording in %d-channel mode"
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:796
+#: ext/alsa/gstalsasrc.c:786
 msgid ""
 "Could not open audio device for recording. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:801
+#: ext/alsa/gstalsasrc.c:791
 msgid "Could not open audio device for recording."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:1051
+#: ext/alsa/gstalsasrc.c:1041
 msgid "Error recording from audio device. The device has been disconnected."
 msgstr ""
 
@@ -101,7 +101,7 @@ msgstr ""
 #: gst/playback/gstplaysink.c:3190 gst/playback/gstplaysink.c:3199
 #: gst/playback/gstplaysink.c:3649 gst/playback/gstplaysink.c:4578
 #: gst/playback/gstplaysinkconvertbin.c:97
-#: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1569
+#: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1573
 #: gst/playback/gsturisourcebin.c:1822
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
@@ -169,34 +169,34 @@ msgstr ""
 msgid "Can't play a text file without video or visualizations."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1004
+#: gst/playback/gsturidecodebin.c:1008
 #, c-format
 msgid "No decoder available for type '%s'."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1478 gst/playback/gsturisourcebin.c:1742
+#: gst/playback/gsturidecodebin.c:1482 gst/playback/gsturisourcebin.c:1742
 msgid "No URI specified to play from."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1484 gst/playback/gsturisourcebin.c:1748
+#: gst/playback/gsturidecodebin.c:1488 gst/playback/gsturisourcebin.c:1748
 #, c-format
 msgid "Invalid URI \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1491 gst/playback/gsturisourcebin.c:1755
+#: gst/playback/gsturidecodebin.c:1495 gst/playback/gsturisourcebin.c:1755
 msgid "This stream type cannot be played yet."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1509 gst/playback/gsturisourcebin.c:1773
+#: gst/playback/gsturidecodebin.c:1513 gst/playback/gsturisourcebin.c:1773
 #, c-format
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2417 gst/playback/gsturisourcebin.c:2560
+#: gst/playback/gsturidecodebin.c:2421 gst/playback/gsturisourcebin.c:2560
 msgid "Source element can't be prepared"
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2423 gst/playback/gsturisourcebin.c:2554
+#: gst/playback/gsturidecodebin.c:2427 gst/playback/gsturisourcebin.c:2554
 msgid "Source element is invalid."
 msgstr ""
 
@@ -742,17 +742,17 @@ msgstr ""
 msgid "Initial key in which the sound starts"
 msgstr ""
 
-#: tools/gst-device-monitor.c:368 tools/gst-play.c:1626
+#: tools/gst-device-monitor.c:300 tools/gst-play.c:1626
 msgid "Print version information and exit"
 msgstr ""
 
-#: tools/gst-device-monitor.c:370
+#: tools/gst-device-monitor.c:302
 msgid ""
 "Don't exit after showing the initial device list, but wait for devices to "
 "added/removed."
 msgstr ""
 
-#: tools/gst-device-monitor.c:373
+#: tools/gst-device-monitor.c:305
 msgid "Include devices from hidden device providers."
 msgstr ""
 

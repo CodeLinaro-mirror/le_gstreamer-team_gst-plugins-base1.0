@@ -34,7 +34,7 @@
 #include "egl/gsteglimage_private.h"
 #include "egl/gsteglimagecache.h"
 #include "egl/gstglmemoryegl.h"
-#include "egl/gstglcontext_egl.h"
+#include "egl/gstglcontext_egl_private.h"
 #endif
 
 #if GST_GL_HAVE_DMABUF
@@ -1402,7 +1402,7 @@ _direct_dma_buf_upload_transform_caps (gpointer impl, GstGLContext * context,
 {
   struct DmabufUpload *dmabuf = impl;
   GstCaps *ret, *tmp;
-  GstGLDrmFormatFlags flags = 0;
+  GstGLDrmFormatFlags flags = GST_GL_DRM_FORMAT_DIRECT_IMPORT;
 
   if (dmabuf->target == GST_GL_TEXTURE_TARGET_EXTERNAL_OES)
     flags |= GST_GL_DRM_FORMAT_INCLUDE_EXTERNAL;
@@ -1449,13 +1449,6 @@ _direct_dma_buf_upload_transform_caps (gpointer impl, GstGLContext * context,
       return NULL;
     }
 
-    /* The direct mode, sampling an imported texture will return an RGBA
-       vector in the same colorspace as the source image. If the source
-       image is stored in YUV(or some other basis) then the YUV values will
-       be transformed to RGB values. So, any input format is transformed to:
-       "video/x-raw(memory:GLMemory), format=(string)RGBA" as output. */
-    gst_caps_set_simple (ret, "format", G_TYPE_STRING, "RGBA", NULL);
-
     n = gst_caps_get_size (ret);
     for (i = 0; i < n; i++) {
       GstStructure *s = gst_caps_get_structure (ret, i);
@@ -1470,19 +1463,12 @@ _direct_dma_buf_upload_transform_caps (gpointer impl, GstGLContext * context,
     ret = tmp;
   } else {
     gint i, n;
-    GstCaps *tmp_caps;
 
-    /* The src caps may only contain RGBA format, and we should list
-       all possible supported formats to detect the conversion for
-       DMABuf kind memory. */
-    tmp_caps = gst_caps_copy (caps);
-    for (i = 0; i < gst_caps_get_size (tmp_caps); i++)
-      _set_default_formats_list (gst_caps_get_structure (tmp_caps, i));
-
-    ret = _dma_buf_upload_transform_caps_common (tmp_caps, context, direction,
+    /* The src caps may only contain RGBA format, which in turn should expend to
+     * any support modifier. We rely on the EGL stack for the color conversion */
+    ret = _dma_buf_upload_transform_caps_common (caps, context, direction,
         flags, 1 << dmabuf->target, GST_CAPS_FEATURE_MEMORY_GL_MEMORY,
         GST_CAPS_FEATURE_MEMORY_DMABUF);
-    gst_caps_unref (tmp_caps);
 
     tmp = _dma_buf_upload_transform_caps_common (caps, context, direction,
         flags, 1 << dmabuf->target, GST_CAPS_FEATURE_MEMORY_GL_MEMORY,
@@ -3456,6 +3442,8 @@ gst_gl_upload_fixate_caps (GstGLUpload * upload, GstPadDirection direction,
   ret_caps = gst_caps_fixate (othercaps);
 
 out:
-  GST_DEBUG_OBJECT (upload, "Fixate return %" GST_PTR_FORMAT, ret_caps);
+  GST_INFO_OBJECT (upload, "Fixate return %" GST_PTR_FORMAT " using caps %"
+      GST_PTR_FORMAT ", direction is %s.", ret_caps, caps,
+      direction == GST_PAD_SRC ? "src" : "sink");
   return ret_caps;
 }

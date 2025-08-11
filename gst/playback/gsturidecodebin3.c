@@ -2175,19 +2175,17 @@ static GstMessage *
 update_message_with_uri (GstURIDecodeBin3 * uridecodebin, GstMessage * msg)
 {
   gchar *uri = NULL;
-
-  PLAY_ITEMS_LOCK (uridecodebin);
-
+  gboolean unlock_after = FALSE;
   if (gst_object_has_as_ancestor (GST_MESSAGE_SRC (msg),
           (GstObject *) uridecodebin->decodebin)) {
-    if (uridecodebin->output_item->main_item)
-      uri = uridecodebin->output_item->main_item->uri;
+    uri = uridecodebin->output_item->main_item->uri;
   } else {
     GstSourceHandler *handler;
+    PLAY_ITEMS_LOCK (uridecodebin);
+    unlock_after = TRUE;
     /* Find the matching handler (if any) */
     if ((handler = find_source_handler_for_element (uridecodebin, msg->src))) {
-      if (handler->play_item->main_item)
-        uri = handler->play_item->main_item->uri;
+      uri = handler->play_item->main_item->uri;
     }
   }
 
@@ -2198,7 +2196,8 @@ update_message_with_uri (GstURIDecodeBin3 * uridecodebin, GstMessage * msg)
     gst_structure_set (details, "uri", G_TYPE_STRING, uri, NULL);
   }
 
-  PLAY_ITEMS_UNLOCK (uridecodebin);
+  if (unlock_after)
+    PLAY_ITEMS_UNLOCK (uridecodebin);
 
   return msg;
 }
