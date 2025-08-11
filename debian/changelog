@@ -1,3 +1,13 @@
+gst-plugins-base1.0 (1.27.1-1) experimental; urgency=medium
+
+  * Revert "d/watch: pin to 1.26.x"
+  * d/gbp.conf: adjust for experimental
+  * New upstream version 1.27.1
+  * d/symbols: add new
+  * d/patches: refresh
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Mon, 11 Aug 2025 16:47:49 +0200
+
 gst-plugins-base1.0 (1.26.5-2) unstable; urgency=medium
 
   * trixie has been released, re-upload to unstable
