@@ -13,6 +13,7 @@ libgstallocators-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_drm_dumb_memory_export_dmabuf@Base 1.23.1
  gst_drm_dumb_memory_get_handle@Base 1.23.1
  gst_fd_allocator_alloc@Base 1.6.0
+ gst_fd_allocator_alloc_full@Base 1.27.1
  gst_fd_allocator_get_type@Base 1.6.0
  gst_fd_allocator_new@Base 1.6.0
  gst_fd_memory_get_fd@Base 1.6.0
@@ -30,8 +31,12 @@ libgstapp-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_app_leaky_type_get_type@Base 1.20.0
  gst_app_sink_get_buffer_list_support@Base 1.12.0
  gst_app_sink_get_caps@Base 1.0.0
+ gst_app_sink_get_current_level_buffers@Base 1.27.1
+ gst_app_sink_get_current_level_bytes@Base 1.27.1
+ gst_app_sink_get_current_level_time@Base 1.27.1
  gst_app_sink_get_drop@Base 1.0.0
  gst_app_sink_get_emit_signals@Base 1.0.0
+ gst_app_sink_get_leaky_type@Base 1.27.1
  gst_app_sink_get_max_buffers@Base 1.0.0
  gst_app_sink_get_max_bytes@Base 1.23.1
  gst_app_sink_get_max_time@Base 1.23.1
@@ -46,6 +51,7 @@ libgstapp-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_app_sink_set_caps@Base 1.0.0
  gst_app_sink_set_drop@Base 1.0.0
  gst_app_sink_set_emit_signals@Base 1.0.0
+ gst_app_sink_set_leaky_type@Base 1.27.1
  gst_app_sink_set_max_buffers@Base 1.0.0
  gst_app_sink_set_max_bytes@Base 1.23.1
  gst_app_sink_set_max_time@Base 1.23.1
@@ -1057,6 +1063,7 @@ libgstsdp-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_sdp_media_add_bandwidth@Base 1.0.0
  gst_sdp_media_add_connection@Base 1.0.0
  gst_sdp_media_add_format@Base 1.0.0
+ gst_sdp_media_add_media_from_structure@Base 1.27.1
  gst_sdp_media_as_text@Base 1.0.0
  gst_sdp_media_attributes_len@Base 1.0.0
  gst_sdp_media_attributes_to_caps@Base 1.8.0
