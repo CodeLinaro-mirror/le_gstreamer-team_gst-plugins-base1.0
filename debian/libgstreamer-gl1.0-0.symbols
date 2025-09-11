@@ -81,6 +81,7 @@ libgstgl-1.0.so.0 libgstreamer-gl1.0-0 #MINVER#
  gst_gl_base_mixer_get_gl_context@Base 1.23.1
  gst_gl_base_mixer_get_type@Base 1.23.1
  gst_gl_base_mixer_pad_get_type@Base 1.23.1
+ gst_gl_base_src_get_gl_context@Base 1.27.2
  gst_gl_base_src_get_type@Base 1.18.0
  gst_gl_buffer_allocation_params_get_type@Base 1.14.0
  gst_gl_buffer_allocation_params_new@Base 1.14.0
