@@ -1,3 +1,12 @@
+gst-plugins-base1.0 (1.27.2-1) experimental; urgency=medium
+
+  * d/control: API change, gst deps to 1.27.1
+  * New upstream version 1.27.2
+  * d/control: bump minimal version after new symbols in core
+  * d/symbols: add new
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Thu, 11 Sep 2025 10:43:26 +0200
+
 gst-plugins-base1.0 (1.27.1-1) experimental; urgency=medium
 
   * Revert "d/watch: pin to 1.26.x"
