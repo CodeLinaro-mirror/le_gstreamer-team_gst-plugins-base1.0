@@ -24,6 +24,8 @@
 #endif
 
 #include "gstalsadeviceprovider.h"
+#include "gstalsasink.h"
+#include "gstalsasrc.h"
 #include <gst/gst.h>
 
 static GstDevice *gst_alsa_device_new (const gchar * device_name,
@@ -192,12 +194,18 @@ gst_alsa_device_provider_probe_pcm_sinks (GstDeviceProvider * provider,
     if (!gst_alsa_pcm_name_matches_any_pattern (name, allow_patterns))
       goto next_hint;
 
+    /* Skip devices without a description. */
+    if (!desc) {
+      GST_DEBUG_OBJECT (provider, "No desc hint for %s", name);
+      goto next_hint;
+    }
+
     /*
-     * Skip devices without description or that have a valid IOID hint.
-     * The latter seems to be always NULL for "virtual" PCM sinks.
+     * The input/output identification (IOID) may be "Input", "Output",
+     * or NULL to indicate both. Skip input-only devices.
      */
-    if (!desc || io) {
-      GST_DEBUG_OBJECT (provider, "No io or desc hint for %s", name);
+    if (io && strcmp (io, "Input") == 0) {
+      GST_DEBUG_OBJECT (provider, "Device '%s' is not an output", name);
       goto next_hint;
     }
 
@@ -227,6 +235,7 @@ gst_alsa_device_provider_probe_pcm_sinks (GstDeviceProvider * provider,
     GstStructure *props = gst_structure_new ("alsa-proplist",
         "device.api", G_TYPE_STRING, "alsa",
         "device.class", G_TYPE_STRING, "sound",
+        "alsa.name", G_TYPE_STRING, desc,
         NULL);
     GstAlsaDevice *gstdev = g_object_new (GST_TYPE_ALSA_DEVICE,
         "display-name", desc,
@@ -381,6 +390,16 @@ static gboolean
 gst_alsa_device_reconfigure_element (GstDevice * device, GstElement * element)
 {
   GstAlsaDevice *alsa_dev = GST_ALSA_DEVICE (device);
+
+  if (strcmp (alsa_dev->element, "alsasrc") == 0) {
+    if (!GST_IS_ALSA_SRC (element))
+      return FALSE;
+  } else if (strcmp (alsa_dev->element, "alsasink") == 0) {
+    if (!GST_IS_ALSA_SINK (element))
+      return FALSE;
+  } else {
+    g_assert_not_reached ();
+  }
 
   g_object_set (element, "device", alsa_dev->internal_name, NULL);
 

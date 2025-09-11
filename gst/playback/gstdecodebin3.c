@@ -1014,6 +1014,16 @@ gst_decodebin_input_stream_src_probe (GstPad * pad, GstPadProbeInfo * info,
           gst_stream_set_caps (input->active_stream, caps);
       }
         break;
+      case GST_EVENT_TAG:
+      {
+        GstTagList *tags = NULL;
+        gst_event_parse_tag (ev, &tags);
+        GST_DEBUG_OBJECT (pad, "tags %" GST_PTR_FORMAT, tags);
+        if (tags && gst_tag_list_get_scope (tags) == GST_TAG_SCOPE_STREAM &&
+            input->active_stream)
+          gst_stream_set_tags (input->active_stream, tags);
+      }
+        break;
       case GST_EVENT_EOS:
       {
         GST_DEBUG_OBJECT (pad, "Marking input as EOS");
@@ -3171,9 +3181,14 @@ mq_slot_check_reconfiguration (MultiQueueSlot * slot)
     /* Slot is not used. */
     no_more_streams = no_more_streams_locked (dbin);
     SELECTION_UNLOCK (dbin);
-    if (no_more_streams)
+    if (no_more_streams && slot->type != GST_STREAM_TYPE_UNKNOWN) {
+      /* Only error for known stream types, as there are cases where
+       * an upstream legacy collection might not yet be complete and
+       * rtsp for example might deliver a single ONVIF metadata stream
+       * to begin */
       GST_ELEMENT_ERROR (slot->dbin, STREAM, FAILED, (NULL),
           ("No streams to output"));
+    }
     return;
   }
 

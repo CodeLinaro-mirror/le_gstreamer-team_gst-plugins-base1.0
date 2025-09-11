@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.27.1\n"
+"Project-Id-Version: gst-plugins-base-1.27.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-08 19:55+0100\n"
+"POT-Creation-Date: 2025-09-07 20:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,69 +17,69 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/alsa/gstalsasink.c:611
+#: ext/alsa/gstalsasink.c:621
 msgid "Could not open device for playback in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:613
+#: ext/alsa/gstalsasink.c:623
 msgid "Could not open device for playback in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:617
+#: ext/alsa/gstalsasink.c:627
 #, c-format
 msgid "Could not open device for playback in %d-channel mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:914
+#: ext/alsa/gstalsasink.c:924
 msgid ""
 "Could not open audio device for playback. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:919
+#: ext/alsa/gstalsasink.c:929
 msgid "Could not open audio device for playback."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:1142
+#: ext/alsa/gstalsasink.c:1152
 msgid "Error outputting to audio device. The device has been disconnected."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:505
+#: ext/alsa/gstalsasrc.c:515
 msgid "Could not open device for recording in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:507
+#: ext/alsa/gstalsasrc.c:517
 msgid "Could not open device for recording in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:511
+#: ext/alsa/gstalsasrc.c:521
 #, c-format
 msgid "Could not open device for recording in %d-channel mode"
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:786
+#: ext/alsa/gstalsasrc.c:796
 msgid ""
 "Could not open audio device for recording. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:791
+#: ext/alsa/gstalsasrc.c:801
 msgid "Could not open audio device for recording."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:1041
+#: ext/alsa/gstalsasrc.c:1051
 msgid "Error recording from audio device. The device has been disconnected."
 msgstr ""
 
-#: ext/cdparanoia/gstcdparanoiasrc.c:281 ext/cdparanoia/gstcdparanoiasrc.c:287
+#: ext/cdparanoia/gstcdparanoiasrc.c:284 ext/cdparanoia/gstcdparanoiasrc.c:290
 msgid "Could not open CD device for reading."
 msgstr ""
 
-#: ext/cdparanoia/gstcdparanoiasrc.c:413
+#: ext/cdparanoia/gstcdparanoiasrc.c:416
 msgid "Could not seek CD."
 msgstr ""
 
-#: ext/cdparanoia/gstcdparanoiasrc.c:421
+#: ext/cdparanoia/gstcdparanoiasrc.c:424
 msgid "Could not read CD."
 msgstr ""
 
@@ -222,15 +222,15 @@ msgstr ""
 msgid "This CD has no audio tracks"
 msgstr ""
 
-#: gst-libs/gst/gl/gstglbasesrc.c:447
+#: gst-libs/gst/gl/gstglbasesrc.c:456
 msgid "An OpenGL error occurred"
 msgstr ""
 
-#: gst-libs/gst/gl/gstglbasesrc.c:589
+#: gst-libs/gst/gl/gstglbasesrc.c:598
 msgid "The GL API is not compatible with the current GL context"
 msgstr ""
 
-#: gst-libs/gst/gl/gstglbasesrc.c:614
+#: gst-libs/gst/gl/gstglbasesrc.c:623
 msgid "Subclass failed to initialize."
 msgstr ""
 
@@ -742,17 +742,17 @@ msgstr ""
 msgid "Initial key in which the sound starts"
 msgstr ""
 
-#: tools/gst-device-monitor.c:300 tools/gst-play.c:1626
+#: tools/gst-device-monitor.c:427 tools/gst-play.c:1626
 msgid "Print version information and exit"
 msgstr ""
 
-#: tools/gst-device-monitor.c:302
+#: tools/gst-device-monitor.c:429
 msgid ""
 "Don't exit after showing the initial device list, but wait for devices to "
 "added/removed."
 msgstr ""
 
-#: tools/gst-device-monitor.c:305
+#: tools/gst-device-monitor.c:432
 msgid "Include devices from hidden device providers."
 msgstr ""
 
