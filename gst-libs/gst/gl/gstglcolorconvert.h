@@ -88,7 +88,7 @@ struct _GstGLColorConvertClass
  */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
 #define GST_GL_COLOR_CONVERT_EXT_FORMATS \
-    ", RGBA64_LE, BGR10A2_LE, RGB10A2_LE, P010_10LE, P012_LE, P016_LE, Y212_LE, Y412_LE" \
+    ", RGBA64_LE, BGR10A2_LE, RGB10A2_LE, BGR10x2_LE, RGB10x2_LE, P010_10LE, P012_LE, P016_LE, Y212_LE, Y412_LE" \
     ", A444_16LE, A422_16LE, A420_16LE, A444_12LE, A422_12LE, A420_12LE, A420_10LE" \
     ", A422_10LE, A444_10LE, I420_12LE, I420_10LE, I422_10LE, I422_12LE, Y444_16LE, Y444_10LE"
 #else
@@ -105,7 +105,7 @@ struct _GstGLColorConvertClass
  */
 #define GST_GL_COLOR_CONVERT_FORMATS "{ RGBA, RGB, RGBx, BGR, BGRx, BGRA, xRGB, " \
                                "xBGR, ARGB, ABGR, GBRA, GBR, RGBP, BGRP, Y444, I420, YV12, Y42B, " \
-                               "Y41B, NV12, NV21, NV16, NV61, YUY2, UYVY, Y210, AYUV, " \
+                               "Y41B, NV12, NV21, NV16, NV61, NV24, YUY2, UYVY, Y210, AYUV, " \
                                "VUYA, Y410, A444, A422, GRAY8, GRAY16_LE, GRAY16_BE, " \
                                "RGB16, BGR16, ARGB64, A420, AV12, NV12_16L32S, NV12_4L4, RBGA, v210" \
                                GST_GL_COLOR_CONVERT_EXT_FORMATS "}"

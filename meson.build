@@ -1,5 +1,5 @@
 project('gst-plugins-base', 'c',
-  version : '1.27.1',
+  version : '1.27.2',
   meson_version : '>= 1.4',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -324,7 +324,7 @@ core_conf.set('HAVE_LIBDRM', libdrm_dep.found())
 # X11 checks are for sys/ and tests/
 x11_dep = dependency('x11', required : get_option('x11'))
 # GIO is used by the GIO plugin, and by the TCP, SDP, and RTSP plugins
-gio_dep = dependency('gio-2.0', version: glib_req)
+gio_dep = dependency('gio-2.0', version: glib_req, default_options: {'sysprof': 'disabled'})
 giounix_dep = dependency('', required: false)
 if host_system != 'windows'
   giounix_dep = dependency('gio-unix-2.0')
@@ -583,7 +583,7 @@ endif
 # Use core_conf after all subdirs have set values
 configure_file(output : 'config.h', configuration : core_conf)
 
-meson.add_dist_script('scripts/gen-changelog.py', meson.project_name(), '1.24.0', meson.project_version())
+meson.add_dist_script('scripts/gen-changelog.py', meson.project_name(), '1.26.0', meson.project_version())
 
 plugin_names = []
 gst_plugins = []

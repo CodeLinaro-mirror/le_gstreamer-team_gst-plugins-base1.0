@@ -550,6 +550,7 @@ _drm_rgba_fourcc_from_format (GstVideoFormat format, int plane,
     case GST_VIDEO_FORMAT_NV61:
     case GST_VIDEO_FORMAT_NV12_16L32S:
     case GST_VIDEO_FORMAT_NV12_4L4:
+    case GST_VIDEO_FORMAT_NV24:
       *out_format = plane == 0 ? GST_GL_RED : GST_GL_RG;
       return plane == 0 ? DRM_FORMAT_R8 : rg_fourcc;
 
@@ -562,10 +563,12 @@ _drm_rgba_fourcc_from_format (GstVideoFormat format, int plane,
       return DRM_FORMAT_R8;
 
     case GST_VIDEO_FORMAT_BGR10A2_LE:
+    case GST_VIDEO_FORMAT_BGR10x2_LE:
       *out_format = GST_GL_RGB10_A2;
       return DRM_FORMAT_BGRA1010102;
 
     case GST_VIDEO_FORMAT_RGB10A2_LE:
+    case GST_VIDEO_FORMAT_RGB10x2_LE:
       *out_format = GST_GL_RGB10_A2;
       return DRM_FORMAT_RGBA1010102;
 
