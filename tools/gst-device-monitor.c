@@ -53,52 +53,108 @@ typedef enum
   SHELL_POWERSHELL,
 } ShellType;
 
-static ShellType
+static inline ShellType
 get_shell_type (void)
 {
+  if (g_getenv ("PROMPT") != NULL)
+    return SHELL_CMD;
   if (g_getenv ("PSModulePath") != NULL)
     return SHELL_POWERSHELL;
-  if (g_getenv ("ComSpec") != NULL)
-    return SHELL_CMD;
   return SHELL_POSIX;
 }
 
-static char *
+/*
+ * Some quoting rules here:
+ * https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd
+ *
+ * The rest has been deduced from trial-and-error, since command-line parsing
+ * is different on Windows compared to UNIX. There is no char* argument array
+ * when processes are created. There is a single argument, and the CRT splits
+ * it into an array based on its own arcane rules when running a POSIX
+ * command-line app with a `main()` instead of `WinMain()`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-winmain
+ *
+ * So for arguments passed to gst-launch, we need to deal with both how cmd.exe
+ * handles quoting/escaping and also how the UCRT does argument splitting. The
+ * current algorithm is:
+ *
+ * - Everything is quoted with " except
+ * - % needs to be escaped with ^ otherwise it will undergo variable expansion
+ * - % must not be quoted with " otherwise the caret-escaping doesn't work
+ * - " needs to be escaped as "" when inside " quotes
+ * - \ needs to be escaped as \\ due to gst_value_deserialize()
+ *
+ * So for example `%PATH% bar" wdwd |` becomes `""^%"PATH"^%" bar"" wdwd |"`
+ */
+static inline char *
+cmd_quote (const char *s)
+{
+  GString *str = g_string_new (s);
+  g_string_replace (str, "\"", "\"\"", 0);
+  g_string_replace (str, "\\", "\\\\", 0);
+  str = g_string_prepend_c (str, '"');
+  str = g_string_append_c (str, '"');
+  /* Very simple and very ugly: simply terminate the " quoting when we
+   * encounter % then escape it and continue the " quoting  */
+  g_string_replace (str, "%", "\"^%\"", 0);
+  return g_string_free (str, FALSE);
+}
+
+/* Verbatim quoting rules:
+ * https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules
+ *
+ * On top of this, \ needs to be escaped as \\ due to gst_value_deserialize()
+ * when parsing launch-lines.
+ *
+ * The main vs WinMain issue exists here, but the quoting rules are simple
+ * enough to cover both.
+ */
+static inline char *
+powershell_quote (const char *s)
+{
+  GString *str = g_string_new (s);
+  g_string_replace (str, "'", "''", 0);
+  g_string_replace (str, "‘", "‘‘", 0);
+  g_string_replace (str, "’", "’’", 0);
+  g_string_replace (str, "\\", "\\\\", 0);
+  str = g_string_prepend_c (str, '\'');
+  str = g_string_append_c (str, '\'');
+  return g_string_free (str, FALSE);
+}
+
+static inline char *
 do_shell_quote (const char *s)
 {
   switch (get_shell_type ()) {
     case SHELL_POSIX:
       return g_shell_quote (s);
     case SHELL_CMD:
+      return cmd_quote (s);
     case SHELL_POWERSHELL:
-      /* TODO: implement some kind of quoting for cmd.exe and powershell.exe */
-      return g_strdup (s);
+      return powershell_quote (s);
   }
   g_assert_not_reached ();
 }
 
-static char *
+static inline char *
 value_to_string (const GValue * v)
 {
-  const char *d, *s = NULL;
-  char *ret, *ser = NULL;
+  const char *d;
+  char *ret, *s;
   gboolean need_quote = FALSE;
-  gboolean need_serialize = FALSE;
 
   if (G_VALUE_HOLDS_STRING (v)) {
-    s = g_value_get_string (v);
-    need_serialize = !g_utf8_validate (s, -1, NULL);
+    const char *str = g_value_get_string (v);
+    if (!g_utf8_validate (str, -1, NULL)) {
+      s = gst_value_serialize (v);
+    } else {
+      s = g_strdup (str);
+    }
   } else {
-    need_serialize = TRUE;
+    s = gst_value_serialize (v);
   }
 
-  /* Don't mess around if the value is weird */
-  if (need_serialize) {
-    ser = gst_value_serialize (v);
-    ret = do_shell_quote (ser);
-    g_free (ser);
-    return ret;
-  }
 
   d = s;
   while (*++d) {
@@ -108,9 +164,12 @@ value_to_string (const GValue * v)
     }
   }
 
-  if (need_quote)
-    return do_shell_quote (s);
-  return g_strdup (s);
+  if (need_quote) {
+    ret = do_shell_quote (s);
+    g_free (s);
+    return ret;
+  }
+  return s;
 }
 
 static gchar *

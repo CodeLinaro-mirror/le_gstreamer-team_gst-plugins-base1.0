@@ -1,3 +1,122 @@
+=== release 1.26.6 ===
+
+2025-09-14 13:13:58 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.6
+
+2025-09-05 18:32:43 +0300  Marko Kohtala <marko.kohtala@gmail.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtspconnection: Add get_url and get_ip return value annotation
+	  The returned GstRTSPUrl is the one owned by the GstRTSPConnection,
+	  but missing annotation causes caller to free it. This leads to access
+	  to freed memory and eventually a crash.
+	  The returned IP address annotation is missing it can be NULL when
+	  the connection is closed.
+	  Fixes #3726
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9656>
+
+2025-09-05 08:30:28 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/video/gstvideometa.c:
+	  videometa: Fix valgrind warning when deserializing video meta
+	  Conditional jump or move depends on uninitialised value(s)
+	  at 0xAC8E1C8: gst_video_meta_is_alignment_valid (gstvideometa.c:589)
+	  by 0xAC8E1C8: gst_video_meta_validate_alignment (gstvideometa.c:603)
+	  by 0xAC8F741: gst_video_meta_set_alignment (gstvideometa.c:655)
+	  by 0xAC8F9A7: video_meta_deserialize (gstvideometa.c:308)
+	  by 0xA56E503: gst_meta_deserialize (gstmeta.c:856)
+	  by 0x1472CE60: gst_unix_fd_src_create (gstunixfdsrc.c:390)
+	  by 0xABCEAA3: gst_base_src_get_range (gstbasesrc.c:2632)
+	  by 0xABD1C39: gst_base_src_loop (gstbasesrc.c:2964)
+	  by 0xA5B1DC6: gst_task_func (gsttask.c:399)
+	  by 0x8423383: ??? (in /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0.6400.6)
+	  by 0x8422AE0: ??? (in /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0.6400.6)
+	  by 0x485C608: start_thread (pthread_create.c:477)
+	  by 0x4AFC352: clone (clone.S:95)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9654>
+
+2025-09-01 21:02:22 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* ext/gl/meson.build:
+	* ext/opus/meson.build:
+	* ext/pango/meson.build:
+	* ext/vorbis/meson.build:
+	  meson: Convert all remaining fallback: usages to [provide]
+	  Only commonly-used plugin deps like pango, orc, openh264, libvpx,
+	  libnice are enabled by default.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/1788
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9637>
+
+2025-09-02 07:16:27 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Fix CMD vs PowerShell detection
+	  PSModulePath is set in both powershell and cmd tabs spawned inside
+	  Windows Terminal, and ComSpec is also set in both. PROMPT is the only
+	  variable that is only set by cmd, which means it will also exist in a
+	  powershell prompt spawned inside cmd, but in that case it's much harder
+	  to figure out the parent shell. We'd have to look at the process tree.
+	  This should be good enough for now.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9634>
+
+2025-09-02 07:08:34 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Double-escape \ to deal with gst_value_deserialize()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9634>
+
+2025-09-01 16:39:02 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Fix unnecessary quoting when serializing
+	  Not all serialized values need quoting, for example booleans.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9634>
+
+2025-09-01 16:26:21 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tools/gst-device-monitor.c:
+	  device-monitor: Add quoting for powershell and cmd
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4620
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9634>
+
+2025-08-19 09:15:03 -0400  Olivier Crête <olivier.crete@collabora.com>
+
+	* gst-libs/gst/rtp/gstrtpbasedepayload.c:
+	  rtpbasedepayload: Avoid potential use-after free
+	  Clear the pointer after freeing the reference.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9581>
+
+2025-05-15 18:33:30 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Update stream tags
+	  parsebin does this, so should decodebin3.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9566>
+
+2025-08-11 10:08:40 +0300  Andrey Khamukhin <andrew.khamukhin@hotmail.com>
+
+	* gst/videorate/gstvideorate.c:
+	* tests/check/elements/videorate.c:
+	  videorate: don't hold the reference to the buffer in drop-only mode
+	  Pushing the buffer via gst_pad_push () in transform_ip () function
+	  causes downstream elements to process the buffer with a reference
+	  count > 1. This leads to performance issue if there are downstream
+	  elements which modify the buffer memory.
+	  However, in drop-only mode this reference is not required.
+	  So, let GstBaseTransform push the buffer in drop-only mode.
+	  Fixes #4258
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9548>
+
+2025-08-07 19:15:29 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.5
+
 === release 1.26.5 ===
 
 2025-08-07 19:06:46 +0100  Tim-Philipp Müller <tim@centricular.com>
