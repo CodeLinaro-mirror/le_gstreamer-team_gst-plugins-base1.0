@@ -102,7 +102,8 @@ Description: GStreamer libraries from the "base" set
 Package: libgstreamer-plugins-base1.0-dev
 Architecture: any
 Section: libdevel
-Depends: ${misc:Depends},
+Depends: ${gir:Depends},
+         ${misc:Depends},
          ${shlibs:Depends},
          libgstreamer-plugins-base1.0-0 (= ${binary:Version}),
          libgstreamer-gl1.0-0 (= ${binary:Version}),
