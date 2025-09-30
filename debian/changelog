@@ -1,3 +1,13 @@
+gst-plugins-base1.0 (1.26.6-3) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * gir1.2-gst-plugins-base-1.0: Add ${gir:Provides}
+  * libgstreamer-plugins-base1.0-dev: Add ${gir:Provides}
+  * libgstreamer-plugins-base1.0-dev: Add ${gir:Depends}
+  * Install GstAudio-1.0.gir into ${libdir}/gir-1.0 (Closes: #1023591)
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Tue, 30 Sep 2025 14:56:49 +0200
+
 gst-plugins-base1.0 (1.26.6-2) unstable; urgency=medium
 
   [ Simon McVittie ]
