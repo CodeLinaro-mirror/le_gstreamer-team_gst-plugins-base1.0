@@ -1,3 +1,13 @@
+gst-plugins-base1.0 (1.27.2-2) experimental; urgency=medium
+
+  [ Simon McVittie ]
+  * gir1.2-gst-plugins-base-1.0: Add ${gir:Provides}
+  * libgstreamer-plugins-base1.0-dev: Add ${gir:Provides}
+  * libgstreamer-plugins-base1.0-dev: Add ${gir:Depends}
+  * Install GstAudio-1.0.gir into ${libdir}/gir-1.0 (Closes: #1023591)
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Tue, 14 Oct 2025 16:24:35 +0200
+
 gst-plugins-base1.0 (1.27.2-1) experimental; urgency=medium
 
   * d/control: API change, gst deps to 1.27.1
