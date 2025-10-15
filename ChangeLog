@@ -1,3 +1,78 @@
+=== release 1.26.7 ===
+
+2025-10-14 18:25:43 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.7
+
+2025-10-09 16:56:09 +0530  Taruntej Kanakamalla <tarun@centricular.com>
+
+	* gst/videorate/gstvideorate.c:
+	* tests/check/elements/videorate.c:
+	  videorate: fix assert fail due to invalid buffer duration
+	  In `drop-only` mode, when pushing an input buffer, the buffer duration
+	  was always assumed valid i.e. `invalid_duration`  as FALSE. This was causing
+	  an assert failure when first few buffers don't have the duration calculated yet
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2886
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9829>
+
+2025-10-09 13:07:26 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer-types.c:
+	  discoverer: Mark gst_discoverer_stream_info_list_free() as `transfer full`
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9822>
+
+2025-09-29 16:11:30 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* tests/examples/gl/qt/mousevideooverlay/pipeline.cpp:
+	* tests/examples/gl/qt/qglwidgetvideooverlay/pipeline.cpp:
+	* tests/examples/gl/qt/qglwtextureshare/meson.build:
+	* tests/examples/gl/qt/qglwtextureshare/qglrenderer.cpp:
+	  qt: Fix building examples on macOS
+	  GL/gl.h is an incorrect include on macOS, and the correct include is
+	  already done by gstgl.
+	  qt_current_nsopengl_context() wasn't being exported, leading to build
+	  failures
+	  Also add comments to gstqtglutility.cc to clarify dense #ifdef usage.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9768>
+
+2025-09-23 22:21:46 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/riff/riff-media.c:
+	  riff: Add channel reorder maps for 3 and 7 channel audio
+	  The function gst_riff_wave_add_default_channel_mask() was failing for
+	  3 and 7 channel as it was not supported. We now use
+	  gst_audio_channel_get_fallback_mask() to get the
+	  default channel masks and add proper reorder maps for these cases.
+	  The fallback layout follows ALSA conventions exactly as before, we're
+	  just now leveraging the existing GStreamer infrastructure instead of
+	  duplicating the logic.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9744>
+
+2025-09-20 20:23:06 +0200  Mark Nauwelaerts <mnauw@users.sourceforge.net>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  sdp: proper usage of gst_buffer_append
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9720>
+
+2025-09-17 20:52:41 -0700  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/glib-compat-private.h:
+	* tools/gst-device-monitor.c:
+	  build: Fix build error with glib < 2.68
+	  glib-compat-private.h is copied verbatim from -good into -base because
+	  g_string_replace() is used in gst-device-monitor since 1.26.6:
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9634
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9708>
+
+2025-09-14 13:19:28 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.6
+
 === release 1.26.6 ===
 
 2025-09-14 13:13:58 +0100  Tim-Philipp Müller <tim@centricular.com>
