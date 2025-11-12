@@ -1,3 +1,108 @@
+=== release 1.26.8 ===
+
+2025-11-10 17:22:05 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.8
+
+2025-10-31 15:16:01 +0900  Jeehyun Lee <jeehyun.lee@lge.com>
+
+	* gst-libs/gst/gl/egl/gstglcontext_egl.c:
+	  gl/egl: fix memory leak in _print_all_dma_formats
+	  Add missing g_free() calls for fmt_str returned by
+	  gst_video_format_to_string() in _print_all_dma_formats().
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10013>
+
+2025-11-06 09:30:13 +0100  Mazdak Farzone <mazdak@axis.com>
+
+	* ext/opus/gstopusdec.c:
+	  opusdec: Unref intersected caps when empty to avoid leaks
+	  Add gst_caps_unref(tmp) in the else branch of both the 'channels' and 'rate'
+	  preference blocks to correctly release the empty intersection.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10031>
+
+2025-10-30 10:38:09 -0300  Carlos Bentzen <cadubentzen@igalia.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstglcolorbalance.c:
+	* gst-libs/gst/gl/gstglcolorconvert.h:
+	* gst-libs/gst/gl/gstglupload.c:
+	* tests/check/libs/gstglcolorconvert.c:
+	* tests/check/libs/gstglupload.c:
+	  gl: Support DMABuf passthrough with meta:GstVideoOverlayComposition
+	  The GL elements in glsinkbin were rejecting passing through DMABufs when
+	  the meta:GstVideoOverlayComposition feature is present, such as when
+	  subtitleoverlay is in place. This is particularly visible when playing
+	  back HDR10 content with subtitles, where Showtime was showing washed
+	  out colors due to the lack of tone-mapping in the GL elements when
+	  converting from BT2100-PQ to RGBA due to passthrough being disabled.
+	  This extends MR !5948 by adding support for DMABuf caps with the
+	  meta:GstVideoOverlayComposition feature when such caps can be negotiated
+	  downstream, such as with gtk4paintablesink.
+	  Example of pipeline that was previously converting to GLMemory and RGBA,
+	  which now passes through DMABUFs:
+	  filesrc location='p010_bt2100-pq_subtitles.mkv' ! matroskademux name=d \
+	  d. ! queue ! h265parse ! vah265dec ! subtitleoverlay name=s \
+	  d. ! queue ! s. \
+	  s. ! glsinkbin sink=gtk4paintablesink
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10011>
+
+2025-11-05 13:56:18 +0900  JihoonLee <ejihoon.lee@lge.com>
+
+	* gst-libs/gst/pbutils/encoding-target.c:
+	  encoding-target: Fix memory leak in gst_encoding_target_save
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10021>
+
+2025-11-05 10:04:36 +0900  Jeehyun Lee <jeehyun.lee@lge.com>
+
+	* gst-libs/gst/tag/id3v2frames.c:
+	  id3: fix csets memory leak in string_utf8_dup
+	  Free csets array when charset conversion loop completes without
+	  finding a valid conversion to prevent memory leak.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10015>
+
+2025-10-31 15:54:36 +0900  Jeehyun Lee <jeehyun.lee@lge.com>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtsp: fix memory leaks in gst_rtsp_connection_connect_with_response_usec
+	  Fix request_uri memory leaks in connection retry loop and properly
+	  handle connection_uri ownership transfer during redirects.
+	  - Initialize request_uri to NULL
+	  - Free request_uri at start of each loop iteration
+	  - Transfer ownership correctly during redirect handling
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9983>
+
+2025-10-31 10:01:40 +0900  amy ko <amy.ko@lge.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Free missing plugin details and return failure when plugin is not found
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9970>
+
+2025-10-31 14:33:11 +0900  Jeehyun Lee <jeehyun.lee@lge.com>
+
+	* ext/gl/gltestsrc.c:
+	  gltestsrc: Fix memory leaks on shader creation failure
+	  Free coord and plane_indices when color_shader or snow_shader
+	  compilation fails to prevent memory leaks in error paths.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9966>
+
+2025-10-27 14:15:11 +0000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	  pbutils: Don't throw critical for unknown mime codec
+	  Avoid a critcal in gst_codec_utils_caps_from_mime_codec()
+	  trying to append NULL caps when processing an unrecognised
+	  codec string
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9926>
+
+2025-10-14 18:34:39 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.7
+
 === release 1.26.7 ===
 
 2025-10-14 18:25:43 +0100  Tim-Philipp Müller <tim@centricular.com>
