@@ -1,3 +1,24 @@
+gst-plugins-base1.0 (1.18.4-2+deb11u4) bullseye-security; urgency=high
+
+  * Non-maintainer upload by the LTS Security Team
+  * Fix DoS via stack overflow in subparse plugin
+    - debian/patches/CVE-2025-47806.patch: make sure that subrip time
+      string is not too long before zero-padding in
+      gst/subparse/gstsubparse.c.
+    - CVE-2025-47806
+  * Fix DoS via null-deref in subparse plugin
+    - debian/patches/CVE-2025-47807.patch: check for valid UTF-8 before
+      cleaning up lines and check for regex replace errors in
+      gst/subparse/gstsubparse.c.
+    - CVE-2025-47807
+  * Fix DoS via null-deref in subparse plugin
+    - debian/patches/CVE-2025-47808.patch: don't append NULL + 1 to the
+      string buffer when parsing lines without text in
+      gst/subparse/tmplayerparse.c.
+  * Stop ignoring build test failures on amd64, arm64, ppc64el
+
+ -- Jeremy Bícha <jbicha@debian.org>  Thu, 13 Nov 2025 11:58:14 -0500
+
 gst-plugins-base1.0 (1.18.4-2+deb11u3) bullseye-security; urgency=medium
 
   * Non-maintainer upload by the LTS Team.
