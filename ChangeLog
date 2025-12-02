@@ -1,3 +1,232 @@
+=== release 1.26.9 ===
+
+2025-12-01 17:27:07 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.9
+
+2025-12-01 10:49:02 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Protect NULL dereference
+	  If we *do* end up in this code path, notify it
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4626
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10253>
+
+2025-11-20 12:49:12 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/allocators/gstdrmdumb.c:
+	  allocators: drmdumb: Keep dmabuf mapped
+	  The dumb buffer are used by waylandsink to allow copying the incoming frames
+	  into a memory allocation directly supported by the GPU or display controller.
+	  These buffers are pooled and avoiding to recreate the memory address mapping
+	  everything improves the performance.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10164>
+
+2025-11-20 12:46:49 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* ext/gl/gstgldownloadelement.c:
+	  gldownload: Keep dmabuf mapped
+	  The DMABuf support in gldownload allows forcing the GPU to write into a format
+	  GStreamer understand. It is possible that this mechanism would be used for CPU
+	  access were avoiding to recreate the address mapping is preferred.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10164>
+
+2025-12-01 12:39:28 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* gst/playback/gstrawcaps.h:
+	  playback: Consider meta/x-klv, meta/x-id3 and meta/x-st-2038 as raw formats
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10251>
+
+2025-12-01 12:42:23 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	  pbutils: descriptions: Add ST-2038 to the codec descriptions
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10251>
+
+2025-11-21 16:07:18 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* tests/check/libs/pbutils.c:
+	  pbutils: Add a test case for another profile, tier, level
+	  Add a test case to verify MIME codec string for H.265
+	  profile, level, and tier data
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10183>
+
+2025-11-17 15:40:05 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	  pbutils: Fix bit shifting when generate hevc mime codec string
+	  According to the HEVCDecoderConfigurationRecord configuration,
+	  profile_space and tier_flag should be corrected.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10183>
+
+2025-11-19 14:18:32 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/rtp/gstrtpbasedepayload.c:
+	  rtpbasedepayload: Add missing unlocks
+	  Add missing unlocks when retrieving information from the RTP header.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10157>
+
+2025-09-23 22:32:34 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* ext/alsa/gstalsadeviceprovider.c:
+	  alsadeviceprovider: Fix device name leak
+	  Also use g_free for string allocated with g_strdup*. This usually
+	  doesn't matter, but can matter when mixing code compiled with
+	  different libc.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10228>
+
+2025-11-26 16:07:26 +0100  Stéphane Cerveau <scerveau@igalia.com>
+
+	* gst-libs/gst/video/gstvideoencoder.c:
+	* gst-libs/gst/video/gstvideoencoder.h:
+	  videoencoder: fix warning of uninitialized buffer
+	  Move the error check before the buffer reference to avoid using
+	  an uninitialized buffer variable when ret is not GST_FLOW_OK.
+	  Also fix whitespace in header documentation.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10215>
+
+2025-11-21 09:19:58 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: Remove unnecessary unmap call for adapter
+	  The unmap function for the adapter is unnecessary because
+	  gst_adapter_map() is not called anywhere in the chain function.
+	  This patch removes the redundant unmap call to simplify
+	  the code and avoid confusion.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10184>
+
+2025-11-20 15:16:00 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: Change buffer access to go through adapter
+	  Since ownership of the input buffer is transferred to the adapter
+	  via gst_adapter_push, modify the buffer copy process to access
+	  the buffer through the adapter.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10184>
+
+2025-11-20 14:46:33 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: Fix resource leak in chain function
+	  The input buffer should be unreferenced when
+	  a negotiation failure is detected in the chain function.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10184>
+
+2025-11-19 13:42:01 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  audiovisualizer: Use break instead of goto for escape logic
+	  Use break instead of goto to escape and prevent cases
+	  where config_lock might remain unlocked.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10184>
+
+2025-11-21 11:55:47 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* tools/gst-play.c:
+	  gst-play-1.0: fix printing of missing plugin details
+	  It wouldn't print what plugin was missing, because element
+	  messages were handled already in a different place.
+	  Also use g_list_prepend() here since order doesn't matter.
+	  See #4758
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10176>
+
+2025-11-19 14:26:13 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Add missing unlock
+	  The lock of urisourcebin should be released
+	  when the creation of the parsebin element fails.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10158>
+
+2025-08-12 16:42:25 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Clear previous collection on input
+	  When receiving a stream-start with a stream that isn't in the
+	  previous input stream-collection, clear the previous stream collection
+	  and treat it the same as the very first stream start event. That makes
+	  decodebin3 delay processing the stream-start and any subsequent events
+	  until the stream-collection arrives.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10156>
+
+2025-11-19 14:11:31 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* ext/gl/gstglstereosplit.c:
+	  glstereosplit: Add missing unlock for exceptional case
+	  The context_lock should be released when gst_gl_ensure_element_data fails.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10148>
+
+2025-11-19 14:06:56 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* tools/gst-play.c:
+	  gst-play: Add missing unlock for invalid track type
+	  Add missing unlock in play_cycle_track_selection
+	  of gst-play. The unlock should be added when
+	  the function ends in an exceptional case.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10147>
+
+2025-11-19 13:51:27 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst-libs/gst/gl/gstglbasesrc.c:
+	  glbasesrc: Add unlock handling for non-negotiated cases
+	  Add missing unlock when returning
+	  not negotiated status in glbasesrc.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10140>
+
+2025-11-18 15:17:05 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Add null check of play items in purge
+	  Add null check for play items in purge_play_items
+	  to ensure that play_item is not null.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10134>
+
+2025-11-19 13:36:46 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* ext/gl/gstglfiltershader.c:
+	  glfiltershader: Add missing unlock
+	  Add missing unlock in glfiltershader
+	  for an exceptional return case.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10133>
+
+2025-11-17 17:42:15 +0900  Jaehoon Lee <jaehoon85.lee@lge.com>
+
+	* gst/playback/gsturisourcebin.c:
+	  urisourcebin: Fix initial values of min_byte_level and min_time_level variables
+	  The min_byte_level and min_time_level should be initialized to
+	  apply the minimum values of byte_limit and time_limit.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10132>
+
+2025-10-13 16:25:50 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbaseaudiopayload.c:
+	  rtpbaseaudiopay: Consider RESYNC flag as discontinuity too
+	  Previously the marker bit would only be set by the payloader if the DISCONT
+	  buffer flag is set, however the depayloader would only set the RESYNC flag
+	  whenever it receives a packet with the marker bit set.
+	  To avoid unnecessary DISCONTs after the depayloader, also consider the RESYNC
+	  flag inside the payloader but keep the depayloader behaviour as it was.
+	  See https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/issues/736
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10066>
+
+2025-11-05 15:20:51 +0900  JihoonLee <ejihoon.lee@lge.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: Fix memory leak in _create_shader
+	  Added missing g_string_free() call to properly free the GString buffer
+	  in error paths where the function returns early.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10065>
+
+2025-11-10 17:30:54 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.8
+
 === release 1.26.8 ===
 
 2025-11-10 17:22:05 +0000  Tim-Philipp Müller <tim@centricular.com>
