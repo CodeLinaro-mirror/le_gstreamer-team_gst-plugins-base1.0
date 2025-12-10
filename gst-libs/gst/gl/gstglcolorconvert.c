@@ -1165,6 +1165,10 @@ struct _GstGLColorConvertPrivate
 
   GstBufferPool *pool;
   gboolean pool_started;
+
+  /* Used to detect crop changes and update vertices */
+  gint padded_width;
+  gint padded_height;
 };
 
 GST_DEBUG_CATEGORY_STATIC (gst_gl_color_convert_debug);
@@ -1473,6 +1477,8 @@ _gst_gl_color_convert_set_caps_unlocked (GstGLColorConvert * convert,
   gst_caps_replace (&convert->priv->out_caps, out_caps);
   convert->priv->from_texture_target = from_target;
   convert->priv->to_texture_target = to_target;
+  convert->priv->padded_width = in_info.width;
+  convert->priv->padded_height = in_info.height;
   convert->initted = FALSE;
 
   convert->passthrough = passthrough;
@@ -3060,6 +3066,7 @@ _create_shader (GstGLColorConvert * convert)
     g_free (version_str);
     g_free (tmp);
     gst_object_unref (ret);
+    g_string_free (str, TRUE);
     return NULL;
   }
   g_free (tmp);
@@ -3071,6 +3078,7 @@ _create_shader (GstGLColorConvert * convert)
     g_free (version_str);
     gst_object_unref (stage);
     gst_object_unref (ret);
+    g_string_free (str, TRUE);
     return NULL;
   }
 
@@ -3416,6 +3424,32 @@ _init_convert (GstGLColorConvert * convert)
 
     gl->BindBuffer (GL_ARRAY_BUFFER, 0);
     gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
+
+  GstVideoMeta *v_meta = gst_buffer_get_video_meta (convert->inbuf);
+  if (v_meta->width != convert->priv->padded_width
+      || v_meta->height != convert->priv->padded_height) {
+    gdouble padded_width = v_meta->width;
+    gdouble padded_height = v_meta->height;
+    gdouble display_width = GST_VIDEO_INFO_WIDTH (&convert->in_info);
+    gdouble display_height = GST_VIDEO_INFO_HEIGHT (&convert->in_info);
+
+    float scale_x = display_width / padded_width;
+    float scale_y = display_height / padded_height;
+
+    GLfloat crop_vertices[] = {
+      1.0f, 1.0f, 0.0f, scale_x, 0.0f,
+      -1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+      -1.0f, -1.0f, 0.0f, 0.0f, scale_y,
+      1.0f, -1.0f, 0.0f, scale_x, scale_y,
+    };
+    gl->BindBuffer (GL_ARRAY_BUFFER, convert->priv->vertex_buffer);
+    gl->BufferData (GL_ARRAY_BUFFER, 4 * 5 * sizeof (GLfloat),
+        crop_vertices, GL_STATIC_DRAW);
+    gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+
+    convert->priv->padded_width = v_meta->width;
+    convert->priv->padded_height = v_meta->height;
   }
 
   gl->BindTexture (GL_TEXTURE_2D, 0);
@@ -3769,7 +3803,6 @@ _do_convert (GstGLContext * context, GstGLColorConvert * convert)
   }
 
   if (convert->outbuf) {
-    GstVideoOverlayCompositionMeta *composition_meta;
     GstGLSyncMeta *sync_meta;
 
     if (G_UNLIKELY (!gst_buffer_is_writable (convert->outbuf))) {
@@ -3785,14 +3818,6 @@ _do_convert (GstGLContext * context, GstGLColorConvert * convert)
           convert->outbuf);
     }
     gst_gl_sync_meta_set_sync_point (sync_meta, convert->context);
-
-    composition_meta =
-        gst_buffer_get_video_overlay_composition_meta (convert->inbuf);
-    if (composition_meta) {
-      GST_DEBUG ("found video overlay composition meta, applying on output.");
-      gst_buffer_add_video_overlay_composition_meta
-          (convert->outbuf, composition_meta->overlay);
-    }
   }
 
   convert->priv->result = res;
