@@ -1,3 +1,209 @@
+=== release 1.26.10 ===
+
+2025-12-25 15:44:26 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.26.10
+
+2025-12-18 19:58:29 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  Revert "parsebin: Don't expose unfixed caps pads without stream info"
+	  This reverts commit 6628f5644e2c82da7f93012f9f4a8e08d9a4b3e1.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10405>
+
+2025-12-18 19:56:42 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  Revert "parsebin: Clear old stream when retargeting pad"
+	  This reverts commit d26eb95aec95e329c443ac238a13dc024f39dd0f.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10405>
+
+2025-12-11 21:54:53 -0500  Aaron Boxer <aaron.boxer@collabora.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: send GST_EVENT_SELECT_STREAMS event to collection source
+	  this ensures that the source receives the event, even if pipeline is not
+	  linked
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10394>
+
+2025-12-16 23:47:48 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Improve debug logging
+	  Only log that we're storing caps on a GstStream if actually
+	  doing it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10397>
+
+2025-12-16 23:11:23 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Don't expose unfixed caps pads without stream info
+	  Pads with unfixed caps can be exposed early, but not before
+	  they've at least provided a stream-start event for building
+	  a fallback collection. Accordingly, defer the exposure and
+	  check again when seeing a stream-start event.
+	  Fixes #4756
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10397>
+
+2025-12-16 23:09:02 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Clear old stream when retargeting pad
+	  When extending the parsebin chain and retargeting the
+	  current end pad, clear the previous stream info, or
+	  the wrong stream info might get added to a fallback
+	  collection
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10397>
+
+2025-12-13 17:00:33 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopusenc.c:
+	* ext/opus/meson.build:
+	  opusenc: Use the surround multistream encoder for the Vorbis channel mapping family
+	  It provides additional surround features. For all other channel mapping families,
+	  continue using the normal multistream encoder as it allows to provide the
+	  channel configuration values.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10376>
+
+2025-12-13 13:50:52 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopusdec.c:
+	* ext/opus/gstopusdec.h:
+	  opusdec: Only call into the channel reordering functions if actually needed
+	  And simplify code a bit.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10376>
+
+2025-12-13 13:42:28 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopuscommon.c:
+	* ext/opus/gstopuscommon.h:
+	* ext/opus/gstopusenc.c:
+	* ext/opus/gstopusenc.h:
+	  opusenc: Simplify Vorbis channel layout mapping code and fix 7.1 layout
+	  Don't set up complicated mapping tables but instead use the default mapping
+	  tables as used by libopus. While this requires reordering from the GStreamer
+	  order to the Vorbis order in some situations, it's a better choice because it
+	  allows using the surround multistream encoder which has additional surround
+	  support that saves bandwidth.
+	  Also various specs and implementations only assume the "default" positions,
+	  and e.g. for the MPEG-TS mapping this has short forms in the signalling. And
+	  again, various implementations (e.g. ffmpeg) only support the short forms.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4794
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10376>
+
+2025-05-21 13:04:07 -0400  F. Duncanh <fduncanh@gmail.com>
+
+	* gst-libs/gst/gl/cocoa/gstglwindow_cocoa.m:
+	  glwindow_cocoa: fix window not closing (w/o user window handle)
+	  A user-supplied window handle (external_view) becomes the superView
+	  of internal_view, which is closed with [view removeFromSuperview].
+	  This fails silently if external_view = NULL (no handle supplied).
+	  Call [win_internal_id close] in this case. Fixes #4432.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10361>
+
+2025-12-10 15:11:23 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/tag/gsttagdemux.c:
+	  tagdemux: propagate seek event seqnum to upstream
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10359>
+
+2025-12-10 14:54:14 +0100  Piotr Brzeziński <piotr@centricular.com>
+
+	* ext/pango/gstbasetextoverlay.c:
+	  basetextoverlay: Don't negotiate if caps haven't changed
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10357>
+
+2025-12-08 13:20:58 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Don't assume the ALLOCATION query contains a pool
+	  The subclass' `decide_allocation()` implementation might not provide any.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10347>
+
+2025-12-05 17:22:45 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglutils.c:
+	  gstglutils: Round height according to the subsampling
+	  When calculating the plane size, its important to round up the height according
+	  to its subsampling. Otherwise the offset is too short and the UV get shifted
+	  vertically.
+	  Fixes #4783
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10345>
+
+2025-12-05 17:21:02 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglutils.c:
+	  gstglutils: Refactor plane data size calculation
+	  None of the work we do at the top is needed for the tiled formats. Handle the
+	  tiled format first and return, then handle the other formats.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10345>
+
+2025-12-08 09:32:41 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	  codec-utils: Add support for FLAC in mime codec strings
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4789
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10327>
+
+2025-12-08 09:31:57 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	  codec-utils: Add support for AC4 in mime codec strings
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10327>
+
+2025-12-08 09:31:06 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	  codec-utils: Update mime codec string getter with codecs in the parser
+	  Specifically, add AC3, EAC3, TTML and WebVTT.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10327>
+
+2025-12-05 11:16:29 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	  videoaggregator: Fix decide allocation fallback
+	  Fallback to generic pool, even if the change to the config was validated. Pools
+	  may have other restrictions that may render them unusable.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10304>
+
+2025-12-03 19:00:49 +0100  Robert Mader <robert.mader@collabora.com>
+
+	* gst/videotestsrc/gstvideotestsrc.c:
+	  testsrc: Enable POOL_OPTION_VIDEO_ALIGNMENT if possible
+	  If supported by the pool and only if downstream supports VIDEO_META.
+	  This is in line with e.g. gst_ffmpegviddec_decide_allocation() and
+	  helpful with e.g. the udmabuf allocator.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10304>
+
+2025-12-03 17:51:01 +0100  Robert Mader <robert.mader@collabora.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Improve pool_set_config() handling
+	  set_config() can fail for other reasons than
+	  `pool_config_validate_params()` failing, in which case we currently
+	  would not try to fall back to the fallback pool.
+	  Also ensure to get the config of the new pool instead of trying to set
+	  the previously failed config again.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10304>
+
+2025-12-05 14:11:01 -0500  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/allocators/gstfdmemory.c:
+	  fdmemory: Fix size calculation when sharing
+	  When sharing a memory with an offset, the offset is relative to the immediate
+	  parent offset. Meaning we should be reducing the size accordingly.
+	  Reported-by: Rouven Czerwinski <rouven.czerwinski@linaro.org>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10309>
+
+2025-12-01 17:32:18 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.26.9
+
 === release 1.26.9 ===
 
 2025-12-01 17:27:07 +0000  Tim-Philipp Müller <tim@centricular.com>

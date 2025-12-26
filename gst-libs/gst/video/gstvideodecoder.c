@@ -4277,16 +4277,23 @@ gst_video_decoder_decide_allocation_default (GstVideoDecoder * decoder,
     /* If change are not acceptable, fallback to generic pool */
     if (!gst_buffer_pool_config_validate_params (config, outcaps, size, min,
             max)) {
-      GST_DEBUG_OBJECT (decoder, "unsupported pool, making new pool");
-
-      gst_object_unref (pool);
-      pool = gst_video_buffer_pool_new ();
-      gst_buffer_pool_config_set_params (config, outcaps, size, min, max);
-      gst_buffer_pool_config_set_allocator (config, allocator, &params);
+      gst_structure_free (config);
+      gst_clear_object (&pool);
+    } else if (!gst_buffer_pool_set_config (pool, config)) {
+      gst_clear_object (&pool);
     }
 
-    if (!gst_buffer_pool_set_config (pool, config))
-      goto config_failed;
+    if (!pool) {
+      GST_DEBUG_OBJECT (decoder, "unsupported pool, making new pool");
+      pool = gst_video_buffer_pool_new ();
+
+      config = gst_buffer_pool_get_config (pool);
+      gst_buffer_pool_config_set_params (config, outcaps, size, min, max);
+      gst_buffer_pool_config_set_allocator (config, allocator, &params);
+
+      if (!gst_buffer_pool_set_config (pool, config))
+        goto config_failed;
+    }
   }
 
   if (update_allocator)
@@ -4389,9 +4396,11 @@ gst_video_decoder_negotiate_pool (GstVideoDecoder * decoder, GstCaps * caps)
   }
   decoder->priv->pool = pool;
 
-  /* and activate */
-  GST_DEBUG_OBJECT (decoder, "activate pool %" GST_PTR_FORMAT, pool);
-  gst_buffer_pool_set_active (pool, TRUE);
+  if (pool) {
+    /* and activate */
+    GST_DEBUG_OBJECT (decoder, "activate pool %" GST_PTR_FORMAT, pool);
+    gst_buffer_pool_set_active (pool, TRUE);
+  }
 
 done:
   if (query)
@@ -4605,6 +4614,9 @@ gst_video_decoder_allocate_output_buffer (GstVideoDecoder * decoder)
       }
     }
   }
+
+  if (!decoder->priv->pool)
+    goto fallback;
 
   flow = gst_buffer_pool_acquire_buffer (decoder->priv->pool, &buffer, NULL);
 
