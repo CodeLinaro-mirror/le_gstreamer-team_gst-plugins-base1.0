@@ -1,3 +1,314 @@
+=== release 1.27.90 ===
+
+2026-01-05 20:15:10 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.27.90
+
+2026-01-05 18:57:12 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* po/af.po:
+	* po/az.po:
+	* po/bg.po:
+	* po/ca.po:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/el.po:
+	* po/en_GB.po:
+	* po/eo.po:
+	* po/es.po:
+	* po/eu.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/fur.po:
+	* po/gl.po:
+	* po/hr.po:
+	* po/hu.po:
+	* po/id.po:
+	* po/it.po:
+	* po/ja.po:
+	* po/ka.po:
+	* po/lt.po:
+	* po/lv.po:
+	* po/nb.po:
+	* po/nl.po:
+	* po/or.po:
+	* po/pl.po:
+	* po/pt_BR.po:
+	* po/ro.po:
+	* po/ru.po:
+	* po/sk.po:
+	* po/sl.po:
+	* po/sq.po:
+	* po/sr.po:
+	* po/sv.po:
+	* po/tr.po:
+	* po/uk.po:
+	* po/vi.po:
+	* po/zh_CN.po:
+	  gst-plugins-base: update translations
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10497>
+
+2025-12-30 18:11:43 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* ext/ogg/gstoggdemux.c:
+	* ext/ogg/gstoggelements.h:
+	* ext/ogg/gstoggmux.c:
+	  oggmux: Fix crash when debug logging enabled
+	  The muxer uses the ogg_stream functions however that file uses the
+	  demuxer debug categories. Ensure they are also initialized.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10475>
+
+2025-12-30 17:57:37 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/textoverlay.c:
+	  textoverlay: tests: Fix race clearing element and debug printing
+	  It was possible to unblock the main thread and unref the pipeline
+	  before we had exited the gst_element_set_state() in the thread.
+	  With GST_DEBUG enabled it could crash trying to print the element name.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10475>
+
+2025-12-31 11:58:00 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Fix docs for the select-stream signal
+	  It's GstURIDecodeBin3 and not GstURIDecodebin3.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10480>
+
+2025-12-30 18:53:26 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* ext/pango/gstbasetextoverlay.c:
+	* gst/audiomixer/gstaudiointerleave.c:
+	* gst/overlaycomposition/gstoverlaycomposition.c:
+	* gst/playback/gstsubtitleoverlay.c:
+	  gst: Properly unref pad template caps
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10477>
+
+2025-12-30 17:53:22 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/libs/videoencoder.c:
+	  tests: Fix several memory leaks
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10476>
+
+2025-12-28 21:19:54 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/inputselector.c:
+	  input-selector: test: Fix memory leaks
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10467>
+
+2025-12-28 18:12:54 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/inputselector.c:
+	  input-selector: test: Don't use g_assert() in tests
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10467>
+
+2025-12-28 17:51:38 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/inputselector.c:
+	  input-selector: test: increase delay when running under valgrind
+	  When running under valgrind we could get into a loop where we'd
+	  read only from one source since we'd switch back too quickly.
+	  Test would eventually timeout with the count from one source being
+	  above 30000 and the other never reaching the minimum.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10467>
+
+2025-12-28 17:45:32 -0500  Doug Nazar <nazard@nazar.ca>
+
+	* tests/check/elements/inputselector.c:
+	  input-selector: test: quieten output
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10467>
+
+2025-12-28 01:36:02 +0700  Ratchanan Srirattanamet <peathot@hotmail.com>
+
+	* ext/gl/gstglimagesink.c:
+	  glimagesink: don't assume GstVideoMeta always exists in the buffer
+	  Other GL buffer producers (e.g. `gstamcvideodec`) might not always add
+	  a GstVideoMeta, in which case we should be able to assume that the
+	  texture doesn't have to be clipped.
+	  This fixes crash on Android.
+	  Fixes: d2dfcee83336 ("glimagesink: Clip texture if its bigger then display")
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10462>
+
+2025-12-19 17:34:32 +0100  Stéphane Cerveau <scerveau@igalia.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	* gst-libs/gst/video/gstvideoaggregator.c:
+	  video/audioaggregator: reject non-TIME segments in sink_event_pre_queue
+	  Move the segment format check from sink_event to sink_event_pre_queue
+	  to properly reject non-TIME segments before they are queued. This
+	  ensures the error is handled early and prevents the segment from
+	  being processed further.
+	  This fixes the issue where returning FALSE from sink_event had no
+	  effect since the segment was already queued.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10459>
+
+2025-12-25 17:13:51 +0100  Robert Mader <robert.mader@collabora.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	* gst-libs/gst/gl/gstglcolorconvert.h:
+	* gst-libs/gst/gl/gstglformat.c:
+	* gst-libs/gst/gl/gstglmemory.h:
+	  gl: Add support for Y444_12
+	  Used by e.g. HEVC for 12bit non-subsampled profiles.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10451>
+
+2025-12-23 14:12:26 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: Fix GST_DEBUG GObject warning
+	  The GST_DEBUG_OBJECT() first argument is expected to be a GObject.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10436>
+
+2025-12-22 16:23:10 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/videorate/gstvideorate.c:
+	* tests/check/elements/videorate.c:
+	* tests/check/libs/rtpdummyhdrextimpl.c:
+	* tests/check/libs/rtphdrext.c:
+	  gst: Remove various wrongly added includes
+	  These were most likely added by clangd automatically.
+	  Please use `-header-insertion=never` with clangd!
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8519>
+
+2025-12-19 15:40:26 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* meson.build:
+	  meson: Solve some cyclic dependencies caused by test-only deps
+	  gstreamer => gobject-introspection => cairo => fontconfig => freetype2 => harfbuzz => cairo
+	  gst-plugins-base => libdrm => cairo => fontconfig => freetype2 => harfbuzz => cairo
+	  gst-plugins-good => cairo => librsvg => cairo
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10422>
+
+2025-12-18 18:07:17 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/video.h:
+	  video: Include gstvideodmabufpool.h from video.h
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10411>
+
+2025-12-18 19:58:29 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  Revert "parsebin: Don't expose unfixed caps pads without stream info"
+	  This reverts commit 6628f5644e2c82da7f93012f9f4a8e08d9a4b3e1.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10404>
+
+2025-12-18 19:56:42 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  Revert "parsebin: Clear old stream when retargeting pad"
+	  This reverts commit d26eb95aec95e329c443ac238a13dc024f39dd0f.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10404>
+
+2025-12-16 23:47:48 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Improve debug logging
+	  Only log that we're storing caps on a GstStream if actually
+	  doing it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10387>
+
+2025-12-16 23:11:23 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Don't expose unfixed caps pads without stream info
+	  Pads with unfixed caps can be exposed early, but not before
+	  they've at least provided a stream-start event for building
+	  a fallback collection. Accordingly, defer the exposure and
+	  check again when seeing a stream-start event.
+	  Fixes #4756
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10387>
+
+2025-12-16 23:09:02 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Clear old stream when retargeting pad
+	  When extending the parsebin chain and retargeting the
+	  current end pad, clear the previous stream info, or
+	  the wrong stream info might get added to a fallback
+	  collection
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10387>
+
+2025-12-11 21:54:53 -0500  Aaron Boxer <aaron.boxer@collabora.com>
+
+	* gst/playback/gstplaybin3.c:
+	  playbin3: send GST_EVENT_SELECT_STREAMS event to collection source
+	  this ensures that the source receives the event, even if pipeline is not
+	  linked
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10341>
+
+2025-12-15 18:51:18 +0900  Elliot Chen <elliot.chen@nxp.com>
+
+	* gst-libs/gst/gl/egl/gstglmemoryegl.c:
+	* gst-libs/gst/gl/gstglmemory.c:
+	  gl: adjust log level from error to warning when copying memory
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10382>
+
+2025-12-01 19:32:54 +0100  François Laignel <francois@centricular.com>
+
+	* tests/check/elements/inputselector.c:
+	* tests/check/meson.build:
+	  input-selector: add stress test
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10204>
+
+2025-12-13 17:00:33 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopusenc.c:
+	* ext/opus/meson.build:
+	  opusenc: Use the surround multistream encoder for the Vorbis channel mapping family
+	  It provides additional surround features. For all other channel mapping families,
+	  continue using the normal multistream encoder as it allows to provide the
+	  channel configuration values.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10374>
+
+2025-12-13 13:50:52 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopusdec.c:
+	* ext/opus/gstopusdec.h:
+	  opusdec: Only call into the channel reordering functions if actually needed
+	  And simplify code a bit.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10374>
+
+2025-12-13 13:42:28 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopuscommon.c:
+	* ext/opus/gstopuscommon.h:
+	* ext/opus/gstopusenc.c:
+	* ext/opus/gstopusenc.h:
+	  opusenc: Simplify Vorbis channel layout mapping code and fix 7.1 layout
+	  Don't set up complicated mapping tables but instead use the default mapping
+	  tables as used by libopus. While this requires reordering from the GStreamer
+	  order to the Vorbis order in some situations, it's a better choice because it
+	  allows using the surround multistream encoder which has additional surround
+	  support that saves bandwidth.
+	  Also various specs and implementations only assume the "default" positions,
+	  and e.g. for the MPEG-TS mapping this has short forms in the signalling. And
+	  again, various implementations (e.g. ffmpeg) only support the short forms.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4794
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10374>
+
+2025-12-10 15:11:23 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/tag/gsttagdemux.c:
+	  tagdemux: propagate seek event seqnum to upstream
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10356>
+
+2025-12-10 14:54:14 +0100  Piotr Brzeziński <piotr@centricular.com>
+
+	* ext/pango/gstbasetextoverlay.c:
+	  basetextoverlay: Don't negotiate if caps haven't changed
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10352>
+
+2025-12-09 19:13:20 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.27.50
+
 === release 1.27.50 ===
 
 2025-12-09 19:08:48 +0000  Tim-Philipp Müller <tim@centricular.com>
