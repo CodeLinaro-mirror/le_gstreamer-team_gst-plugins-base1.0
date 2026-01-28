@@ -81,6 +81,7 @@ libgstgl-1.0.so.0 libgstreamer-gl1.0-0 #MINVER#
  gst_gl_base_mixer_get_gl_context@Base 1.23.1
  gst_gl_base_mixer_get_type@Base 1.23.1
  gst_gl_base_mixer_pad_get_type@Base 1.23.1
+ gst_gl_base_src_get_gl_context@Base 1.27.2
  gst_gl_base_src_get_type@Base 1.18.0
  gst_gl_buffer_allocation_params_get_type@Base 1.14.0
  gst_gl_buffer_allocation_params_new@Base 1.14.0
@@ -379,6 +380,7 @@ libgstgl-1.0.so.0 libgstreamer-gl1.0-0 #MINVER#
  gst_gl_window_error_quark@Base 1.14.0
  gst_gl_window_get_context@Base 1.14.0
  gst_gl_window_get_display@Base 1.14.0
+ gst_gl_window_get_request_output_surface@Base 1.27.1
  gst_gl_window_get_surface_dimensions@Base 1.14.0
  gst_gl_window_get_type@Base 1.14.0
  gst_gl_window_get_window_handle@Base 1.14.0
@@ -398,6 +400,7 @@ libgstgl-1.0.so.0 libgstreamer-gl1.0-0 #MINVER#
  gst_gl_window_set_draw_callback@Base 1.14.0
  gst_gl_window_set_preferred_size@Base 1.14.0
  gst_gl_window_set_render_rectangle@Base 1.14.0
+ gst_gl_window_set_request_output_surface@Base 1.27.1
  gst_gl_window_set_resize_callback@Base 1.14.0
  gst_gl_window_set_window_handle@Base 1.14.0
  gst_gl_window_show@Base 1.14.0
