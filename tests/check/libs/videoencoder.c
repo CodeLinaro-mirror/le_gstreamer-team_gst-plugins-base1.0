@@ -276,6 +276,7 @@ cleanup_videoencodertest (void)
   gst_check_teardown_src_pad (enc);
   gst_check_teardown_sink_pad (enc);
   gst_check_teardown_element (enc);
+  gst_check_drop_buffers ();
 
   g_list_free_full (events, (GDestroyNotify) gst_event_unref);
   events = NULL;
@@ -669,7 +670,7 @@ GST_START_TEST (videoencoder_qos)
 
   /* A QoS message was sent by the encoder */
   msg = gst_bus_pop_filtered (bus, GST_MESSAGE_QOS);
-  g_assert (msg != NULL);
+  g_assert_nonnull (msg);
   gst_message_unref (msg);
 
   fail_unless (gst_pad_push_event (mysrcpad, gst_event_new_eos ()));

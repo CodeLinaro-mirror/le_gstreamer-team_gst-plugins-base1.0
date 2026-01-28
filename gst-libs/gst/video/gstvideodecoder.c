@@ -2421,10 +2421,12 @@ gst_video_decoder_chain_forward (GstVideoDecoder * decoder,
     GstBuffer * buf, gboolean at_eos)
 {
   GstVideoDecoderPrivate *priv;
-  GstVideoDecoderClass *klass;
+  GstVideoDecoderClass *klass GST_UNUSED_CHECKS;
   GstFlowReturn ret = GST_FLOW_OK;
 
+#ifndef G_DISABLE_CHECKS
   klass = GST_VIDEO_DECODER_GET_CLASS (decoder);
+#endif
   priv = decoder->priv;
 
   g_return_val_if_fail (priv->packetized || klass->parse, GST_FLOW_ERROR);
@@ -4261,6 +4263,11 @@ gst_video_decoder_decide_allocation_default (GstVideoDecoder * decoder,
     /* no pool, we can make our own */
     GST_DEBUG_OBJECT (decoder, "no pool, making new pool");
     pool = gst_video_buffer_pool_new ();
+    {
+      gchar *name = g_strdup_printf ("%s-pool", GST_OBJECT_NAME (decoder));
+      g_object_set (pool, "name", name, NULL);
+      g_free (name);
+    }
   }
 
   /* now configure */
@@ -4285,7 +4292,11 @@ gst_video_decoder_decide_allocation_default (GstVideoDecoder * decoder,
 
     if (!pool) {
       GST_DEBUG_OBJECT (decoder, "unsupported pool, making new pool");
+      gchar *name =
+          g_strdup_printf ("%s-fallback-pool", GST_OBJECT_NAME (decoder));
       pool = gst_video_buffer_pool_new ();
+      g_object_set (pool, "name", name, NULL);
+      g_free (name);
 
       config = gst_buffer_pool_get_config (pool);
       gst_buffer_pool_config_set_params (config, outcaps, size, min, max);

@@ -121,6 +121,11 @@ gboolean            gst_gl_context_egl_format_supports_modifier (GstGLContext * 
                                                                  gboolean include_external);
 
 G_GNUC_INTERNAL
+void                gst_gl_context_egl_append_all_drm_formats (GstGLContext * context,
+                                                               GPtrArray *drm_formats,
+                                                               gboolean include_external);
+
+G_GNUC_INTERNAL
 gboolean            gst_gl_context_egl_supports_modifier     (GstGLContext * context);
 G_END_DECLS
 
