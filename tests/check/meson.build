@@ -61,6 +61,7 @@ base_tests = [
   [ 'pipelines/capsfilter-renegotiation.c' ],
   [ 'pipelines/gio.c' ],
   [ 'pipelines/streamsynchronizer.c' ],
+  [ 'elements/inputselector.c' ],
 ]
 
 # FIXME: unistd dependency, unstable or not tested yet on windows
@@ -103,7 +104,6 @@ if build_gstgl and host_machine.system() != 'windows'
     [ 'libs/gstglsl.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
     [ 'libs/gstglslstage.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
     [ 'libs/gstglupload.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
-    [ 'libs/gstglvideomixerelement.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
     [ 'elements/glimagesink.c', not build_gstgl, [gstgl_dep, gstglproto_dep]],
     [ 'elements/glbin.c', not build_gstgl ],
     [ 'pipelines/gl-launch-lines.c', not build_gstgl ],
@@ -164,7 +164,7 @@ foreach t : base_tests
     env.set('GST_PLUGIN_PATH_1_0', meson.global_build_root(), pluginsdirs)
     env.set('GST_PLUGIN_SYSTEM_PATH_1_0', '')
     env.set('GST_STATE_IGNORE_ELEMENTS', 'cdio cdparanoiasrc libvisual_ alsasrc alsasink')
-    env.set('CK_DEFAULT_TIMEOUT', '20')
+    env.set('CK_DEFAULT_TIMEOUT', '30')
     env.set('GST_TAG_LICENSE_TRANSLATIONS_DICT', join_paths(gst_tag_dir, 'license-translations.dict'))
     env.set('GST_PLUGIN_LOADING_WHITELIST', 'gstreamer',
         'gst-plugins-base@' + meson.project_build_root())

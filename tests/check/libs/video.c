@@ -428,7 +428,7 @@ GST_START_TEST (test_video_formats_pack_unpack)
     vdata = g_malloc (vsize);
     memset (vdata, 0x99, vsize);
 
-    g_assert (vfinfo->pack_lines == 1);
+    fail_unless_equals_int (vfinfo->pack_lines, 1);
 
     unpack_size =
         GST_VIDEO_FORMAT_INFO_BITS (unpackinfo) *
@@ -824,7 +824,7 @@ GST_START_TEST (test_parse_caps_rgb)
         "multiview-mode", G_TYPE_STRING, "mono",
         "multiview-flags", GST_TYPE_VIDEO_MULTIVIEW_FLAGSET, 0,
         GST_FLAG_SET_MASK_EXACT, NULL);
-    g_assert (gst_caps_is_fixed (caps));
+    g_assert_true (gst_caps_is_fixed (caps));
 
     GST_DEBUG ("testing caps: %" GST_PTR_FORMAT, caps);
 
@@ -2733,9 +2733,9 @@ GST_START_TEST (test_video_convert)
           GST_VIDEO_CONVERTER_OPT_DEST_WIDTH, G_TYPE_INT, 300,
           GST_VIDEO_CONVERTER_OPT_DEST_HEIGHT, G_TYPE_INT, 220, NULL));
 
-  g_assert (gst_video_info_is_equal (&ininfo,
+  g_assert_true (gst_video_info_is_equal (&ininfo,
           gst_video_converter_get_in_info (convert)));
-  g_assert (gst_video_info_is_equal (&outinfo,
+  g_assert_true (gst_video_info_is_equal (&outinfo,
           gst_video_converter_get_out_info (convert)));
 
   gst_video_converter_frame (convert, &inframe, &outframe);
@@ -2824,9 +2824,9 @@ GST_START_TEST (test_video_convert_with_config_update)
           GST_VIDEO_CONVERTER_OPT_DEST_WIDTH, G_TYPE_INT, 300,
           GST_VIDEO_CONVERTER_OPT_DEST_HEIGHT, G_TYPE_INT, 220, NULL));
 
-  g_assert (gst_video_info_is_equal (&ininfo,
+  g_assert_true (gst_video_info_is_equal (&ininfo,
           gst_video_converter_get_in_info (convert)));
-  g_assert (gst_video_info_is_equal (&outinfo,
+  g_assert_true (gst_video_info_is_equal (&outinfo,
           gst_video_converter_get_out_info (convert)));
 
   gst_video_converter_frame (convert, &inframe, &outframe);
@@ -2905,6 +2905,32 @@ GST_START_TEST (test_video_convert_multithreading)
   convert = gst_video_converter_new_with_pool (&ininfo, &outinfo,
       gst_structure_new ("options",
           GST_VIDEO_CONVERTER_OPT_THREADS, G_TYPE_UINT, 4, NULL), pool);
+  gst_video_converter_frame (convert, &inframe, &outframe);
+  gst_video_converter_free (convert);
+  gst_task_pool_cleanup (pool);
+  gst_object_unref (pool);
+
+  gst_video_frame_unmap (&outframe);
+  gst_video_frame_unmap (&refframe);
+
+  gst_buffer_map (outbuffer, &info, GST_MAP_READ);
+  fail_unless (gst_buffer_memcmp (refbuffer, 0, info.data, info.size) == 0);
+  gst_buffer_unmap (outbuffer, &info);
+
+  gst_video_frame_map (&outframe, &outinfo, outbuffer, GST_MAP_WRITE);
+  gst_video_frame_map (&refframe, &outinfo, refbuffer, GST_MAP_WRITE);
+
+  /* Multi-threaded conversion, user-provided pool, no converter config */
+  pool = gst_shared_task_pool_new ();
+  gst_shared_task_pool_set_max_threads (GST_SHARED_TASK_POOL (pool), 4);
+  gst_task_pool_prepare (pool, NULL);
+  convert = gst_video_converter_new_with_pool (&ininfo, &outinfo, NULL, pool);
+  const GstStructure *config = gst_video_converter_get_config (convert);
+  fail_unless (gst_structure_has_field (config,
+          GST_VIDEO_CONVERTER_OPT_THREADS));
+  guint threads;
+  gst_structure_get_uint (config, GST_VIDEO_CONVERTER_OPT_THREADS, &threads);
+  fail_unless (threads == 4);
   gst_video_converter_frame (convert, &inframe, &outframe);
   gst_video_converter_free (convert);
   gst_task_pool_cleanup (pool);
@@ -3261,6 +3287,7 @@ GST_START_TEST (test_video_formats_pstrides)
         || fmt == GST_VIDEO_FORMAT_NV12_10LE32
         || fmt == GST_VIDEO_FORMAT_NV16_10LE32
         || fmt == GST_VIDEO_FORMAT_NV12_10LE40
+        || fmt == GST_VIDEO_FORMAT_NV16_10LE40
         || fmt == GST_VIDEO_FORMAT_Y410
         || fmt == GST_VIDEO_FORMAT_NV12_8L128
         || fmt == GST_VIDEO_FORMAT_NV12_10BE_8L128
@@ -3556,7 +3583,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   /* Align with no padding to retrieve the plane heights */
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1080);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 1080 / 2);
@@ -3576,7 +3603,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   align.padding_bottom = 8;
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1088);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 1088 / 2);
@@ -3608,7 +3635,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   /* Align with no padding to retrieve the plane heights */
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1080);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 1080);
@@ -3628,7 +3655,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   align.padding_bottom = 8;
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (GST_VIDEO_INFO_HEIGHT (&info), ==, 1080);
   g_assert_cmpuint (GST_VIDEO_INFO_FIELD_HEIGHT (&info), ==, 1080);
@@ -3660,7 +3687,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   /* Align with no padding to retrieve the plane heights */
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1080 * 3);
   g_assert_cmpuint (plane_size[1], ==, 0);
@@ -3679,7 +3706,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   align.padding_bottom = 8;
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (GST_VIDEO_INFO_HEIGHT (&info), ==, 1080);
   g_assert_cmpuint (GST_VIDEO_INFO_FIELD_HEIGHT (&info), ==, 1080);
@@ -3710,7 +3737,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   /* Align with no padding to retrieve the plane heights */
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1080);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 1080 / 4);
@@ -3731,7 +3758,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   align.padding_bottom = 8;
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (GST_VIDEO_INFO_HEIGHT (&info), ==, 1080);
   g_assert_cmpuint (GST_VIDEO_INFO_FIELD_HEIGHT (&info), ==, 1080);
@@ -3765,7 +3792,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   /* Align with no padding to retrieve the plane heights */
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 540);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 540);
@@ -3785,7 +3812,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   align.padding_bottom = 8;
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (GST_VIDEO_INFO_HEIGHT (&info), ==, 1080);
   g_assert_cmpuint (GST_VIDEO_INFO_FIELD_HEIGHT (&info), ==, 540);
@@ -3818,7 +3845,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   /* Align with no padding to retrieve the plane heights */
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (plane_size[0], ==, 1920 * 541);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 541);
@@ -3838,7 +3865,7 @@ GST_START_TEST (test_video_info_align)
 
   gst_video_alignment_reset (&align);
   align.padding_bottom = 2;
-  g_assert (gst_video_info_align_full (&info, &align, plane_size));
+  g_assert_true (gst_video_info_align_full (&info, &align, plane_size));
 
   g_assert_cmpuint (GST_VIDEO_INFO_HEIGHT (&info), ==, 1081);
   g_assert_cmpuint (GST_VIDEO_INFO_FIELD_HEIGHT (&info), ==, 541);
@@ -3888,13 +3915,13 @@ GST_START_TEST (test_video_meta_align)
   g_assert_cmpuint (meta->alignment.padding_left, ==, 0);
   g_assert_cmpuint (meta->alignment.padding_right, ==, 0);
 
-  g_assert (gst_video_meta_get_plane_size (meta, plane_size));
+  g_assert_true (gst_video_meta_get_plane_size (meta, plane_size));
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1080);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 1080 * 0.5);
   g_assert_cmpuint (plane_size[2], ==, 0);
   g_assert_cmpuint (plane_size[3], ==, 0);
 
-  g_assert (gst_video_meta_get_plane_height (meta, plane_height));
+  g_assert_true (gst_video_meta_get_plane_height (meta, plane_height));
   g_assert_cmpuint (plane_height[0], ==, 1080);
   g_assert_cmpuint (plane_height[1], ==, 540);
   g_assert_cmpuint (plane_height[2], ==, 0);
@@ -3908,26 +3935,26 @@ GST_START_TEST (test_video_meta_align)
   alig.padding_left = 2;
   alig.padding_right = 6;
 
-  g_assert (gst_video_info_align (&info, &alig));
+  g_assert_true (gst_video_info_align (&info, &alig));
 
   meta = gst_buffer_add_video_meta_full (buf, GST_VIDEO_FRAME_FLAG_NONE,
       GST_VIDEO_INFO_FORMAT (&info), GST_VIDEO_INFO_WIDTH (&info),
       GST_VIDEO_INFO_HEIGHT (&info), GST_VIDEO_INFO_N_PLANES (&info),
       info.offset, info.stride);
-  g_assert (gst_video_meta_set_alignment (meta, alig));
+  g_assert_true (gst_video_meta_set_alignment (meta, alig));
 
   g_assert_cmpuint (meta->alignment.padding_top, ==, 0);
   g_assert_cmpuint (meta->alignment.padding_bottom, ==, 0);
   g_assert_cmpuint (meta->alignment.padding_left, ==, 2);
   g_assert_cmpuint (meta->alignment.padding_right, ==, 6);
 
-  g_assert (gst_video_meta_get_plane_size (meta, plane_size));
+  g_assert_true (gst_video_meta_get_plane_size (meta, plane_size));
   g_assert_cmpuint (plane_size[0], ==, 1928 * 1080);
   g_assert_cmpuint (plane_size[1], ==, 1928 * 1080 * 0.5);
   g_assert_cmpuint (plane_size[2], ==, 0);
   g_assert_cmpuint (plane_size[3], ==, 0);
 
-  g_assert (gst_video_meta_get_plane_height (meta, plane_height));
+  g_assert_true (gst_video_meta_get_plane_height (meta, plane_height));
   g_assert_cmpuint (plane_height[0], ==, 1080);
   g_assert_cmpuint (plane_height[1], ==, 540);
   g_assert_cmpuint (plane_height[2], ==, 0);
@@ -3941,26 +3968,26 @@ GST_START_TEST (test_video_meta_align)
   alig.padding_top = 2;
   alig.padding_bottom = 6;
 
-  g_assert (gst_video_info_align (&info, &alig));
+  g_assert_true (gst_video_info_align (&info, &alig));
 
   meta = gst_buffer_add_video_meta_full (buf, GST_VIDEO_FRAME_FLAG_NONE,
       GST_VIDEO_INFO_FORMAT (&info), GST_VIDEO_INFO_WIDTH (&info),
       GST_VIDEO_INFO_HEIGHT (&info), GST_VIDEO_INFO_N_PLANES (&info),
       info.offset, info.stride);
-  g_assert (gst_video_meta_set_alignment (meta, alig));
+  g_assert_true (gst_video_meta_set_alignment (meta, alig));
 
   g_assert_cmpuint (meta->alignment.padding_top, ==, 2);
   g_assert_cmpuint (meta->alignment.padding_bottom, ==, 6);
   g_assert_cmpuint (meta->alignment.padding_left, ==, 0);
   g_assert_cmpuint (meta->alignment.padding_right, ==, 0);
 
-  g_assert (gst_video_meta_get_plane_size (meta, plane_size));
+  g_assert_true (gst_video_meta_get_plane_size (meta, plane_size));
   g_assert_cmpuint (plane_size[0], ==, 1920 * 1088);
   g_assert_cmpuint (plane_size[1], ==, 1920 * 1088 * 0.5);
   g_assert_cmpuint (plane_size[2], ==, 0);
   g_assert_cmpuint (plane_size[3], ==, 0);
 
-  g_assert (gst_video_meta_get_plane_height (meta, plane_height));
+  g_assert_true (gst_video_meta_get_plane_height (meta, plane_height));
   g_assert_cmpuint (plane_height[0], ==, 1088);
   g_assert_cmpuint (plane_height[1], ==, 544);
   g_assert_cmpuint (plane_height[2], ==, 0);
@@ -3977,7 +4004,7 @@ GST_START_TEST (test_video_meta_align)
       GST_VIDEO_INFO_FORMAT (&info), GST_VIDEO_INFO_WIDTH (&info),
       GST_VIDEO_INFO_HEIGHT (&info), GST_VIDEO_INFO_N_PLANES (&info),
       info.offset, info.stride);
-  g_assert (!gst_video_meta_set_alignment (meta, alig));
+  g_assert_false (gst_video_meta_set_alignment (meta, alig));
 
   gst_buffer_unref (buf);
 }
@@ -4261,7 +4288,7 @@ GST_START_TEST (test_video_meta_serialize)
 
   gst_video_info_init (&info);
   gst_video_info_set_format (&info, GST_VIDEO_FORMAT_NV12, 1920, 1080);
-  g_assert (gst_video_info_align (&info, &alig));
+  g_assert_true (gst_video_info_align (&info, &alig));
 
   /* Add video meta */
   buf = gst_buffer_new ();
@@ -4269,7 +4296,7 @@ GST_START_TEST (test_video_meta_serialize)
       GST_VIDEO_INFO_FORMAT (&info), GST_VIDEO_INFO_WIDTH (&info),
       GST_VIDEO_INFO_HEIGHT (&info), GST_VIDEO_INFO_N_PLANES (&info),
       info.offset, info.stride);
-  g_assert (gst_video_meta_set_alignment (meta, alig));
+  g_assert_true (gst_video_meta_set_alignment (meta, alig));
 
   /* Serialize */
   GByteArray *data = g_byte_array_new ();
@@ -4336,6 +4363,468 @@ GST_START_TEST (test_dma_drm_big_engian)
 
 GST_END_TEST;
 
+GST_START_TEST (test_video_meta_transform_matrix_identity)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 200, 200);
+
+  /* 1. Identity Matrix */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 50);
+  fail_unless_equals_int (y, 50);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 10);
+  fail_unless_equals_int (rect.y, 10);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_translation)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 50, 50, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 200, 200);
+
+  /* 2. Translation */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+
+  x = 10;
+  y = 10;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 60);
+  fail_unless_equals_int (y, 60);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 60);
+  fail_unless_equals_int (rect.y, 60);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_scaling)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 200, 200 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 200, 200);
+
+  /* 3. Scaling (Upscale 2x) */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+
+  x = 10;
+  y = 10;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 20);
+  fail_unless_equals_int (y, 20);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 20);
+  fail_unless_equals_int (rect.y, 20);
+  fail_unless_equals_int (rect.w, 40);
+  fail_unless_equals_int (rect.h, 40);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_clamping)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { -10, -10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 200, 200);
+
+  /* 4. Clamping */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+
+  x = -10;
+  y = -10;
+  fail_unless (gst_video_meta_transform_matrix_point_clipped (&trans, &x, &y)
+      == FALSE);
+  fail_unless_equals_int (x, 0);
+  fail_unless_equals_int (y, 0);
+
+  x = 110;
+  y = 110;
+  fail_unless (gst_video_meta_transform_matrix_point_clipped (&trans, &x, &y)
+      == FALSE);
+  fail_unless_equals_int (x, 99);
+  fail_unless_equals_int (y, 99);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle_clipped (&trans,
+          &rect) == FALSE);
+  fail_unless_equals_int (rect.x, 0);
+  fail_unless_equals_int (rect.y, 0);
+  /* The width/height might be adjusted differently depending on implementation
+     detail, but let's check if it's clamped to inside. Actually, the
+     implementation clamps the points. x1=-10 -> 0, y1=-10 -> 0 x2=10 -> 10,
+     y2=10 -> 10 So rect should be 0,0,10,10 */
+  fail_unless_equals_int (rect.w, 10);
+  fail_unless_equals_int (rect.h, 10);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_shearing)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 200, 200);
+
+  /* 6. Non-Affine / Shearing */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Add shearing */
+  trans.matrix[0][1] = 0.5f;
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans,
+          &rect) == FALSE);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_out_of_bounds)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 150, 150, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 200, 200);
+
+  /* 7. Out of Bounds (No Clamp) */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  x = 150;
+  y = 150;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  /* Coordinates should be transformed even if out of bounds */
+  fail_unless_equals_int (x, 150);
+  fail_unless_equals_int (y, 150);
+
+  /* Entirely outside, clamp=TRUE */
+  fail_unless (gst_video_meta_transform_matrix_rectangle_clipped (&trans,
+          &rect) == FALSE);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_rotation_90)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 100, 100);
+
+  /* 90-degree counterclockwise rotation */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Manually set the rotation matrix:
+   * | 0  -1  100 |
+   * | 1   0   0  |
+   * | 0   0   1  |
+   */
+  trans.matrix[0][0] = 0.0f;
+  trans.matrix[0][1] = -1.0f;
+  trans.matrix[0][2] = 100.0f;
+  trans.matrix[1][0] = 1.0f;
+  trans.matrix[1][1] = 0.0f;
+  trans.matrix[1][2] = 0.0f;
+
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 50);
+  fail_unless_equals_int (y, 50);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 70);
+  fail_unless_equals_int (rect.y, 10);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_rotation_180)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 100, 100);
+
+  /* 180-degree rotation */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Manually set the rotation matrix:
+   * | -1   0  100 |
+   * |  0  -1  100 |
+   * |  0   0   1  |
+   */
+  trans.matrix[0][0] = -1.0f;
+  trans.matrix[0][1] = 0.0f;
+  trans.matrix[0][2] = 100.0f;
+  trans.matrix[1][0] = 0.0f;
+  trans.matrix[1][1] = -1.0f;
+  trans.matrix[1][2] = 100.0f;
+
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 50);
+  fail_unless_equals_int (y, 50);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 70);
+  fail_unless_equals_int (rect.y, 70);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_rotation_270)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 100, 100);
+
+  /* 270-degree counterclockwise rotation (90-degree clockwise) */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Manually set the rotation matrix:
+   * |  0   1   0  |
+   * | -1   0  100 |
+   * |  0   0   1  |
+   */
+  trans.matrix[0][0] = 0.0f;
+  trans.matrix[0][1] = 1.0f;
+  trans.matrix[0][2] = 0.0f;
+  trans.matrix[1][0] = -1.0f;
+  trans.matrix[1][1] = 0.0f;
+  trans.matrix[1][2] = 100.0f;
+
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 50);
+  fail_unless_equals_int (y, 50);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 10);
+  fail_unless_equals_int (rect.y, 70);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_flip_horizontal)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 100, 100);
+
+  /* Horizontal flip */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Manually set the flip matrix:
+   * | -1   0  100 |
+   * |  0   1   0  |
+   * |  0   0   1  |
+   */
+  trans.matrix[0][0] = -1.0f;
+  trans.matrix[0][1] = 0.0f;
+  trans.matrix[0][2] = 100.0f;
+  trans.matrix[1][0] = 0.0f;
+  trans.matrix[1][1] = 1.0f;
+  trans.matrix[1][2] = 0.0f;
+
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 50);
+  fail_unless_equals_int (y, 50);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 70);
+  fail_unless_equals_int (rect.y, 10);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_flip_vertical)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 100, 100);
+
+  /* Vertical flip */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Manually set the flip matrix:
+   * |  1   0   0  |
+   * |  0  -1  100 |
+   * |  0   0   1  |
+   */
+  trans.matrix[0][0] = 1.0f;
+  trans.matrix[0][1] = 0.0f;
+  trans.matrix[0][2] = 0.0f;
+  trans.matrix[1][0] = 0.0f;
+  trans.matrix[1][1] = -1.0f;
+  trans.matrix[1][2] = 100.0f;
+
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+  fail_unless_equals_int (x, 50);
+  fail_unless_equals_int (y, 50);
+
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans, &rect));
+  fail_unless_equals_int (rect.x, 10);
+  fail_unless_equals_int (rect.y, 70);
+  fail_unless_equals_int (rect.w, 20);
+  fail_unless_equals_int (rect.h, 20);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_video_meta_transform_matrix_rotation_45)
+{
+  GstVideoMetaTransformMatrix trans;
+  GstVideoInfo in_info, out_info;
+  const GstVideoRectangle in_rect = { 0, 0, 100, 100 };
+  const GstVideoRectangle out_rect = { 0, 0, 100, 100 };
+  gint x, y;
+  GstVideoRectangle rect = { 10, 10, 20, 20 };
+
+  gst_video_info_init (&in_info);
+  gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_I420, 100, 100);
+  gst_video_info_init (&out_info);
+  gst_video_info_set_format (&out_info, GST_VIDEO_FORMAT_I420, 100, 100);
+
+  /* 45-degree rotation */
+  gst_video_meta_transform_matrix_init (&trans, &in_info, &in_rect, &out_info,
+      &out_rect);
+  /* Manually set a 45-degree rotation matrix (non-axis-aligned):
+   * cos(45) = sin(45) = 0.707107
+   * |  cos(45)  -sin(45)  ... |
+   * |  sin(45)   cos(45)  ... |
+   * |  0         0         1  |
+   */
+  trans.matrix[0][0] = 0.707107f;
+  trans.matrix[0][1] = -0.707107f;
+  trans.matrix[0][2] = 50.0f;
+  trans.matrix[1][0] = 0.707107f;
+  trans.matrix[1][1] = 0.707107f;
+  trans.matrix[1][2] = 0.0f;
+
+  /* Point transformation should work */
+  x = 50;
+  y = 50;
+  fail_unless (gst_video_meta_transform_matrix_point (&trans, &x, &y));
+
+  /* Rectangle transformation should fail for non-90-degree rotation */
+  fail_unless (gst_video_meta_transform_matrix_rectangle (&trans,
+          &rect) == FALSE);
+}
+
+GST_END_TEST;
+
 static Suite *
 video_suite (void)
 {
@@ -4397,6 +4886,18 @@ video_suite (void)
   tcase_add_test (tc_chain, test_video_meta_serialize);
   tcase_add_test (tc_chain, test_video_convert_with_config_update);
   tcase_add_test (tc_chain, test_dma_drm_big_engian);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_identity);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_translation);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_scaling);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_clamping);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_shearing);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_out_of_bounds);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_rotation_90);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_rotation_180);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_rotation_270);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_flip_horizontal);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_flip_vertical);
+  tcase_add_test (tc_chain, test_video_meta_transform_matrix_rotation_45);
 
   return s;
 }
