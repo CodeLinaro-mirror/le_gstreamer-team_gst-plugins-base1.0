@@ -2032,13 +2032,20 @@ sink_event_function (GstPad * sinkpad, GstDecodebin3 * dbin, GstEvent * event)
       gst_event_parse_stream (event, &stream);
       if (stream) {
         const gchar *stream_id = gst_stream_get_stream_id (stream);
-        if (input->collection != NULL
-            && !stream_in_collection (input->collection, stream_id)) {
+        if (dbin->input_collection && dbin->input_collection->collection &&
+            !stream_in_collection (dbin->input_collection->collection,
+                stream_id)) {
+          GstMessage *msg;
           GST_DEBUG_OBJECT (sinkpad,
               "Stream %" GST_PTR_FORMAT
               " is from a new collection on this input", stream);
           /* This is a stream from a new collection. Invalidate the old collection */
-          gst_clear_object (&input->collection);
+          msg = handle_stream_collection_locked (dbin, NULL, input);
+          if (msg) {
+            INPUT_UNLOCK (dbin);
+            gst_element_post_message ((GstElement *) dbin, msg);
+            INPUT_LOCK (dbin);
+          }
         }
         gst_object_unref (stream);
       }
@@ -2734,10 +2741,8 @@ handle_stream_collection_locked (GstDecodebin3 * dbin,
   }
 
   /* Replace collection in input */
-  if (input->collection)
-    gst_object_unref (input->collection);
-  if (collection)
-    input->collection = gst_object_ref (collection);
+  gst_object_replace ((GstObject **) & input->collection,
+      (GstObject *) collection);
   GST_DEBUG_OBJECT (dbin, "Setting collection %p on input %p", collection,
       input);
 
@@ -3268,9 +3273,12 @@ mq_slot_check_reconfiguration (MultiQueueSlot * slot)
     gst_element_post_message ((GstElement *) slot->dbin, selection_msg);
 }
 
+/* Update the `all_streams_present` state of the provided collection by checking
+ * if every stream is mapped to a slot */
 static void
 update_stream_presence (GstDecodebin3 * dbin, DecodebinCollection * collection)
 {
+  guint i, len;
   GList *tmp;
 
   if (dbin->upstream_handles_selection) {
@@ -3278,16 +3286,28 @@ update_stream_presence (GstDecodebin3 * dbin, DecodebinCollection * collection)
     return;
   }
 
-  if (g_list_length (dbin->slots) !=
+  /* All streams are present only if the number of slots if greater or equal to
+   * the number of streams in the collection */
+  if (g_list_length (dbin->slots) <
       gst_stream_collection_get_size (collection->collection)) {
     collection->all_streams_present = FALSE;
     return;
   }
 
-  for (tmp = dbin->slots; tmp; tmp = tmp->next) {
-    MultiQueueSlot *slot = tmp->data;
-    if (!stream_in_collection (collection->collection,
-            (gchar *) slot->active_stream_id)) {
+  /* Check if all streams of the collection are present on the current slots */
+  len = gst_stream_collection_get_size (collection->collection);
+  for (i = 0; i < len; i++) {
+    GstStream *stream =
+        gst_stream_collection_get_stream (collection->collection, i);
+    gboolean found_slot = FALSE;
+    for (tmp = dbin->slots; tmp; tmp = tmp->next) {
+      MultiQueueSlot *slot = tmp->data;
+      if (!g_strcmp0 (stream->stream_id, slot->active_stream_id)) {
+        found_slot = TRUE;
+        break;
+      }
+    }
+    if (!found_slot) {
       collection->all_streams_present = FALSE;
       return;
     }

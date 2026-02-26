@@ -1,3 +1,272 @@
+=== release 1.28.1 ===
+
+2026-02-26 01:44:06 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.28.1
+
+2026-02-11 19:44:34 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/riff/riff-media.c:
+	  riff: Correctly check that enough RGB palette data is available
+	  This can otherwise overflow and result in out-of-bounds reads/writes.
+	  Fixes GST-SA-2026-0004, ZDI-CAN-28854, CVE-2026-2921.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4901
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10892>
+
+2026-02-22 00:21:15 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* meson.build:
+	  meson: Fix building of examples/gl/qt/qglwtextureshare
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10874>
+
+2026-02-18 17:45:25 +0200  Vivia Nikolaidou <vivia@ahiru.eu>
+
+	* gst-libs/gst/video/video-converter.c:
+	  video-converter: Do not transform_metas with 0 width or height
+	  It can legitimately happen in some scenarios and will lead to a crash, so in
+	  that case we just skip copying the metas instead. gst_video_converter_frame, for
+	  example, has a similar check that just returns if width or height are 0, so
+	  let's just follow the same approach.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10833>
+
+2026-02-12 02:49:28 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/egl/gstglcontext_egl.c:
+	* gst-libs/gst/gl/gstglcontext.c:
+	* gst-libs/gst/gl/wgl/gstglcontext_wgl.c:
+	  gstgl: Fix incorrect usage of G_MODULE_SUFFIX on macOS
+	  G_MODULE_SUFFIX is "so" on both Linux and macOS, but these codepaths
+	  were assuming that it's only "so" for Linux. Use pre-processor macros
+	  instead.
+	  This is exactly why G_MODULE_SUFFIX is deprecated on macOS.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10807>
+
+2026-01-28 11:55:31 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	  eagl: Add support for tvOS
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10807>
+
+2026-01-28 11:45:20 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* ext/gl/meson.build:
+	* gst-libs/gst/gl/meson.build:
+	* meson.build:
+	* tests/examples/gl/cocoa/meson.build:
+	* tests/examples/gl/qt/qglwtextureshare/meson.build:
+	  meson: Deprecate `system = 'ios'` in cross files, use subsystem
+	  Since we require Meson 1.4.0, we can now use subsystem names (added in
+	  1.2.0).
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10807>
+
+2026-02-17 13:23:26 +0200  Vivia Nikolaidou <vivia@ahiru.eu>
+
+	* gst/compositor/compositor.c:
+	  compositor: Do copy_metas also for background frame
+	  Previously the background frame was skipped from the n_pads counting for
+	  performance reasons, but the copy_metas check  used n_pads to iterate.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10825>
+
+2023-04-02 16:53:45 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	* scripts/dist-common-files.py:
+	  modules: dist common files from monorepo root
+	  Less noise when making releases, and just need to maintain one copy.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10822>
+
+2026-02-15 17:45:19 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* README.md:
+	  modules: remove subproject README.md from git
+	  Will be added to the tarballs based on the monorepo README on dist.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10822>
+
+2026-02-15 17:20:59 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* RELEASE:
+	  modules: remove RELEASE from git, will be generated from template on dist
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10822>
+
+2026-02-15 15:02:07 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	  modules: Remove NEWS from git which is generated from full release notes
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10822>
+
+2026-02-14 12:38:55 +0100  Robert Mader <robert.mader@collabora.com>
+
+	* gst-libs/gst/video/gstvideofilter.c:
+	  videofilter: Add VIDEO_ALIGNMENT to downstream pool
+	  In order to support the new GstVideoDmabufPool. Note that the video meta
+	  should also only be added when downstream advertises support for it,
+	  however doing so requires changes to tests and is thus left to a follow-up.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10811>
+
+2026-02-03 14:34:09 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Don't directly forward gap events if the decoder is not drained
+	  Instead queue it up for forwarding before the next video frame. While this is
+	  not ideal, it makes sure that the gap event does not go ahead of previous
+	  buffers if the decoder has any queued internally, which could break timestamp
+	  tracking downstream.
+	  This fixes a regression introduced in 62cb08404b9bd055c45cc1d5b71141e927ad748a.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10750>
+
+2026-02-03 14:13:54 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Move gap event handling into a helper function
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10750>
+
+2026-02-03 13:55:27 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiodecoder.c:
+	  audiodecoder: Only forward gap events immediately if no frames are pending
+	  Otherwise the gap event would go ahead of the pending frames, breaking
+	  buffer/event serialization.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10750>
+
+2026-01-06 21:30:00 +0100  Christian Gräfe <cgraefe83@gmail.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstglsrcbin.c:
+	  glsrcbin: adapt klass "Src" to "Source"
+	  use recommended "Source" instead of "Src"
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10729>
+
+2026-01-06 11:41:27 +0900  jeongmin kwak <jeongmin.kwak@lge.com>
+
+	* gst-libs/gst/rtsp/gstrtsptransport.c:
+	  rtsp: Validate transport parameter parsing in RFC 2326
+	  The layers, ttl, and ssrc parameters were parsed with strtoul()
+	  but did not validate whether parsing succeeded, causing invalid or
+	  empty values to be silently accepted as zero in violation of RFC 2326.
+	  Replace with g_ascii_string_to_unsigned() for proper validation with
+	  automatic range checking (ttl: 0-255) and overflow detection.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10717>
+
+2025-04-03 14:52:49 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Fix switch to smaller collections
+	  If an input stream goes away without EOS, we will end up with a case where the
+	  number of slots won't match the number of stream in the collection (until that
+	  stream and slot really gets removed).
+	  But we still want to detect when all streams of that (smaller) collection are
+	  present so we can switch to it.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10674>
+
+2026-01-30 13:07:48 +0100  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: unref color balance channels with g_object_unref()
+	  Since they are not GstObject but plain GObjects, the unref function has to be
+	  g_object_unref(). Otherwise it might generate problems with tracers.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10710>
+
+2025-12-12 06:30:48 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Handle recovery from temporary reordered output
+	  The code previously assumed that if there was a single reordered output
+	  frame, then it was wrong forever.
+	  Sadly, it could just be a temporary issue (maybe even just a single frame) and
+	  wouldn't have a chance from recovering.
+	  Instead, check if we received enough "ordered" frames from the subclass and
+	  switch back to normal behaviour
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10692>
+
+2026-01-20 13:13:23 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/audiorate/gstaudiorate.c:
+	  audiorate: Handle SEGMENT_DONE the same way as EOS
+	  videorate already does the same.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10670>
+
+2026-01-19 03:06:15 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/eagl/gstglwindow_eagl.m:
+	  eagl: Auto-resize when the UIView window is resized
+	  * layoutSubviews needs to be defined
+	  * contentsScale and contentScaleFactor need to be set correctly, the
+	  default of 1.0 is incorrect on all modern devices
+	  * Update drawable size when the window object changes
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10669>
+
+2026-01-18 17:37:47 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/meson.build:
+	* meson.options:
+	  gl: Fix explicit enabling of EAGL support on iOS
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10669>
+
+2026-01-28 11:50:49 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtsprange.c:
+	* gst-libs/gst/rtsp/gstrtsptransport.c:
+	* gst/subparse/gstsubparse.c:
+	* gst/subparse/qttextparse.c:
+	* gst/subparse/samiparse.c:
+	  base: Fix a couple of new const-ness warnings around strstr() usage
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4871
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10656>
+
+2026-01-28 18:15:48 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtppayloads.c:
+	  rtp: Add mappings for H266 and AV1 encoding-names
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10661>
+
+2025-03-26 16:07:18 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Improve handling collection change on existing pad
+	  A check was already present for checking if an incoming stream belonged to the
+	  current collection. This was added in
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10109
+	  But it only focused on the collection on the current pad, and not on the
+	  aggregated collection.
+	  This modification actually checks against the aggregated (and potentially
+	  different) input collection, and also updates it accordingly.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10638>
+
+2025-03-26 16:01:02 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gstdecodebin3.c:
+	  decodebin3: Ensure input->collection is always coherent
+	  If we want to "unset" the current input collection (by providing NULL) it
+	  wouldn't actually unset it and we would end up with a dangling pointer instead
+	  of NULL (i.e. no collection yet for that input)
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10638>
+
+2026-01-14 23:12:32 +0100  Ruben Gonzalez <rgonzalez@fluendo.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefindfunctions: Promote y4m_typefind
+	  Related to https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4848
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10632>
+
+2026-01-09 16:42:52 +0100  François Laignel <francois@centricular.com>
+
+	* tests/check/elements/inputselector.c:
+	  input-selector: add test eos for remaining non active pad
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10621>
+
+2026-01-06 16:43:55 +0100  François Laignel <francois@centricular.com>
+
+	* tests/check/elements/inputselector.c:
+	  input-selector: add pad release stress test
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10621>
+
+2026-01-27 17:10:54 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.28.0
+
 === release 1.28.0 ===
 
 2026-01-27 17:02:33 +0000  Tim-Philipp Müller <tim@centricular.com>
