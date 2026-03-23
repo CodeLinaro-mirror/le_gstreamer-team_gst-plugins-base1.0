@@ -119,6 +119,17 @@ gboolean      gst_codec_utils_h266_caps_set_level_tier_and_profile (GstCaps     
                                                                     const guint8 * decoder_configuration,
                                                                     guint          len);
 
+/* VP9 */
+
+GST_PBUTILS_API
+const gchar * gst_codec_utils_vp9_get_level (guint8 level_idc);
+
+GST_PBUTILS_API
+guint8 gst_codec_utils_vp9_get_level_idc                (const gchar * level);
+
+GST_PBUTILS_API
+guint8 gst_codec_utils_vp9_estimate_level_idc_from_caps (const GstCaps * caps);
+
 /* AV1 */
 
 GST_PBUTILS_API
@@ -182,6 +193,29 @@ gboolean  gst_codec_utils_opus_parse_header (GstBuffer * header,
                                              guint8      channel_mapping[256],
                                              guint16   * pre_skip,
                                              gint16    * output_gain);
+
+/* VP8 / VP9 */
+GST_PBUTILS_API
+gboolean gst_codec_utils_vpx_caps_set_format_fields (GstCaps * caps,
+                                                     gint      profile,
+                                                     gint      level,
+                                                     gint      bit_depth,
+                                                     gint      chroma_subsampling);
+
+GST_PBUTILS_API
+gboolean gst_codec_utils_vpx_caps_get_config (GstCaps  * caps,
+                                              gint     * vpx_version,
+                                              guint8   * profile,
+                                              guint8   * level,
+                                              guint8   * bit_depth,
+                                              guint8   * chroma_subsampling,
+                                              gboolean * video_full_range,
+                                              guint8   * colour_primaries,
+                                              guint8   * transfer_characteristics,
+                                              guint8   * matrix_coefficients);
+
+GST_PBUTILS_API
+GstBuffer * gst_codec_utils_vpx_create_vpcc_from_caps (GstCaps *caps);
 
 /* AV1 */
 GST_PBUTILS_API
