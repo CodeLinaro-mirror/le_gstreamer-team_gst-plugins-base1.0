@@ -454,6 +454,12 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_codec_utils_opus_create_header@Base 1.8.0
  gst_codec_utils_opus_parse_caps@Base 1.8.0
  gst_codec_utils_opus_parse_header@Base 1.8.0
+ gst_codec_utils_vp9_estimate_level_idc_from_caps@Base 1.29.1
+ gst_codec_utils_vp9_get_level@Base 1.29.1
+ gst_codec_utils_vp9_get_level_idc@Base 1.29.1
+ gst_codec_utils_vpx_caps_get_config@Base 1.29.1
+ gst_codec_utils_vpx_caps_set_format_fields@Base 1.29.1
+ gst_codec_utils_vpx_create_vpcc_from_caps@Base 1.29.1
  gst_discoverer_audio_info_get_bitrate@Base 1.0.0
  gst_discoverer_audio_info_get_channel_mask@Base 1.14.0
  gst_discoverer_audio_info_get_channels@Base 1.0.0
@@ -863,6 +869,7 @@ libgstrtsp-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_rtsp_auth_param_copy@Base 1.12.1
  gst_rtsp_auth_param_free@Base 1.12.1
  gst_rtsp_auth_param_get_type@Base 1.12.0
+ gst_rtsp_backchannel_http_method_get_type@Base 1.29.1
  gst_rtsp_connection_accept@Base 1.0.0
  gst_rtsp_connection_add_extra_http_request_header@Base 1.23.1
  gst_rtsp_connection_clear_auth_params@Base 1.0.0
@@ -876,6 +883,7 @@ libgstrtsp-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_rtsp_connection_do_tunnel@Base 1.0.0
  gst_rtsp_connection_flush@Base 1.0.0
  gst_rtsp_connection_free@Base 1.0.0
+ gst_rtsp_connection_get_backchannel_method@Base 1.29.1
  gst_rtsp_connection_get_ignore_x_server_reply@Base 1.20.0
  gst_rtsp_connection_get_ip@Base 1.0.0
  gst_rtsp_connection_get_read_socket@Base 1.0.0
@@ -904,6 +912,7 @@ libgstrtsp-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_rtsp_connection_set_accept_certificate_func@Base 1.14.0
  gst_rtsp_connection_set_auth@Base 1.0.0
  gst_rtsp_connection_set_auth_param@Base 1.0.0
+ gst_rtsp_connection_set_backchannel_method@Base 1.29.1
  gst_rtsp_connection_set_content_length_limit@Base 1.18.0
  gst_rtsp_connection_set_http_mode@Base 1.0.0
  gst_rtsp_connection_set_ignore_x_server_reply@Base 1.20.0
@@ -1269,6 +1278,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_buffer_add_video_caption_meta@Base 1.16.0
  gst_buffer_add_video_codec_alpha_meta@Base 1.20.0
  gst_buffer_add_video_gl_texture_upload_meta@Base 1.2.0
+ gst_buffer_add_video_hdr_meta@Base 1.29.1
  gst_buffer_add_video_meta@Base 1.0.0
  gst_buffer_add_video_meta_full@Base 1.0.0
  gst_buffer_add_video_overlay_composition_meta@Base 1.0.0
@@ -1563,6 +1573,11 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_gl_texture_upload_meta_get_info@Base 1.2.0
  gst_video_gl_texture_upload_meta_upload@Base 1.2.0
  gst_video_guess_framerate@Base 1.6.0
+ gst_video_hdr_format_from_string@Base 1.29.1
+ gst_video_hdr_format_to_string@Base 1.29.1
+ gst_video_hdr_meta_api_get_type@Base 1.29.1
+ gst_video_hdr_meta_get_info@Base 1.29.1
+ gst_video_hdr_parse_hdr10_plus@Base 1.29.1
  gst_video_info_align@Base 1.0.0
  gst_video_info_align_full@Base 1.18.0
  gst_video_info_convert@Base 1.0.0
