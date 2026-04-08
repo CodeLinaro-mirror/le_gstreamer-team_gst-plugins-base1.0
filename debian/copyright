@@ -874,10 +874,6 @@ Files: gst-libs/gst/rtsp/gstrtspconnection.c
 Copyright: <2005-2009> Wim Taymans <wim.taymans@gmail.com>
 License: MIT or LGPL-2+
 
-Files: NEWS
-Copyright: 2000-2025, GStreamer developers
-License: CC-BY-SA-4.0
-
 Files: po/af.po
        po/az.po
        po/ca.po
