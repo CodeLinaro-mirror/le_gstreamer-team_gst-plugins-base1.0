@@ -3000,7 +3000,7 @@ gst_parse_group_hide (GstParseGroup * group)
  *
  * Not MT-safe, call with parent's chain lock!
  */
-static void
+static gpointer
 gst_parse_chain_free_hidden_groups (GList * old_groups)
 {
   GList *l;
@@ -3011,6 +3011,8 @@ gst_parse_chain_free_hidden_groups (GList * old_groups)
     gst_parse_group_free (group);
   }
   g_list_free (old_groups);
+
+  return NULL;
 }
 
 static void
@@ -3501,8 +3503,8 @@ sort_end_pads (GstParsePad * da, GstParsePad * db)
   } else {
     GstStructure *sa, *sb;
 
-    sa = gst_caps_get_structure ((const GstCaps *) capsa, 0);
-    sb = gst_caps_get_structure ((const GstCaps *) capsb, 0);
+    sa = gst_caps_get_structure (capsa, 0);
+    sb = gst_caps_get_structure (capsb, 0);
 
     namea = gst_structure_get_name (sa);
     nameb = gst_structure_get_name (sb);

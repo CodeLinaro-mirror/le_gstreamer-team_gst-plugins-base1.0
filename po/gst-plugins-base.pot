@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.28.1\n"
+"Project-Id-Version: gst-plugins-base-1.28.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-26 01:44+0000\n"
+"POT-Creation-Date: 2026-04-07 20:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -91,7 +91,7 @@ msgstr ""
 msgid "This appears to be a text file"
 msgstr ""
 
-#: gst/playback/gstplaybin2.c:3469 gst/playback/gstplaysink.c:1530
+#: gst/playback/gstplaybin2.c:3471 gst/playback/gstplaysink.c:1530
 #: gst/playback/gstplaysink.c:1543 gst/playback/gstplaysink.c:1879
 #: gst/playback/gstplaysink.c:1911 gst/playback/gstplaysink.c:2495
 #: gst/playback/gstplaysink.c:2544 gst/playback/gstplaysink.c:2559
@@ -107,7 +107,7 @@ msgstr ""
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
 
-#: gst/playback/gstplaybin2.c:5523
+#: gst/playback/gstplaybin2.c:5525
 msgid "Could not create \"uridecodebin\" element."
 msgstr ""
 
@@ -192,11 +192,11 @@ msgstr ""
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2421 gst/playback/gsturisourcebin.c:2569
+#: gst/playback/gsturidecodebin.c:2421 gst/playback/gsturisourcebin.c:2571
 msgid "Source element can't be prepared"
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:2427 gst/playback/gsturisourcebin.c:2563
+#: gst/playback/gsturidecodebin.c:2427 gst/playback/gsturisourcebin.c:2565
 msgid "Source element is invalid."
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Failed to create download directory '%s'."
 msgstr ""
 
-#: gst/playback/gsturisourcebin.c:2575
+#: gst/playback/gsturisourcebin.c:2577
 msgid "Source element has no pads."
 msgstr ""
 
