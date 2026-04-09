@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.29.1-2) experimental; urgency=medium
+
+  * d/control: bump dependencies on GStreamer to 1.29.1 (Closes: #1133064)
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Thu, 09 Apr 2026 17:09:07 +0200
+
 gst-plugins-base1.0 (1.29.1-1) experimental; urgency=medium
 
   * d/gbp.conf: adjust for experimental
