@@ -1,3 +1,10 @@
+gst-plugins-base1.0 (1.28.2-2) unstable; urgency=medium
+
+  * d/control: bring orc build dependency with meson version (Closes: #1133130)
+  * d/patches: add 0005_failing-test-inputselector.patch
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Mon, 27 Apr 2026 11:15:21 +0200
+
 gst-plugins-base1.0 (1.28.2-1) unstable; urgency=medium
 
   * d/watch: pin to 1.28.x
