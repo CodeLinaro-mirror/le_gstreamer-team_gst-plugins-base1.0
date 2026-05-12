@@ -1,3 +1,286 @@
+=== release 1.28.3 ===
+
+2026-05-11 18:28:12 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.28.3
+
+2026-04-07 13:09:24 +0100  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* meson.build:
+	  meson: Require C std gnu11 or c11
+	  When using gcc or clang, gnu11 will be used, and when using MSVC c11
+	  will be used which will pass /std:c11. This provides us with the
+	  `restrict` keyword on all supported platforms.
+	  We can do this now because we require Visual Studio 2019.
+	  This feature was added in Meson 1.3
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11563>
+
+2026-04-22 15:12:04 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	* gst-libs/gst/gl/gstglformat.c:
+	  gl: add GBRA swizzle support
+	  Handle GBRA in the GL video format swizzle table, and use the same GBR
+	  component reorder for input and output planar RGB conversions.  This lets
+	  GBRA follow the existing planar RGB reorder path instead of reaching the
+	  unhandled swizzle case.
+	  Fixes #5060
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11422>
+
+2026-04-22 15:10:55 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* tests/check/libs/gstglcolorconvert.c:
+	  gl/tests: make colorconvert meta test robust
+	  Check that textoverlay is available before constructing the meta test
+	  pipeline, and report parser errors from gst_parse_launch() directly.  This
+	  keeps the test from continuing with a partial pipeline in environments where
+	  textoverlay is not visible to the Meson test sandbox.
+	  Use a bounded preroll wait so failures in the helper pipeline cannot hang the
+	  whole gstglcolorconvert test binary.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11422>
+
+2026-04-22 15:08:21 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* tests/check/libs/gstglcolorconvert.c:
+	  gl/tests: cover planar RGB reorder conversion
+	  Add focused coverage for conversions between packed RGBA and planar RGB
+	  formats in gstglcolorconvert.  The test keeps planar GL inputs as one
+	  GstGLMemory per texture plane, because mapping the input buffer as a
+	  GstVideoFrame before conversion can collapse or otherwise alter the memory
+	  layout that the converter is meant to consume.
+	  The failure messages include the input format, output format, plane,
+	  offset, and byte values so component-swizzle mistakes are directly
+	  visible from the test log.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11422>
+
+2026-04-23 11:12:28 +0200  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst-libs/gst/video/video-info-dma.c:
+	  libs: video: add precondition check on dma helpers
+	  For not invalid fourcc and modifiers. Also, check caps object type.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11451>
+
+2026-05-05 10:34:45 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer.c:
+	  discoverer: Take the DISCO_LOCK while parsing stream topology
+	  pad-added/removed on uridecodebin can modify the structures this is iterating
+	  over, which can then lead to a use-after-free if timing is very bad.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11539>
+
+2026-04-30 23:31:12 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	  audio-resampler-neon: fix Thumb encoding and use Clang O2 calculation for strides
+	  Fixes #5075
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11491>
+
+2026-05-03 10:43:43 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't reset samples_per_buffer when updating latency
+	  There's no relation at all between these two values. Instead only reset it
+	  when the output buffer duration property changes.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11487>
+
+2026-05-03 10:41:34 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't reset samples_per_buffer unless sample rate has changed
+	  The value only depends on the output-buffer-duration property and the sample
+	  rate, so resetting it is unnecessary unless the rate changes.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11487>
+
+2026-05-02 18:12:59 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't drop pending input buffers on sinkpads on srcpad caps changes
+	  If there is no conversion support on the sinkpads then the subclass must be able
+	  to handle the buffer independent of the srcpad caps, so dropping it is
+	  unnecessary.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11483>
+
+2026-05-01 20:31:52 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't try converting buffers on caps changes if impossible
+	  If there is no conversion function then the best we can do is to just not
+	  convert and drop the buffers, and then continue processing from the next
+	  buffers.
+	  Anything else will cause assertions.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11479>
+
+2026-04-30 17:39:00 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst/playback/gstdecodebin2.c:
+	  decodebin2: fix leak of endpads list on shutdown while exposing
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11470>
+
+2026-04-21 12:07:20 +0200  Santiago Carot-Nemesio <sancane@gmail.com>
+
+	* gst/audioresample/gstaudioresample.c:
+	* tests/check/elements/audioresample.c:
+	  audioresample: Fix extra samples produced at speech-to-silence transitions
+	  When audiorate fills a PTS gap with GAP-flagged silence buffers and
+	  these reach audioresample, the element calls push_drain() to flush
+	  the FIR filter tail during the transition from non-gap to gap samples.
+	  This pushes an extra buffer downstream (bypassing BaseTransform)
+	  containing the filter's residual output — roughly 128 samples at 16 kHz
+	  per transition.
+	  Since the incoming data is silence (GAP), the filter tail is also
+	  silence, so these extra samples are audibly meaningless but they break
+	  sample-count accounting in downstream elements that rely on exact
+	  timestamp/duration correspondence.
+	  Fix this by replacing push_drain() with dump_drain() in the GAP path.
+	  dump_drain() feeds the same zeros into the filter to stabilize it, but
+	  discards the output instead of pushing it downstream.
+	  Includes a test that feeds audiorate ! audioresample with a 140 ms
+	  timestamp gap and verifies that exactly 6 output buffers are produced
+	  (not 7), with correct PTS, duration, and GAP flags.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11439>
+
+2026-04-22 16:03:15 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsink: Allow passing NULL callbacks
+	  Otherwise there is no way to stop receiving those
+	  callbacks. Implementation already explicitly allows it.
+	  gst_app_sink_set_simple_callbacks() already allows it too.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11431>
+
+2026-04-22 16:02:10 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* ext/gl/gstglimagesink.c:
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  opengl: Fix glcolorconvert vertical flip issue on crop
+	  The same crop vertices was applied to both glimageisnk and glcolorconvert
+	  despite the image orientation being opposite. To avoid more errors in the
+	  future, simply multiply the texture coordinate by their cropped size. This allow
+	  having exactly the same code in both element.
+	  Fixes #5061
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11413>
+
+2026-04-20 09:23:31 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	* gst-libs/gst/tag/id3v2.h:
+	  id3v2: Check valid frame sizes more
+	  An empty frame data size is invalid and should be ignored.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5049
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11380>
+
+2026-04-13 20:23:23 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Error out if there's more than 64 levels of SAMI element nesting
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 20:08:21 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Skip lines with invalid element/tag names or attribute names
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 20:04:07 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Skip comment elements, DOCTYPE, [CDATA etc
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 19:50:25 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Truncate HTML context buffer when resetting the context too
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 19:31:20 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Improve const-correctness and don't modify const input string
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 19:25:13 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Free error if stripping pango markup fails
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 19:23:04 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Use a GString to accumulate text results from GMarkupParser
+	  Repeated g_strconcat() is unnecessarily inefficient.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11362>
+
+2026-04-13 20:54:18 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Use a hashtable instead of a linked list for storing the pending tags
+	  This considerably speeds up parsing of huge exif chunks.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11364>
+
+2026-04-16 15:38:40 +0100  Arthur Chan <arthur.chan@adalogics.com>
+
+	* gst/subparse/qttextparse.c:
+	  subparse: Fix memory leakage for fgcolor and bgcolor
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11359>
+
+2026-04-11 15:39:47 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/video/gstvideodmabufpool.c:
+	  videodmabufpool: Break ref cycle between the pool and its thread
+	  The GThread stored in the pool was taking a strong ref of the pool itself, thus
+	  preventing full disposal later on and introducing several memory leaks.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11337>
+
+2026-04-11 16:44:05 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Add input validation and refactor id3v2_ununsync_data
+	  The ID3v2 specification uses data unsynchronisation to prevent 0xff 0x00
+	  sequences from being mistaken for sync bytes. The ununsync_data() function
+	  removes this protection by replacing 0xff 0x00 with 0xff bytes.
+	  The function previously accepted any pointer without validation, risking
+	  crashes on NULL inputs. The pointer-based iteration was also harder to
+	  follow and more error-prone than index-based access.
+	  The loop now uses indices instead of pointer arithmetic, making the bounds check
+	  and byte-skipping logic clearer.  Providing invalid inputs is a programming
+	  error.  on error.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11320>
+
+2026-04-11 10:38:10 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Fix dropped counting with bufferlist
+	  * buflist is the incoming bufferlist (and not the one we are dropping)
+	  * buflist could be NULL
+	  Instead, properly use the actual item buffer list we are dropping
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11312>
+
+2026-04-09 11:51:38 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Check denominator of fractions are valid
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11293>
+
+2026-04-09 11:36:17 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Prevent undefined behaviour when shifting
+	  Unless specified, operations on types smaller than `int` are promoted
+	  to (signed) int. That would result in `0xff << 24` being a negative
+	  value (highest bit set).
+	  Instead, make it clear by casting to a guint.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11293>
+
+2026-04-07 20:07:19 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.28.2
+
 === release 1.28.2 ===
 
 2026-04-07 20:02:23 +0100  Tim-Philipp Müller <tim@centricular.com>
