@@ -1,3 +1,190 @@
+=== release 1.28.5 ===
+
+2026-07-08 23:42:39 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.28.5
+
+2026-06-16 14:10:00 -0300  L. E. Segovia <amy@centricular.com>
+
+	* meson.build:
+	  audio-resampler: Declare that NEON support also requires Thumb
+	  GCC from Yocto for Beaglebone Black doesn't enable it, so it causes a
+	  build time error since !5075. All other versions that I know of
+	  (Godbolt, Alpine, Ubuntu) have Thumb mode enabled by default.
+	  Fixes #5164
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11971>
+
+2026-06-22 11:54:41 +0300  Arthur Chan <arthur.chan@adalogics.com>
+
+	* gst-libs/gst/pbutils/encoding-target.c:
+	  encoding-target: Validate that encoding profile name is UTF-8 before using it
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5131
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12068>
+
+2026-06-19 13:48:16 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/opus/gstopusdec.c:
+	  opusdec: Don't use any channel positions for >64 channels
+	  We don't support this.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5122
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12067>
+
+2026-07-06 11:52:50 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtcpbuffer.c:
+	* tests/check/libs/rtp.c:
+	  rtcpbuffer: Make sure to check for enough available space when adding SDES items
+	  Also don't use the wrong offset if this is not actually the first packet in a
+	  compound RTCP packet.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12033>
+
+2026-07-04 15:37:58 -0500  Gordon Smith <gsmith@route8.io>
+
+	* gst-libs/gst/rtp/gstrtcpbuffer.c:
+	* tests/check/libs/rtp.c:
+	  rtcpbuffer: Fix parsing of SR+SDES compound packet
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12033>
+
+2026-07-02 18:00:06 +0530  Sanchayan Maity <sanchayan@centricular.com>
+
+	* tests/check/gst/typefindfunctions.c:
+	  tests: typefindfunctions: Add test for type finding with caps
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12020>
+
+2026-06-08 16:50:09 +0900  Qi Hou <qi.hou@nxp.com>
+
+	* ext/gl/gstgldownloadelement.c:
+	  gldownload: fix wrong DRM format negotiation causing R/B channel swap
+	  The _convert_dma_drm() function in gldownloadelement uses
+	  gst_gl_dma_buf_transform_gst_formats_to_drm_formats() to convert
+	  GstVideo formats to DRM formats for downstream caps negotiation.
+	  It was incorrectly using GST_GL_DRM_FORMAT_DIRECT_IMPORT, which is
+	  designed for the upload (import) direction. With this flag, the
+	  function bypasses the standard format mapping table and instead
+	  queries the EGL driver for all supported DRM formats. This causes
+	  gldownload to advertise formats like DRM_FORMAT_ARGB8888 (BA24)
+	  alongside DRM_FORMAT_ABGR8888 (AB24).
+	  Since GL internally works with RGBA byte order (R,G,B,A in memory),
+	  the only correct DRM fourcc is ABGR8888 (AB24). When a downstream
+	  element such as waylandsink picks ARGB8888 (BA24) instead, the R and
+	  B channels are swapped, resulting in wrong purple/pink color.
+	  Fix this by using GST_GL_DRM_FORMAT_INCLUDE_EMULATED, which goes
+	  through the standard GstVideo-to-DRM mapping table where RGBA is
+	  correctly mapped to DRM_FORMAT_ABGR8888 only.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11997>
+
+2026-03-30 10:22:51 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: fix caps leaks
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11972>
+
+2026-03-27 18:55:14 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: fix incorrect parsing of WBMP multibyte integers
+	  Fixes #5001
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11972>
+
+2026-03-27 17:34:17 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst/typefind/gsttypefindfunctionsplugin.h:
+	* gst/typefind/gsttypefindfunctionsstartwith.c:
+	  typefind: add X Bitmap support
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11972>
+
+2026-03-27 17:32:48 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	* gst/typefind/gsttypefindfunctionsstartwith.c:
+	  typefind: add animated PNG detection
+	  See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/4986
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11972>
+
+2026-06-25 18:06:39 +0200  Marcus Hanestad <marlhan@proton.me>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: deactivate input_item in erroneous ready->paused transition
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11952>
+
+2026-06-24 09:51:57 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	  appsink: Clear local sample storage when flushing
+	  Since commit d00e0b61 appsink keeps a local reference of the current sample in
+	  order to reduce allocations. However not clearing its contents upon flush events
+	  would prevent associated buffers from being cleared from their pool.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11947>
+
+2026-06-15 09:54:15 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Uniformly handle EOS events being pushed
+	  Treat an EOS event being sent to appsrc via gst_element_send_event()
+	  the same as if the gst_app_src_end_of_stream() method / signal were used,
+	  otherwise pipelines can get stuck with the appsrc pushing thread
+	  having shut down, but the gst_app_src_push_*() methods not
+	  returning GST_FLOW_EOS to inform the caller. The appsrc
+	  ends up still accepting / queueing data it won't send.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11925>
+
+2026-06-22 12:44:39 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Handle fractions with 0 denominator as invalid
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11922>
+
+2026-03-30 09:44:27 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	* tests/check/libs/pbutils.c:
+	  gdkpixbufdec: remove Sun and Andrew raster formats
+	  They were both removed in 2.32.1:
+	  https://github.com/GNOME/gdk-pixbuf/commit/af2fca9bba5c127ca092c3a4bf7656015d6168ad
+	  Moreover, the Andrew raster format (image/x-cmu-raster) doesn't match at
+	  all the Sun raster format, the former is similar to LaTeX while the
+	  latter is binary.
+	  As a double safety measure, let's bump the minimum gdk-pixbuf version as
+	  2.32.1 was released in 2015 [1] while 2.8.0 is from 2005 [2].
+	  Fixes #5004
+	  [1]: https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/tags/2.32.0
+	  [2]: https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/tags/GTK_2_8_0
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11901>
+
+2026-06-14 21:13:47 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Don't allow very small framerates for microdvd subtitles
+	  Very small framerates close to 0.0 would become 0/1 and still lead to a division
+	  by zero. Use 1/1000 as minimum and 1000/1 as maximum framerates for subtitles.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11852>
+
+2026-06-14 21:47:25 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Don't allocate -1 bytes of memory if there's only a single tag
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11853>
+
+2026-06-15 12:38:31 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstvorbistag.c:
+	  vorbistag: Check for enough base64 data before trying to decode
+	  g_base64_decode_inplace() asserts if fewer than 2 bytes are available.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11856>
+
+2026-06-15 12:36:33 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstvorbistag.c:
+	  vorbistag: Use gsize for lengths and avoid overflows
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11856>
+
+2026-06-12 13:27:54 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.28.4
+
 === release 1.28.4 ===
 
 2026-06-12 13:19:43 +0100  Tim-Philipp Müller <tim@centricular.com>
