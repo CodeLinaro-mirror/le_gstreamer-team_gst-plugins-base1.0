@@ -1,3 +1,12 @@
+gst-plugins-base1.0 (1.26.2-1+deb13u1+qcom1) trixie; urgency=medium
+
+  * add qcom patches for v1.26.2
+  * d/patches: add gst-qti-oss-patches/0001-video-Add-support-for-NV12_Q08C-compressed-8-bit-for.patch
+  * d/patches: add gst-qti-oss-patches/0002-video-Add-support-for-NV12_Q10LE32C-compressed-10-bi.patch
+  * d/patches: add gst-qti-oss-patches/0003-videometa-Update-the-aggregation-logic-for-stride-al.patch
+
+ -- Bala Sai Kosuri <bkosuri@qti.qualcomm.com>  Tue, 21 Jul 2026 09:25:44 -0700
+
 gst-plugins-base1.0 (1.26.2-1+deb13u1) trixie-security; urgency=medium
 
   * CVE-2026-2921

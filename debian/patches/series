@@ -1,2 +1,5 @@
 0001-skip-failing-tests.patch
 CVE-2026-2921.patch
+gst-qti-oss-patches/0001-video-Add-support-for-NV12_Q08C-compressed-8-bit-for.patch
+gst-qti-oss-patches/0002-video-Add-support-for-NV12_Q10LE32C-compressed-10-bi.patch
+gst-qti-oss-patches/0003-videometa-Update-the-aggregation-logic-for-stride-al.patch
