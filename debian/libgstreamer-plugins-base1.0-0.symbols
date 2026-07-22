@@ -115,6 +115,7 @@ libgstaudio-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  _gst_audio_decoder_error@Base 1.0.0
  gst_audio_aggregator_convert_pad_get_type@Base 1.14.0
  gst_audio_aggregator_get_type@Base 1.14.0
+ gst_audio_aggregator_has_current_output_buffer@Base 1.29.2
  gst_audio_aggregator_pad_get_type@Base 1.14.0
  gst_audio_aggregator_set_sink_caps@Base 1.14.0
  gst_audio_base_sink_create_ringbuffer@Base 1.0.0
@@ -239,6 +240,7 @@ libgstaudio-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_audio_encoder_negotiate@Base 1.0.0
  gst_audio_encoder_proxy_getcaps@Base 1.0.0
  gst_audio_encoder_set_allocation_caps@Base 1.10.0
+ gst_audio_encoder_set_allocator@Base 1.29.2
  gst_audio_encoder_set_drainable@Base 1.0.0
  gst_audio_encoder_set_frame_max@Base 1.0.0
  gst_audio_encoder_set_frame_samples_max@Base 1.0.0
@@ -434,6 +436,7 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_codec_utils_h264_caps_set_level_and_profile@Base 1.0.0
  gst_codec_utils_h264_get_level@Base 1.0.0
  gst_codec_utils_h264_get_level_idc@Base 1.0.0
+ gst_codec_utils_h264_get_level_limits@Base 1.29.2
  gst_codec_utils_h264_get_profile@Base 1.0.0
  gst_codec_utils_h264_get_profile_flags_level@Base 1.20.0
  gst_codec_utils_h265_caps_set_level_tier_and_profile@Base 1.4.0
@@ -460,6 +463,13 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_codec_utils_vpx_caps_get_config@Base 1.29.1
  gst_codec_utils_vpx_caps_set_format_fields@Base 1.29.1
  gst_codec_utils_vpx_create_vpcc_from_caps@Base 1.29.1
+ gst_discoverer_audio_info_builder_build@Base 1.29.2
+ gst_discoverer_audio_info_builder_free@Base 1.29.2
+ gst_discoverer_audio_info_builder_new@Base 1.29.2
+ gst_discoverer_audio_info_builder_set_bitrate@Base 1.29.2
+ gst_discoverer_audio_info_builder_set_language@Base 1.29.2
+ gst_discoverer_audio_info_builder_set_max_bitrate@Base 1.29.2
+ gst_discoverer_audio_info_builder_set_tags@Base 1.29.2
  gst_discoverer_audio_info_get_bitrate@Base 1.0.0
  gst_discoverer_audio_info_get_channel_mask@Base 1.14.0
  gst_discoverer_audio_info_get_channels@Base 1.0.0
@@ -468,12 +478,25 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_discoverer_audio_info_get_max_bitrate@Base 1.0.0
  gst_discoverer_audio_info_get_sample_rate@Base 1.0.0
  gst_discoverer_audio_info_get_type@Base 1.0.0
+ gst_discoverer_container_info_builder_add_stream@Base 1.29.2
+ gst_discoverer_container_info_builder_build@Base 1.29.2
+ gst_discoverer_container_info_builder_free@Base 1.29.2
+ gst_discoverer_container_info_builder_new@Base 1.29.2
+ gst_discoverer_container_info_builder_set_tags@Base 1.29.2
  gst_discoverer_container_info_get_streams@Base 1.0.0
  gst_discoverer_container_info_get_tags@Base 1.20.0
  gst_discoverer_container_info_get_type@Base 1.0.0
  gst_discoverer_discover_uri@Base 1.0.0
  gst_discoverer_discover_uri_async@Base 1.0.0
  gst_discoverer_get_type@Base 1.0.0
+ gst_discoverer_info_builder_build@Base 1.29.2
+ gst_discoverer_info_builder_free@Base 1.29.2
+ gst_discoverer_info_builder_new@Base 1.29.2
+ gst_discoverer_info_builder_set_duration@Base 1.29.2
+ gst_discoverer_info_builder_set_live@Base 1.29.2
+ gst_discoverer_info_builder_set_result@Base 1.29.2
+ gst_discoverer_info_builder_set_seekable@Base 1.29.2
+ gst_discoverer_info_builder_set_tags@Base 1.29.2
  gst_discoverer_info_copy@Base 1.0.0
  gst_discoverer_info_from_variant@Base 1.6.0
  gst_discoverer_info_get_audio_streams@Base 1.0.0
@@ -510,8 +533,21 @@ libgstpbutils-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_discoverer_stream_info_get_toc@Base 1.0.0
  gst_discoverer_stream_info_get_type@Base 1.0.0
  gst_discoverer_stream_info_list_free@Base 1.0.0
+ gst_discoverer_subtitle_info_builder_build@Base 1.29.2
+ gst_discoverer_subtitle_info_builder_free@Base 1.29.2
+ gst_discoverer_subtitle_info_builder_new@Base 1.29.2
+ gst_discoverer_subtitle_info_builder_set_language@Base 1.29.2
+ gst_discoverer_subtitle_info_builder_set_tags@Base 1.29.2
  gst_discoverer_subtitle_info_get_language@Base 1.0.0
  gst_discoverer_subtitle_info_get_type@Base 1.0.0
+ gst_discoverer_video_info_builder_build@Base 1.29.2
+ gst_discoverer_video_info_builder_free@Base 1.29.2
+ gst_discoverer_video_info_builder_new@Base 1.29.2
+ gst_discoverer_video_info_builder_set_bitrate@Base 1.29.2
+ gst_discoverer_video_info_builder_set_interlaced@Base 1.29.2
+ gst_discoverer_video_info_builder_set_is_image@Base 1.29.2
+ gst_discoverer_video_info_builder_set_max_bitrate@Base 1.29.2
+ gst_discoverer_video_info_builder_set_tags@Base 1.29.2
  gst_discoverer_video_info_get_bitrate@Base 1.0.0
  gst_discoverer_video_info_get_depth@Base 1.0.0
  gst_discoverer_video_info_get_framerate_denom@Base 1.0.0
@@ -1277,6 +1313,9 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_buffer_add_video_bar_meta@Base 1.18.0
  gst_buffer_add_video_caption_meta@Base 1.16.0
  gst_buffer_add_video_codec_alpha_meta@Base 1.20.0
+ gst_buffer_add_video_dsc_initialization_meta@Base 1.29.2
+ gst_buffer_add_video_dsc_selection_meta@Base 1.29.2
+ gst_buffer_add_video_dsc_verification_meta@Base 1.29.2
  gst_buffer_add_video_gl_texture_upload_meta@Base 1.2.0
  gst_buffer_add_video_hdr_meta@Base 1.29.1
  gst_buffer_add_video_meta@Base 1.0.0
@@ -1300,6 +1339,21 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_color_balance_set_value@Base 1.0.0
  gst_color_balance_type_get_type@Base 1.0.0
  gst_color_balance_value_changed@Base 1.0.0
+ gst_h274_digitally_signed_content_initialization_get_type@Base 1.29.2
+ gst_h274_digitally_signed_content_selection_get_type@Base 1.29.2
+ gst_h274_digitally_signed_content_verification_get_type@Base 1.29.2
+ gst_h274_dsc_initialization_copy@Base 1.29.2
+ gst_h274_dsc_initialization_free@Base 1.29.2
+ gst_h274_dsc_selection_copy@Base 1.29.2
+ gst_h274_dsc_selection_free@Base 1.29.2
+ gst_h274_dsc_verification_copy@Base 1.29.2
+ gst_h274_dsc_verification_free@Base 1.29.2
+ gst_h274_registered_user_data_get_type@Base 1.29.2
+ gst_h274_user_data_registered_copy@Base 1.29.2
+ gst_h274_user_data_registered_free@Base 1.29.2
+ gst_h274_user_data_unregistered_copy@Base 1.29.2
+ gst_h274_user_data_unregistered_free@Base 1.29.2
+ gst_h274_user_data_unregistered_get_type@Base 1.29.2
  gst_is_video_overlay_prepare_window_handle_message@Base 1.0.0
  gst_navigation_command_get_type@Base 1.0.0
  gst_navigation_event_get_coordinates@Base 1.22.0
@@ -1509,6 +1563,12 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_dma_drm_fourcc_to_string@Base 1.23.1
  gst_video_dmabuf_pool_get_type@Base 1.27.50
  gst_video_dmabuf_pool_new@Base 1.27.50
+ gst_video_dsc_initialization_meta_api_get_type@Base 1.29.2
+ gst_video_dsc_initialization_meta_get_info@Base 1.29.2
+ gst_video_dsc_selection_meta_api_get_type@Base 1.29.2
+ gst_video_dsc_selection_meta_get_info@Base 1.29.2
+ gst_video_dsc_verification_meta_api_get_type@Base 1.29.2
+ gst_video_dsc_verification_meta_get_info@Base 1.29.2
  gst_video_encoder_allocate_output_buffer@Base 1.0.0
  gst_video_encoder_allocate_output_frame@Base 1.0.0
  gst_video_encoder_drop_frame@Base 1.25.1
@@ -1528,6 +1588,7 @@ libgstvideo-1.0.so.0 libgstreamer-plugins-base1.0-0 #MINVER#
  gst_video_encoder_negotiate@Base 1.0.0
  gst_video_encoder_proxy_getcaps@Base 1.0.0
  gst_video_encoder_release_frame@Base 1.25.1
+ gst_video_encoder_set_allocator@Base 1.29.2
  gst_video_encoder_set_headers@Base 1.0.0
  gst_video_encoder_set_latency@Base 1.0.0
  gst_video_encoder_set_min_force_key_unit_interval@Base 1.18.0
