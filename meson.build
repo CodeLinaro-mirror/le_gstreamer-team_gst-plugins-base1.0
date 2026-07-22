@@ -1,8 +1,9 @@
 project('gst-plugins-base', 'c',
-  version : '1.29.1',
+  version : '1.29.2',
   meson_version : '>= 1.4',
   default_options : [ 'warning_level=1',
-                      'buildtype=debugoptimized' ])
+                      'buildtype=debugoptimized',
+                      'c_std=gnu11,c11' ])
 
 gst_version = meson.project_version()
 version_arr = gst_version.split('.')
@@ -70,7 +71,10 @@ if cc.get_id() == 'msvc'
       '/wd4146', # unary minus on unsigned (beware INT_MIN)
       '/wd4244', # lossy type conversion (e.g. double -> int)
       '/wd4305', # truncating type conversion (e.g. double -> float)
-      cc.get_supported_arguments(['/utf-8']), # set the input encoding to utf-8
+      cc.get_supported_arguments([
+        '/utf-8', # set the input encoding to utf-8
+        '/Zc:preprocessor', # enable preprocessor conformance mode (disable legacy preprocessor)
+      ]),
   ]
 
   if gst_version_is_dev
@@ -162,6 +166,8 @@ host_defines = [
   [ 'hppa', 'HAVE_CPU_HPPA' ],
   [ 'm68k', 'HAVE_CPU_M68K' ],
   [ 's390', 'HAVE_CPU_S390' ],
+  [ 'riscv32', 'HAVE_CPU_RISCV32' ],
+  [ 'riscv64', 'HAVE_CPU_RISCV64' ],
 ]
 foreach h : host_defines
   if h.get(0) == host_machine.cpu_family()
