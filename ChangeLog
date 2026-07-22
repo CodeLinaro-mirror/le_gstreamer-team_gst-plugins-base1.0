@@ -1,3 +1,1261 @@
+=== release 1.29.2 ===
+
+2026-06-29 00:04:39 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.29.2
+
+2026-06-05 14:36:02 +0000  Felix-Gong <gongxiaofei24@iscas.ac.cn>
+
+	* meson.build:
+	  meson: add riscv32/riscv64 to host_defines
+	  Add HAVE_CPU_RISCV32 and HAVE_CPU_RISCV64 definitions for RISC-V
+	  architectures in the host_defines arrays used by ABI tests.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11773>
+
+2026-06-25 18:06:39 +0200  Marcus Hanestad <marlhan@proton.me>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: deactivate input_item in erroneous ready->paused transition
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11950>
+
+2026-06-24 09:51:57 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	  appsink: Clear local sample storage when flushing
+	  Since commit d00e0b61 appsink keeps a local reference of the current sample in
+	  order to reduce allocations. However not clearing its contents upon flush events
+	  would prevent associated buffers from being cleared from their pool.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11931>
+
+2026-06-15 09:52:41 +1000  Jan Schmidt <jan@centricular.com>
+
+	* tests/check/elements/inputselector.c:
+	  inputselector: Adjust racy test
+	  Modify the end condition for the input-selector test. The test
+	  is inherently and deliberately racy, but could previously end up
+	  in a degenerate timing condition where one input would get serviced
+	  much more often than the other, and the test would time out instead
+	  of reaching its end condition.
+	  Timeouts should always indicate that the test got actually stuck
+	  due to a deadlock or so, rather than that the test was unfair.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11928>
+
+2026-06-23 15:16:22 +0200  François Laignel <francois@centricular.com>
+
+	* gst-libs/gst/pbutils/gstaudiovisualizer.c:
+	  base audiovisualizer: copy metas to the output video buffer
+	  This commit copies metas from the combined audio buffers pulled out of the
+	  adapter to the output video buffer. For each Reference Timestamp reference type,
+	  only the latest Reference Timestamp meta from the original buffers is retained.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11857>
+
+2026-06-23 08:33:21 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/audio/audio-format.c:
+	  audio-format: Add static assert to prevent list of formats mismatch
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11917>
+
+2026-06-22 12:42:32 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/video/video-format.c:
+	  video-format: Add static assert to prevent list of formats mismatch
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11917>
+
+2026-06-15 09:54:15 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Uniformly handle EOS events being pushed
+	  Treat an EOS event being sent to appsrc via gst_element_send_event()
+	  the same as if the gst_app_src_end_of_stream() method / signal were used,
+	  otherwise pipelines can get stuck with the appsrc pushing thread
+	  having shut down, but the gst_app_src_push_*() methods not
+	  returning GST_FLOW_EOS to inform the caller. The appsrc
+	  ends up still accepting / queueing data it won't send.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11924>
+
+2026-06-22 12:44:39 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Handle fractions with 0 denominator as invalid
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11912>
+
+2026-06-22 11:07:43 +0900  Seungha Yang <seungha@centricular.com>
+
+	* meson.build:
+	  msvc: Fix build after adding new tracer macros
+	  MSVC's legacy preprocessor does not expand variadic args in
+	  recursive macros correctly, causing new tracer macros to fail
+	  with cl version 19.41.34120.
+	  Use standard conforming preprocessor mode instead
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11907>
+
+2026-03-30 09:44:27 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/pbutils/descriptions.c:
+	* tests/check/libs/pbutils.c:
+	  gdkpixbufdec: remove Sun and Andrew raster formats
+	  They were both removed in 2.32.1:
+	  https://github.com/GNOME/gdk-pixbuf/commit/af2fca9bba5c127ca092c3a4bf7656015d6168ad
+	  Moreover, the Andrew raster format (image/x-cmu-raster) doesn't match at
+	  all the Sun raster format, the former is similar to LaTeX while the
+	  latter is binary.
+	  As a double safety measure, let's bump the minimum gdk-pixbuf version as
+	  2.32.1 was released in 2015 [1] while 2.8.0 is from 2005 [2].
+	  Fixes #5004
+	  [1]: https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/tags/2.32.0
+	  [2]: https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/tags/GTK_2_8_0
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11183>
+
+2026-06-18 10:47:32 +0200  Thomas Devoogdt <thomas.devoogdt@barco.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  mikey: Allow disabling SRTP/SRTCP encryption and SRTP authentication
+	  Add support for the SRTP_ENC (Type 7), SRTCP_ENC (Type 8), and SRTP_AUTH
+	  (Type 10) on/off flag in the MIKEY Security Policy (SP) payload, as defined
+	  in RFC 3830 Section 6.10.1.
+	  While SRTCP message authentication is MANDATORY and must not use NULL
+	  or weak authentication (per RFC 3711 Sections 3.4 and 9.5), SRTP itself
+	  does not strictly require authentication.
+	  Less common is to turn the encryption off, but add to be complete
+	  (per RFC 3711 Section 3.1 and 5).
+	  To support configurations where SRTP authentication is turned off while
+	  keeping SRTCP authentication enabled, this commit decouples the parsing
+	  of 'srtp_auth' and 'srtcp_auth' within the MIKEY implementation.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11880>
+
+2026-06-15 12:38:31 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstvorbistag.c:
+	  vorbistag: Check for enough base64 data before trying to decode
+	  g_base64_decode_inplace() asserts if fewer than 2 bytes are available.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11855>
+
+2026-06-15 12:36:33 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstvorbistag.c:
+	  vorbistag: Use gsize for lengths and avoid overflows
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11855>
+
+2026-06-14 21:47:25 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Don't allocate -1 bytes of memory if there's only a single tag
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11850>
+
+2026-06-14 21:13:47 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Don't allow very small framerates for microdvd subtitles
+	  Very small framerates close to 0.0 would become 0/1 and still lead to a division
+	  by zero. Use 1/1000 as minimum and 1000/1 as maximum framerates for subtitles.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11849>
+
+2026-06-12 12:20:36 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer.c:
+	  discoverer: Lock the DISCO_LOCK whenever accessing the streams list
+	  The list is accessed from multiple threads, possibly at the same time.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11838>
+
+2026-06-04 12:39:38 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Avoid zero and extreme fps when parsing mdvdsub subtitles
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5068
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11795>
+
+2026-06-04 12:16:07 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	* gst-libs/gst/tag/id3v2.h:
+	* gst-libs/gst/tag/id3v2frames.c:
+	  id3v2: Improve const-correctness and use correct size type
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11794>
+
+2026-06-04 12:16:03 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/id3v2frames.c:
+	  id3v2: Check for enough data when reading RVA2 tags
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5067
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11794>
+
+2026-06-04 12:15:58 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Don't modify const data
+	  Also actually store caps for custom ID3v2 frames in the sample.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5045
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11794>
+
+2026-06-04 12:04:58 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Make sure to keep the temporary array always NUL-terminated during parsing
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5066
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11793>
+
+2026-06-04 12:04:54 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Correctly initialize pointer to the end of the input array
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5066
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11793>
+
+2026-06-04 12:04:44 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstxmptag.c:
+	  xmptag: Improve const-correctness in parser
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11793>
+
+2026-06-02 17:52:06 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtcpbuffer.c:
+	* tests/check/libs/rtp.c:
+	  rtcpbuffer: Add some missing bounds checks when parsing SDES
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5047
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11791>
+
+2026-06-02 17:51:53 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/check/libs/rtp.c:
+	  rtp: Fix various bool assertions in test
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11791>
+
+2026-06-02 15:06:45 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	* tests/check/elements/audiomixer.c:
+	  audioaggregator: Remove brittle conversion of in-progress buffers
+	  The sinkpad converters cannot be used to re-convert the internal buffers
+	  because the `converter-config` could be invalid for this conversion. For
+	  example, a conflicting `mix-matrix` will cause the conversion to fail.
+	  In case of the converted input buffers, just remove them. On aggregate
+	  we will re-convert and re-align the same input buffer.
+	  In case of the partially-written output buffer, we cannot convert them
+	  without potentially causing data loss or glitches. Since ad-hoc
+	  conversion is brittle, just drop the converted output buffer.
+	  A more elaborate implementation could keep already-mixed input buffers
+	  around in case we need to recreate the entire output buffer. However,
+	  that is not the aim of this commit.
+	  Co-authored-by: Sebastian Dröge <sebastian@centricular.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1037>
+
+2026-06-03 11:09:15 +0200  Dino Spiller <dinos@axis.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	  audio-resampler-neon: re-increment address
+	  The original code contained an increment on the "a" and "b" variables
+	  that has been removed by last patch, resulting in several artifacts in
+	  the sound. Restored the increment, to get back to the correct behavior.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11752>
+
+2026-06-02 17:02:00 +0100  Arthur Chan <arthur.chan@adalogics.com>
+
+	* gst-libs/gst/pbutils/encoding-profile.c:
+	  pbutils: Fix possible null dereferene when empty string is provided
+	  Signed-off-by: Arthur Chan <arthur.chan@adalogics.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11744>
+
+2026-06-02 17:07:49 +0100  Arthur Chan <arthur.chan@adalogics.com>
+
+	* gst-libs/gst/pbutils/encoding-profile.c:
+	  pbutils: Add NULL check for tmpcaps parsing
+	  Signed-off-by: Arthur Chan <arthur.chan@adalogics.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11745>
+
+2026-05-22 16:04:04 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstglalphacombine.c:
+	* ext/gl/gstglalphacombine.h:
+	* tests/check/pipelines/gl-launch-lines.c:
+	  glalphacombine: Add 2D texture target support for both sink pads
+	  Each sink pad can now receive 2D or external-oes textures, and the
+	  generated shader is adjusted accordingly so each sampler has the right type.
+	  This makes the element usable with other OpenGL elements, and makes it
+	  possible to add automated tests.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11678>
+
+2026-05-22 14:37:52 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* ext/gl/gstglalphacombine.c:
+	* ext/gl/gstglalphacombine.h:
+	* ext/gl/gstglelements.h:
+	* ext/gl/gstopengl.c:
+	* ext/gl/meson.build:
+	  opengl: Add new glalphacombine element for RGBA inputs
+	  Performs the alphacombine operation typically required for decoding VP8/VP9
+	  streams that include separate buffers for alpha. Because Android's VP9
+	  decoder produces its GL output through RGBA textures, even when decoding the
+	  alpha buffers, this element has to allow taking alpha values from color
+	  components.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11678>
+
+2026-05-21 00:50:55 +0530  Taruntej Kanakamalla <tarun@centricular.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	* tests/check/libs/sdp.c:
+	  sdp: keep level-asymmetry-allowed in the caps
+	  Looking at the caps generated from SDP, without the `level-asymmetry-allowed`` field,
+	  there is no way to tell if its value is 1 or not set (i.e 0) by the remote
+	  peer.
+	  So retain the `level-asymmetry-allowed` field in the caps so that, it can be used
+	  along with the `profile-level-id` to determine the compatible `level` values
+	  during the negotiation
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11667>
+
+2024-09-03 19:20:22 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstdecodebin2.c:
+	  decodebin2: Use gst_value_take_structure()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7647>
+
+2026-05-26 22:29:47 +0900  Shigeharu Kamiya <s_kamiya@toa.co.jp>
+
+	* gst-libs/gst/rtsp/gstrtspconnection.c:
+	  rtspconnection: expose the assigned CSeq on outgoing request messages
+	  gst_rtsp_connection_send_usec() used to write the CSeq directly into the
+	  serialized wire buffer via printf, without adding it to the message's
+	  hdr_fields.  As a result, callers could not read back the assigned CSeq
+	  via gst_rtsp_message_get_header (GST_RTSP_HDR_CSEQ, ...) after the
+	  message was sent.
+	  Add the CSeq to hdr_fields as well so callers can retrieve it just like
+	  any other header.  This is needed by the independent keep-alive worker
+	  in rtspsrc (!11544) to track the CSeq it sent.
+	  The wire write is now routed through gst_rtsp_message_append_headers()
+	  to avoid duplicating the CSeq line in the serialized output.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11544>
+
+2026-05-28 22:57:43 +0200  László Károlyi <laszlo@karolyi.hu>
+
+	* gst-libs/gst/riff/riff-ids.h:
+	  wavparse: handle uppercase 'ID3 ' chunk fourcc for ReplayGain tags
+	  Tools like loudgain write ID3 tags into WAV files using the uppercase
+	  'ID3 ' fourcc (0x49443320) while GStreamer only recognized the lowercase
+	  'id3 ' variant (0x69643320), silently dropping all embedded tags.
+	  Add GST_RIFF_TAG_ID3 to riff-ids.h and fall through to the existing
+	  id3 handler in gstwavparse so both variants are parsed identically.
+	  Add two new tests verifying that ReplayGain track gain is correctly
+	  read from WAV files containing either the lowercase or uppercase ID3
+	  chunk fourcc.
+	  Assisted-By: Claude:claude-4.6-sonnet claude-code
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11711>
+
+2026-05-24 00:53:49 +0200  Robert Mader <robert.mader@collabora.com>
+
+	* gst-libs/gst/gl/egl/gstglmemoryegl.c:
+	  gl: egl: Set TRANSFER_NEED_DOWNLOAD flag
+	  Bringing _gl_mem_egl_alloc() in line with _gl_mem_pbo_alloc() and
+	  ensuring glReadPixels() is used when downloading imported dmabufs.
+	  Closes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/4965
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11681>
+
+2026-05-21 15:38:50 +0200  Dino Spiller <dinos@axis.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	  audio-resampler-neon: fix accumulated stride
+	  The stride is accumulated, resulting in unintended excessive shift.
+	  Modified by saving the base address to the register and successively
+	  adding the strides.
+	  Fixed also a missing load that was present in previous code.
+	  Change-Id: Icedd56397c745b1c7603edc45a825b6a78b16b11
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11672>
+
+2025-11-18 14:06:15 +0100  Albert Sjölund <alberts@axis.com>
+
+	* ext/alsa/gstalsasrc.c:
+	  alsa: fix deadlock during shutdown
+	  Previously, due to being blocking and having no mechanism for graceful
+	  shutdown, it would hang if there is no data available. Instead,
+	  implement a similar mechanism as in alsasink to handle this, by using
+	  snd_pcm_wait and yield.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10265>
+
+2026-02-04 17:47:30 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer-types.c:
+	* gst-libs/gst/pbutils/gstdiscoverer.h:
+	* tests/check/libs/discoverer.c:
+	  pbutils: discoverer: add builder API for GstDiscovererInfo
+	  Add a programmatic builder API for constructing GstDiscovererInfo
+	  objects without running the actual discoverer.
+	  This serves two main use cases:
+	  - Applications like GES that need to create discovery results for
+	  nested timelines or synthetic sources where metadata is already known
+	  - Future Rust reimplementation of GstDiscoverer, where the builder
+	  allows constructing the C-based GstDiscovererInfo for backward
+	  compatibility with existing API consumers
+	  The API mirrors the GstDiscovererInfo hierarchy: an info builder
+	  takes a single stream_info which can be either a standalone stream
+	  or a container holding multiple streams. All essential parameters
+	  are required at construction time, making the API hard to misuse.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11469>
+
+2026-05-22 20:34:26 +0200  Robert Mader <robert.mader@collabora.com>
+
+	* gst-libs/gst/video/gstvideodmabufpool.c:
+	  videodmabufpool: Fix debug category
+	  Without this define the default category is used, i.e.
+	  GST_DEBUG=video-dmabuf-pool:5 doesn't work.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11676>
+
+2026-05-20 14:52:59 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/video/gstvideodscmeta.h:
+	  video: fix doc chunk for GST_VIDEO_DSC_VERIFICATION_META_INFO
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11665>
+
+2026-05-15 12:16:23 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/gl/gstglfilter.c:
+	  glfilter: Don't manually ensure that GL caps features are in the transformed caps
+	  This prevents subclasses from allowing passthrough of non-GL caps and if the
+	  feature is actually required then a) caps transformation needs to preserve it,
+	  b) not having it would fail negotiation later.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11408>
+
+2026-04-23 01:07:53 +0200  Robert Mader <robert.mader@collabora.com>
+
+	* ext/gl/gstglcolorbalance.c:
+	  gl: colorbalance: Fix caps transformation in passthrough mode
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5052
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11408>
+
+2026-05-15 10:46:15 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Don't unnecessarily assert on size==0 when unsyncing data
+	  Simply return NULL and let the callers handle it, which all handle this
+	  correctly already.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11636>
+
+2026-05-14 15:42:21 +0200  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: fix memleak on failure path
+	  In function _udmabuf_upload_transform_caps(), the capsfeature variable
+	  `passthrough` was leaked if `intersected_caps` and empty, when pad direction is
+	  not GST_PAD_SINK.
+	  The simplest approach would be just add `gst_caps_features_free()` before the
+	  `goto out`, but it looks better to refactor a little bit the function, so two
+	  common variables to both blocks of the main `if`, would have a single point of
+	  deallocation.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11623>
+
+2026-05-14 16:41:42 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst/playback/gsturidecodebin3.c:
+	  uridecodebin3: Use PLAY_ITEMS_LOCK for URI-related getter
+	  The setter is using that lock.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11627>
+
+2026-05-03 23:29:45 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* ext/ogg/gstoggdemux.c:
+	* gst-libs/gst/tag/gsttagdemux.c:
+	  gst: Pass a strong reference to the user_data to gst_pad_start_task()
+	  Otherwise the object could get disposed while the task function is still
+	  running, leading to crashes and worse.
+	  While this technically creates a reference cycle in most cases, this is not
+	  actually a problem because the task has to be stopped before the element and pad
+	  can get disposed and anything else leads to exactly the problem this is solving.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11489>
+
+2026-05-03 11:59:38 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	* gst-libs/gst/audio/gstaudioaggregator.h:
+	  audioaggregator: Add gst_audio_aggregator_has_current_output_buffer()
+	  This allows subclasses to check if there's currently a pending output buffer and
+	  in that case delay renegotiation to avoid converting/dropping this buffer.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11486>
+
+2026-05-11 10:59:08 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gsturidecodebin.c:
+	  uridecodebin: Protect missing_plugin_errors list from concurrent access
+	  Otherwise this can lead to memory corruption or leaks.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11576>
+
+2026-05-08 12:44:20 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/gl/gstglwindow.c:
+	  glwindow: Allow setting a NULL window handle
+	  Otherwise it's not possible to go back into the original state and a dangling
+	  window handle might still be used by the window.
+	  All our Android tutorials, for example, are setting the handle back to NULL when
+	  the surface disappears and backends also seem to already handle this just fine.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11542>
+
+2026-05-01 11:39:49 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/examples/audio/audiobasesink-custom-clock-slaving.c:
+	  gst: systemclock: Add gst_system_clock_new() to create a new instance of the system clock
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11474>
+
+2025-12-05 13:47:26 +0100  Diego Nieto <dnieto@fluendo.com>
+
+	* gst-libs/gst/video/gstvideodscmeta.c:
+	* gst-libs/gst/video/gstvideodscmeta.h:
+	* gst-libs/gst/video/meson.build:
+	  video: add video Digital Signed Content meta
+	  Add the following metas:
+	  * GstVideoDigitalSignedContentContentInitializationMeta
+	  * GstVideoDigitalSignedContentContentSelectionMeta
+	  * GstVideoDigitalSignedContentContentVerificationMeta
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10435>
+
+2025-12-16 17:41:16 +0100  Diego Nieto <dnieto@fluendo.com>
+
+	* gst-libs/gst/video/gsth274.c:
+	* gst-libs/gst/video/gsth274.h:
+	* gst-libs/gst/video/meson.build:
+	  h266parser: add API for SEI parsers and writers
+	  Add support for some of the ITU-T H.274 - ISO/IEC 23002-7 SEI messages in the
+	  H.266/VVC parser:
+	  * user data registered
+	  * user data unregistered
+	  This patch introduces:
+	  * gst_h266_create_sei_memory
+	  * gst_h266_create_sei_memory_vvc
+	  * gst_h266_parser_insert_sei
+	  * gst_h266_parser_insert_sei_vvc
+	  to allow the creation and insertion of SEI messages into the parsed
+	  bitstream
+	  t adds SEI structures for:
+	  * GST_H266_SEI_DIGITALLY_SIGNED_CONTENT_INITIALIZATION
+	  * GST_H266_SEI_DIGITALLY_SIGNED_CONTENT_SELECTION
+	  * GST_H266_SEI_DIGITALLY_SIGNED_CONTENT_VERIFICATION
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10435>
+
+2026-04-07 13:09:24 +0100  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* meson.build:
+	  meson: Require C std gnu11 or c11
+	  When using gcc or clang, gnu11 will be used, and when using MSVC c11
+	  will be used which will pass /std:c11. This provides us with the
+	  `restrict` keyword on all supported platforms.
+	  We can do this now because we require Visual Studio 2019.
+	  This feature was added in Meson 1.3
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11266>
+
+2026-04-30 18:12:13 +0200  François Laignel <francois@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioencoder.c:
+	* gst-libs/gst/audio/gstaudioencoder.h:
+	* gst-libs/gst/video/gstvideoencoder.c:
+	* gst-libs/gst/video/gstvideoencoder.h:
+	  audio/video: add prepare_allocator virtual method
+	  Same as with base classes for core.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11425>
+
+2026-05-05 10:34:45 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/pbutils/gstdiscoverer.c:
+	  discoverer: Take the DISCO_LOCK while parsing stream topology
+	  pad-added/removed on uridecodebin can modify the structures this is iterating
+	  over, which can then lead to a use-after-free if timing is very bad.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11497>
+
+2026-04-30 23:31:12 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	  audio-resampler-neon: fix Thumb encoding and use Clang O2 calculation for strides
+	  Fixes #5075
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11472>
+
+2026-04-22 15:17:01 +0900  Elliot Chen <elliot.chen@nxp.com>
+
+	* tests/check/libs/videodecoder.c:
+	  videodecoder: add test for receiving gap event when caching frame
+	  the new gap event should based on current position if the received
+	  gap event is cached. If there is no output segment event, send it
+	  and all the events received before it in order first.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11278>
+
+2026-04-13 18:10:35 +0900  Elliot Chen <elliot.chen@nxp.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: send a new gap event with current position if the received gap event is cached
+	  For some streams, video track is very sparse and video decoder may not
+	  output decoded frame immediately to sink to finish pre-roll and demuxer
+	  will send gap event instead.
+	  Create a new gap event based on current position and send it immediately
+	  if the received gap event is cached. If there is a cached segment event,
+	  send it and all the events received before it in order first.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11278>
+
+2026-05-03 10:43:43 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't reset samples_per_buffer when updating latency
+	  There's no relation at all between these two values. Instead only reset it
+	  when the output buffer duration property changes.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11484>
+
+2026-05-03 10:41:34 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't reset samples_per_buffer unless sample rate has changed
+	  The value only depends on the output-buffer-duration property and the sample
+	  rate, so resetting it is unnecessary unless the rate changes.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11484>
+
+2026-03-27 21:27:37 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst-libs/gst/video/gstvideoencoder.c:
+	* tests/check/libs/videoencoder.c:
+	  videoencoder: Support adaptive presets via property alternatives
+	  When a preset is loaded on a video encoder, scan its properties for
+	  alternatives (for example bitrate[1920x1080]=8000). At set_format() time,
+	  before calling the subclass, evaluate the alternatives against the
+	  incoming video resolution and framerate and set the right value.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11092>
+
+2026-05-02 18:12:59 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't drop pending input buffers on sinkpads on srcpad caps changes
+	  If there is no conversion support on the sinkpads then the subclass must be able
+	  to handle the buffer independent of the srcpad caps, so dropping it is
+	  unnecessary.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11482>
+
+2026-05-01 20:31:52 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudioaggregator.c:
+	  audioaggregator: Don't try converting buffers on caps changes if impossible
+	  If there is no conversion function then the best we can do is to just not
+	  convert and drop the buffers, and then continue processing from the next
+	  buffers.
+	  Anything else will cause assertions.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11477>
+
+2026-04-19 11:15:08 +0200  Fabien Danieau <fabien.danieau@pollen-robotics.com>
+
+	* gst-libs/gst/pbutils/codec-utils.c:
+	* gst-libs/gst/pbutils/codec-utils.h:
+	  pbutils: Add gst_codec_utils_h264_get_level_limits() helper
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11154>
+
+2026-04-30 17:39:00 +0200  Mathieu Duponchelle <mathieu@centricular.com>
+
+	* gst/playback/gstdecodebin2.c:
+	  decodebin2: fix leak of endpads list on shutdown while exposing
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11468>
+
+2026-04-23 11:12:28 +0200  Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+
+	* gst-libs/gst/video/video-info-dma.c:
+	  libs: video: add precondition check on dma helpers
+	  For not invalid fourcc and modifiers. Also, check caps object type.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11445>
+
+2026-04-21 12:07:20 +0200  Santiago Carot-Nemesio <sancane@gmail.com>
+
+	* gst/audioresample/gstaudioresample.c:
+	* tests/check/elements/audioresample.c:
+	  audioresample: Fix extra samples produced at speech-to-silence transitions
+	  When audiorate fills a PTS gap with GAP-flagged silence buffers and
+	  these reach audioresample, the element calls push_drain() to flush
+	  the FIR filter tail during the transition from non-gap to gap samples.
+	  This pushes an extra buffer downstream (bypassing BaseTransform)
+	  containing the filter's residual output — roughly 128 samples at 16 kHz
+	  per transition.
+	  Since the incoming data is silence (GAP), the filter tail is also
+	  silence, so these extra samples are audibly meaningless but they break
+	  sample-count accounting in downstream elements that rely on exact
+	  timestamp/duration correspondence.
+	  Fix this by replacing push_drain() with dump_drain() in the GAP path.
+	  dump_drain() feeds the same zeros into the filter to stabilize it, but
+	  discards the output instead of pushing it downstream.
+	  Includes a test that feeds audiorate ! audioresample with a 140 ms
+	  timestamp gap and verifies that exactly 6 output buffers are produced
+	  (not 7), with correct PTS, duration, and GAP flags.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11394>
+
+2026-04-22 16:03:15 -0400  Xavier Claessens <xclaessens@netflix.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsink: Allow passing NULL callbacks
+	  Otherwise there is no way to stop receiving those
+	  callbacks. Implementation already explicitly allows it.
+	  gst_app_sink_set_simple_callbacks() already allows it too.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11407>
+
+2026-04-16 21:51:16 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstgldownloadelement.c:
+	* ext/gl/gstgluploadelement.c:
+	  video: add `Uploader` / `Downloader` to memory-transfer elements
+	  Adopt the new keywords from docs/design/draft-klass.md on every
+	  memory uploader/downloader (glupload/gldownload, cudaupload/
+	  cudadownload, vulkanupload/vulkandownload, d3d11upload/d3d11download,
+	  d3d12upload/d3d12download, hipupload/hipdownload) so registry-driven
+	  consumers can pick them unambiguously.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11388>
+
+2026-04-16 21:38:25 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstglcolorconvertelement.c:
+	  video: add `Colorspace` to the colorspace-converter klasses
+	  Matches the keyword `videoconvert` already carries, and covers the
+	  other colorspace converters (glcolorconvert, cudaconvert, the D3D11
+	  / D3D12 / HIP equivalents, vulkancolorconvert) plus the combined
+	  D3D11 / D3D12 convert elements that handle colorspace conversion
+	  too.
+	  vulkancolorconvert had `Filter/Video/Convert` which also missed
+	  `Converter` - add it alongside `Colorspace`.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11388>
+
+2026-04-16 19:48:46 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstgldeinterlace.c:
+	  gl: gldeinterlace: add `Filter`, `Converter` and `Video` to klass
+	  Align with the other deinterlacers. A deinterlacer converts
+	  interlaced frames into progressive ones, so `Converter` rather than
+	  `Effect`.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11388>
+
+2026-04-16 19:48:46 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* docs/plugins/gst_plugins_cache.json:
+	* ext/gl/gstglcolorscale.c:
+	  gl: glcolorscale: add `Scaler` to klass
+	  The element has been scale-only since colorspace support moved to
+	  glcolorconvert; catching the metadata up.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11388>
+
+2026-04-22 15:12:04 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	* gst-libs/gst/gl/gstglformat.c:
+	  gl: add GBRA swizzle support
+	  Handle GBRA in the GL video format swizzle table, and use the same GBR
+	  component reorder for input and output planar RGB conversions.  This lets
+	  GBRA follow the existing planar RGB reorder path instead of reaching the
+	  unhandled swizzle case.
+	  Fixes #5060
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11405>
+
+2026-04-22 15:10:55 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* tests/check/libs/gstglcolorconvert.c:
+	  gl/tests: make colorconvert meta test robust
+	  Check that textoverlay is available before constructing the meta test
+	  pipeline, and report parser errors from gst_parse_launch() directly.  This
+	  keeps the test from continuing with a partial pipeline in environments where
+	  textoverlay is not visible to the Meson test sandbox.
+	  Use a bounded preroll wait so failures in the helper pipeline cannot hang the
+	  whole gstglcolorconvert test binary.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11405>
+
+2026-04-22 15:08:21 -0400  Dominique Leroux <dominique.p.leroux@gmail.com>
+
+	* tests/check/libs/gstglcolorconvert.c:
+	  gl/tests: cover planar RGB reorder conversion
+	  Add focused coverage for conversions between packed RGBA and planar RGB
+	  formats in gstglcolorconvert.  The test keeps planar GL inputs as one
+	  GstGLMemory per texture plane, because mapping the input buffer as a
+	  GstVideoFrame before conversion can collapse or otherwise alter the memory
+	  layout that the converter is meant to consume.
+	  The failure messages include the input format, output format, plane,
+	  offset, and byte values so component-swizzle mistakes are directly
+	  visible from the test log.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11405>
+
+2026-04-22 16:02:10 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* ext/gl/gstglimagesink.c:
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  opengl: Fix glcolorconvert vertical flip issue on crop
+	  The same crop vertices was applied to both glimageisnk and glcolorconvert
+	  despite the image orientation being opposite. To avoid more errors in the
+	  future, simply multiply the texture coordinate by their cropped size. This allow
+	  having exactly the same code in both element.
+	  Fixes #5061
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11406>
+
+2024-01-09 15:22:55 +0200  Vivia Nikolaidou <vivia@ahiru.eu>
+
+	* gst/compositor/compositor.c:
+	* tests/check/elements/compositor.c:
+	  compositor: Fix caps negotiation for messy downstream caps
+	  compositor was assuming that the first structure of the downstream caps
+	  was the preferred one. That may not always be the case, it might come
+	  from e.g. a tee, which is media agnostic and just zig-zags the
+	  structures. We should instead try to negotiate the best possible quality
+	  out of the combination of downstream caps.
+	  First we try to use square pixels, otherwise any PAR the default negotiation has
+	  fed us with. Then we try to pick the best dimensions/framerate, giving priority
+	  to dimensions over framerate if we can't get the best for both.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11342>
+
+2026-04-21 23:15:52 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Ensure that pad-blocking waits for an in-progress reconfigure
+	  Reconfiguration can now drop the playsink lock, introducing a race
+	  where pads might get blocked and request another reconfiguration
+	  as one is happening. When the reconfigure completes it would
+	  clear the pad blocks unconditionally and yield a not-linked
+	  upstream instead of proceeding to reconfigure again.
+	  Fixes a race introduced in !11195
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11401>
+
+2026-04-20 09:23:31 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	* gst-libs/gst/tag/id3v2.h:
+	  id3v2: Check valid frame sizes more
+	  An empty frame data size is invalid and should be ignored.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5049
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11379>
+
+2026-04-13 20:54:18 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Use a hashtable instead of a linked list for storing the pending tags
+	  This considerably speeds up parsing of huge exif chunks.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11326>
+
+2026-04-13 20:23:23 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Error out if there's more than 64 levels of SAMI element nesting
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-13 20:08:21 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Skip lines with invalid element/tag names or attribute names
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-13 20:04:07 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Skip comment elements, DOCTYPE, [CDATA etc
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-13 19:50:25 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Truncate HTML context buffer when resetting the context too
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-13 19:31:20 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/samiparse.c:
+	  samiparse: Improve const-correctness and don't modify const input string
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-13 19:25:13 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Free error if stripping pango markup fails
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-13 19:23:04 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Use a GString to accumulate text results from GMarkupParser
+	  Repeated g_strconcat() is unnecessarily inefficient.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11325>
+
+2026-04-16 15:38:40 +0100  Arthur Chan <arthur.chan@adalogics.com>
+
+	* gst/subparse/qttextparse.c:
+	  subparse: Fix memory leakage for fgcolor and bgcolor
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11357>
+
+2026-03-03 18:04:20 -0300  Thibault Saunier <tsaunier@igalia.com>
+
+	* tests/validate/compositor/renogotiate_failing_unsupported_src_format.validatetest:
+	* tests/validate/encodebin/set-encoder-properties.validatetest:
+	* tests/validate/fakevideodec/encoded.validatetest:
+	* tests/validate/fakevideodec/simple.validatetest:
+	* tests/validate/giosrc/read-growing-file.validatetest:
+	* tests/validate/uridecodebin/expose_raw_pad_caps.validatetest:
+	* tests/validate/videorate/10_to_1fps.validatetest:
+	* tests/validate/videorate/change_rate_reverse_playback.validatetest:
+	* tests/validate/videorate/change_rate_while_playing.validatetest:
+	* tests/validate/videorate/drop_out_of_segment.validatetest:
+	* tests/validate/videorate/duplicate_on_eos.validatetest:
+	* tests/validate/videorate/duplicate_on_eos_disbaled.validatetest:
+	* tests/validate/videorate/duplicate_on_eos_half_sec.validatetest:
+	* tests/validate/videorate/fill_segment_after_caps_changed_before_eos.validatetest:
+	* tests/validate/videorate/rate_2_0.validatetest:
+	* tests/validate/videorate/reverse.10_to_30fps.validatetest:
+	* tests/validate/videorate/reverse.30fps.validatetest:
+	* tests/validate/videorate/reverse_fast.variable_to_10fps.validatetest:
+	* tests/validate/videorate/reverse_slow.variable_to_10fps.validatetest:
+	  validate: Reindent all validatetest files
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/10965>
+
+2024-09-18 15:57:11 +0300  Vivia Nikolaidou <vivia@ahiru.eu>
+
+	* gst-libs/gst/video/gstvideotimecode.h:
+	  gstvideotimecode: Add timecode discont flag
+	  It has to be signalled in the h264 pic_struct message, and transcoding
+	  should preserve that flag in the output. The buffer DISCONT flag is too
+	  generic and using it would have lead to false positives in both the
+	  video and the timecode paths.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11268>
+
+2026-03-20 14:25:40 -0400  Monty C <montyc1999@gmail.com>
+
+	* gst-libs/gst/gl/gstglfilter.c:
+	  glfilter: fix not rangifying size caps when in passthrough
+	  This fixes glcolorconvert being unable to come out of passthrough
+	  mode when input size changes.
+	  This behavior was originally added to prevent overwriting caps
+	  features when in passthrough mode, but that has since been fixed
+	  independently.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11090>
+
+2026-04-11 15:39:47 +0100  Philippe Normand <philn@igalia.com>
+
+	* gst-libs/gst/video/gstvideodmabufpool.c:
+	  videodmabufpool: Break ref cycle between the pool and its thread
+	  The GThread stored in the pool was taking a strong ref of the pool itself, thus
+	  preventing full disposal later on and introducing several memory leaks.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11313>
+
+2026-03-25 20:45:00 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Re-work reconfiguration locking
+	  There was a deadlock encountered when playsink is reconfiguring
+	  internally, because it holds the PLAYSINK_LOCK while changing state
+	  of internal elements.
+	  If an element (like pulsesink) notifies the volume or mute property at the
+	  moment, it happens from the state change thread, and can lead to the app
+	  trying to retrieve the updated volume, which blocks trying to take the playsink
+	  lock, preventing the reconfiguration state change from ever finishing.
+	  To fix this, we need to drop the playsink lock in various places during
+	  reconfiguration. To ensure that reconfiguration is still otherwise
+	  atomic, add a guard mechanism with another lock and a cond that
+	  ensures serialisation, and waiting for ongoing reconfigurations to
+	  complete.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11195>
+
+2026-03-24 11:42:59 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Don't modify pad pointers outside lock
+	  Reorder the pad release method to avoid storing
+	  NULL to structure members outside the lock.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11195>
+
+2026-04-11 16:44:05 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Add input validation and refactor id3v2_ununsync_data
+	  The ID3v2 specification uses data unsynchronisation to prevent 0xff 0x00
+	  sequences from being mistaken for sync bytes. The ununsync_data() function
+	  removes this protection by replacing 0xff 0x00 with 0xff bytes.
+	  The function previously accepted any pointer without validation, risking
+	  crashes on NULL inputs. The pointer-based iteration was also harder to
+	  follow and more error-prone than index-based access.
+	  The loop now uses indices instead of pointer arithmetic, making the bounds check
+	  and byte-skipping logic clearer.  Providing invalid inputs is a programming
+	  error.  on error.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11314>
+
+2026-04-11 10:38:10 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	  appsrc: Fix dropped counting with bufferlist
+	  * buflist is the incoming bufferlist (and not the one we are dropping)
+	  * buflist could be NULL
+	  Instead, properly use the actual item buffer list we are dropping
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11311>
+
+2026-03-31 12:22:11 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Use byte readers for parsing consistently
+	  As a side effect this avoids mapping the same buffer multiple times and
+	  simplifies the code generally.
+	  Also completely refactor parsing of tags with "complementary tags", i.e. units
+	  or other kinds of additional information that are necessary for parsing the main
+	  tag. Previously these were side-stepping the whole parsing code and at the same
+	  time assumed specific order of the two tags, which made parsing fail if the
+	  order was different than assumed. There were also two completely different
+	  approaches for handling them, which are now unified.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11296>
+
+2026-04-09 11:51:38 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Check denominator of fractions are valid
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11287>
+
+2026-04-09 11:36:17 +0200  Edward Hervey <edward@centricular.com>
+
+	* gst-libs/gst/tag/id3v2.c:
+	  id3v2: Prevent undefined behaviour when shifting
+	  Unless specified, operations on types smaller than `int` are promoted
+	  to (signed) int. That would result in `0xff << 24` being a negative
+	  value (highest bit set).
+	  Instead, make it clear by casting to a guint.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11287>
+
+2026-03-27 14:45:30 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* tests/examples/seek/jsseek.c:
+	* tests/examples/seek/scrubby.c:
+	  aasink: remove aalib-based ASCII rendering plugin
+	  Superseded by Rust viuer plugin.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11172>
+
+2026-03-27 14:45:30 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* tests/examples/seek/jsseek.c:
+	* tests/examples/seek/scrubby.c:
+	  caca: remove libcaca-based ASCII rendering plugin
+	  Superseded by Rust viuer plugin.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11172>
+
+2026-04-07 11:58:30 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	  audio-resampler-neon: read array operand by hand, part 2
+	  Fixes #5015
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11270>
+
+2024-07-30 17:21:23 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	  videotimecode: Improve gst_video_time_code_increment_frame
+	  - Use `guint64` throughout to reduce the number of casts.
+	  - Use `gst_video_time_code_frames_since_daily_jam` instead of
+	  duplicating the math.
+	  - Refactor the drop frame code to make it more comprehensible, with less
+	  intransparent variable names. The calculation should be the same.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7317>
+
+2024-07-30 16:20:02 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	  videotimecode: Improve gst_video_time_code_frames_since_daily_jam
+	  - Rename variables to make calculations easier to read.
+	  - Use `guint64` throughout to reduce the number of casts.
+	  - For frames longer than a second, round up.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7317>
+
+2024-07-30 16:14:12 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/video/gstvideotimecode.c:
+	  videotimecode: Replace a G_GINT64_CONSTANT with GST_USECOND
+	  A minor readability improvement.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/7317>
+
+2026-04-07 10:50:22 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/qttextparse.c:
+	  subparse: Fix integer overflow when calculating qttext timestamp
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11255>
+
+2026-03-31 12:11:37 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Parse sensitivity value with the correct number of bits and endianness
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11246>
+
+2026-03-31 12:09:16 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Add missing bounds check and integer overflow protections in various places
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/4996
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11246>
+
+2026-03-31 11:59:11 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Use g_malloc() instead of malloc()
+	  The memory is going to be freed later with g_free().
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11246>
+
+2026-03-26 19:27:22 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Remove dead code in AV1 LEB128 parser
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11245>
+
+2026-03-26 19:19:19 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Allow G_MAXUINT32 as LEB128 encoded value when parsing AV1 bitstreams
+	  The spec states that any value less than or equal to (1<<32) - 1 should be
+	  accepted but we were rejecting (1<<32) - 1.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11245>
+
+2026-03-26 18:59:11 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Use a byte reader for parsing AV1 bitstreams
+	  And make sure to use appropriate bounds checks.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/4993
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11245>
+
+2026-03-26 18:45:57 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Avoid signed 32 bit integer overflow when parsing AV1 LEB128 values
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/4994
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11245>
+
+2026-03-26 19:59:42 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Avoid NULL-pointer dereferences in mdvdsub parsing code
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/4995
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11238>
+
+2026-03-30 23:37:04 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	* tests/check/elements/subparse.c:
+	  subparse: Fix handling of closing of multi-byte tags
+	  They were previously wrongly considered as wrong tags due to using wrong
+	  byte offsets into the string that only happened to match for single-byte tags.
+	  Add a test for this case too.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11237>
+
+2026-03-30 20:39:08 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	* gst/subparse/gstsubparse.h:
+	  subparse: Replace regex string matching / replacing with plain C string parsing
+	  The regexes had suboptimal behaviour that easily took 30s on a 1kB long line and
+	  probably had quadratic behaviour in the length of the string.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5002
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11237>
+
+2026-03-30 20:40:26 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/subparse/gstsubparse.c:
+	  subparse: Replace a `g_strv_length()` in a loop header with more efficient code
+	  It doesn't really matter in this case as the array is small.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11237>
+
+2026-04-01 11:06:11 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	  audio-resampler-neon: read array operand by hand
+	  GCC at -O0 -mfloat-abi=hard runs out of registers for precalculating the
+	  offsets of the second operand. So instead let's generate them by hand.
+	  For GCC and Clang (tested with Godbolt on 15.2 and 22.1 rsp.) the
+	  generated code optimizes to the same.
+	  See https://godbolt.org/z/e6G9WT7df
+	  Fixes #5015
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11205>
+
+2026-04-05 12:44:16 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Ignore invalid fractions with numerator/denominator G_MININT
+	  We can't represent these.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11227>
+
+2026-03-25 15:42:16 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglupload.c:
+	  glupload: Fix caps leak in the udmabuf uploader
+	  Replace the caps intersect call with gst_caps_can_intersect() to avoid leaking
+	  these caps. The common_in/out_caps where not used after the checks.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11157>
+
+2026-03-25 15:41:29 -0400  Nicolas Dufresne <nicolas.dufresne@collabora.com>
+
+	* gst-libs/gst/gl/gstglcontext.c:
+	  glcontext: Demote spammy log about disabling some debug
+	  This get traces every single frame, so at INFO level it represent a massive
+	  spam.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11157>
+
+2026-04-01 12:40:31 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gstparsebin.c:
+	  parsebin: Remove pointless casts
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11201>
+
+2026-04-01 12:40:11 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/playback/gstdecodebin2.c:
+	* gst/playback/gstplaybin2.c:
+	* gst/playback/gsturisourcebin.c:
+	  playback: Make sure to check for empty/any caps before getting the first structure
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5012
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11201>
+
+2026-04-01 19:10:07 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/tag/gstexiftag.c:
+	  exiftag: Unmap buffer if parsing a rational number gives a zero denominator
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11207>
+
+2026-03-24 12:17:30 +0100  Pablo García <pgarcia@fluendo.com>
+
+	* gst-libs/gst/audio/gstaudiodecoder.c:
+	  audiodecoder: Fix different seqnum error
+	  Authored-by: Rubén González <rgonzalez@fluendo.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11119>
+
+2026-03-24 12:20:49 +0100  Pablo García <pgarcia@fluendo.com>
+
+	* gst-libs/gst/video/gstvideodecoder.c:
+	  videodecoder: Fix different seqnum error
+	  When running
+	  "> gst-launch-1.0 v4l2src num-buffers=10 ! image/jpeg ! filesink
+	  location=/tmp/data
+	  > gst-validate-1.0 filesrc location=/tmp/data ! jpegdec ! fakesink"
+	  the logs say:
+	  "EOS events that are part of the same pipeline 'operation' should have
+	  the same seqnum"
+	  Authored-by: Rubén González <rgonzalez@fluendo.com>
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11119>
+
+2023-09-21 15:02:44 +0200  Jan Alexander Steffens (heftig) <jan.steffens@ltnglobal.com>
+
+	* gst-libs/gst/audio/gstaudioencoder.c:
+	  base: audioencoder: Remove fixed caps from srcpad
+	  Audio encoders don't have to have fixed caps. In particular, this breaks
+	  switching channel configuration with avenc_aac.
+	  fdkaacenc was unaffected and permitted channel changes because it did
+	  not use the caps from gst_pad_get_allowed_caps in its entirety.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11115>
+
+2026-03-24 12:42:23 +0200  Pavel Guzenfeld <pavelguzenfeld@gmail.com>
+
+	* gst-libs/gst/allocators/gstshmallocator.c:
+	* tests/check/libs/allocators.c:
+	  allocators: round GstShmAllocator maxsize up to page size
+	  The OS allocates full pages for shared memory. Round maxsize up
+	  to the system page size so GstMemory reflects the actual usable
+	  region.
+	  Fixes #4406
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11118>
+
+2026-03-22 17:15:18 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* NEWS:
+	* RELEASE:
+	  modules: remove zombie RELEASE and NEWS files
+	  They seem to have come back from the dead by mistake.
+
+2026-03-22 15:00:47 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.29.1
+
 === release 1.29.1 ===
 
 2026-03-22 14:56:37 +0000  Tim-Philipp Müller <tim@centricular.com>

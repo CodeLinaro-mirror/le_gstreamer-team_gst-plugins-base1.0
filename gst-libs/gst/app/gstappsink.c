@@ -991,6 +991,18 @@ gst_app_sink_unlock_stop (GstBaseSink * bsink)
 }
 
 static void
+gst_app_sink_clear_sample_contents (GstAppSink * appsink)
+{
+  GstAppSinkPrivate *priv = appsink->priv;
+
+  priv->sample = gst_sample_make_writable (priv->sample);
+  gst_sample_set_buffer (priv->sample, NULL);
+  gst_sample_set_buffer_list (priv->sample, NULL);
+  gst_sample_set_caps (priv->sample, NULL);
+  gst_sample_set_segment (priv->sample, NULL);
+}
+
+static void
 gst_app_sink_flush_unlocked (GstAppSink * appsink)
 {
   GstMiniObject *obj;
@@ -1004,6 +1016,7 @@ gst_app_sink_flush_unlocked (GstAppSink * appsink)
 
   gst_queue_status_info_reset (&priv->queue_status_info);
 
+  gst_app_sink_clear_sample_contents (appsink);
   gst_caps_replace (&priv->last_caps, NULL);
   g_cond_signal (&priv->cond);
   priv->in = priv->out = priv->dropped = 0;
@@ -1022,11 +1035,7 @@ gst_app_sink_start (GstBaseSink * psink)
   priv->started = TRUE;
   gst_segment_init (&priv->preroll_segment, GST_FORMAT_TIME);
   gst_segment_init (&priv->last_segment, GST_FORMAT_TIME);
-  priv->sample = gst_sample_make_writable (priv->sample);
-  gst_sample_set_buffer (priv->sample, NULL);
-  gst_sample_set_buffer_list (priv->sample, NULL);
-  gst_sample_set_caps (priv->sample, NULL);
-  gst_sample_set_segment (priv->sample, NULL);
+  gst_app_sink_clear_sample_contents (appsink);
   priv->in = priv->out = priv->dropped = 0;
   g_mutex_unlock (&priv->mutex);
 
@@ -1050,11 +1059,7 @@ gst_app_sink_stop (GstBaseSink * psink)
   gst_caps_replace (&priv->last_caps, NULL);
   gst_segment_init (&priv->preroll_segment, GST_FORMAT_UNDEFINED);
   gst_segment_init (&priv->last_segment, GST_FORMAT_UNDEFINED);
-  priv->sample = gst_sample_make_writable (priv->sample);
-  gst_sample_set_buffer (priv->sample, NULL);
-  gst_sample_set_buffer_list (priv->sample, NULL);
-  gst_sample_set_caps (priv->sample, NULL);
-  gst_sample_set_segment (priv->sample, NULL);
+  gst_app_sink_clear_sample_contents (appsink);
   priv->in = priv->out = priv->dropped = 0;
   g_mutex_unlock (&priv->mutex);
 
@@ -2561,7 +2566,7 @@ not_started:
 /**
  * gst_app_sink_set_callbacks: (skip)
  * @appsink: a #GstAppSink
- * @callbacks: the callbacks
+ * @callbacks: (nullable): the callbacks
  * @user_data: a user_data argument for the callbacks
  * @notify: a destroy notify function
  *
@@ -2574,6 +2579,8 @@ not_started:
  *
  * Before 1.16.3 it was not possible to change the callbacks in a thread-safe
  * way.
+ *
+ * Since 1.28.3 it is allowed to set the @callbacks to %NULL to unset them.
  *
  * Note that gst_app_sink_set_callbacks() and
  * gst_app_sink_set_simple_callbacks() are mutually exclusive and setting one
@@ -2588,7 +2595,6 @@ gst_app_sink_set_callbacks (GstAppSink * appsink,
   GstAppSinkPrivate *priv;
 
   g_return_if_fail (GST_IS_APP_SINK (appsink));
-  g_return_if_fail (callbacks != NULL);
 
   priv = appsink->priv;
 
