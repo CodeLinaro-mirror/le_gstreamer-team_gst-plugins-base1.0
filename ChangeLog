@@ -1,3 +1,161 @@
+=== release 1.28.6 ===
+
+2026-08-05 12:59:39 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.28.6
+
+2026-07-18 16:19:17 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* ext/pango/gstbasetextoverlay.h:
+	* ext/pango/gsttextrender.h:
+	  pango: remove incorrect G_GNUC_CONST annotation for get_type() functions
+	  G_GNUC_CONST must only be used for functions that don't modify global state.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12157>
+
+2026-07-18 16:16:11 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/video/video-format.h:
+	  video: remove incorrect G_GNUC_CONST annotation for gst_video_format_from_string()
+	  If the string pointer passed contains a dynamic allocation, it's entirely
+	  possible that the same pointer value maps to different string values, e.g.
+	  because it's re-used across free/malloc or changed between invocations of
+	  the function.
+	  From https://gcc.gnu.org/onlinedocs/gcc-16.1.0/gcc/Common-Attributes.html#index-const:
+	  > Note that a function that has pointer arguments and examines the data
+	  > pointed to must not be declared const if the pointed-to data might
+	  > change between successive invocations of the function. In general,
+	  > since a function cannot distinguish data that might change from data
+	  > that cannot, const functions should never take pointer or, in C++,
+	  > reference arguments. Likewise, a function that calls a non-const
+	  > function usually must not be const itself.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12157>
+
+2026-07-18 16:06:17 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/audio/audio-format.h:
+	  audio: remove incorrect G_GNUC_CONST annotation for gst_audio_format_from_string()
+	  If the string pointer passed contains a dynamic allocation, it's entirely
+	  possible that the same pointer value maps to different string values, e.g.
+	  because it's re-used across free/malloc or changed between invocations of
+	  the function.
+	  From https://gcc.gnu.org/onlinedocs/gcc-16.1.0/gcc/Common-Attributes.html#index-const:
+	  > Note that a function that has pointer arguments and examines the data
+	  > pointed to must not be declared const if the pointed-to data might
+	  > change between successive invocations of the function. In general,
+	  > since a function cannot distinguish data that might change from data
+	  > that cannot, const functions should never take pointer or, in C++,
+	  > reference arguments. Likewise, a function that calls a non-const
+	  > function usually must not be const itself.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12157>
+
+2026-01-24 13:16:22 +0000  Charles <charles05@canonical.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: don't wait for text pad block during reconfiguration
+	  When subtitles are re-enabled after being disabled (e.g., cycling through
+	  subtitle tracks to "off" then back to track 1), video and audio playback
+	  stalls indefinitely. This occurs because reconfiguration waits for a text
+	  pad blocking probe that can never fire.
+	  When gst_play_sink_request_pad creates a text pad it:
+	  1. Creates a ghost pad with no target (gst_ghost_pad_new_no_target)
+	  2. Installs a blocking probe on the internal proxy pad
+	  3. Sets PENDING_FLAG for the pad type
+	  The PENDING flag causes gst_play_sink_ready_to_reconfigure_locked to wait for
+	  the blocking probe to fire before allowing reconfiguration to proceed.
+	  However, the ghost pad target is only set later in gst_play_sink_do_reconfigure
+	  when the text rendering chain is built and linked to the stream
+	  synchronizer. Without a target, anything pushed to the ghost pad returns
+	  NOT_LINKED immediately... The data never reach the internal proxy pad
+	  where the blocking probe is installed.
+	  This appears to creates a circular dependency:
+	  - Reconfiguration waits for text blocking probe to fire
+	  - Blocking probe needs data to reach internal proxy pad
+	  - Data can't reach proxy pad without a ghost pad target
+	  - Target is only set during reconfiguration
+	  Initially, I attempted to fix the root cause by creating the stream synchronizer
+	  pads early (in request_pad rather than do_reconfigure), so the ghost pad would
+	  have a valid target from the start. However, this doesn't resolve the deadlock.
+	  The deeper issue appears that when text is reenabled via playbin3's
+	  reconfigure_output, the playsink text pad is created, but the upstream source
+	  pad from uridecodebin may not be linked to it. The linking happens in
+	  combiner_control_pad (called from pad_added_cb), but pad_added_cb is only
+	  triggered when uridecodebin adds a *new* pad, not when an existing stream is
+	  re-selected.
+	  Without upstream linkage, no data flows to the text pad regardless of whether
+	  the ghost pad has a target. The blocking probe cannot fire, and with
+	  PENDING_TEXT set the reconfiguration just waits forever
+	  This commit simply doesn't set PENDING_FLAG for GST_PLAY_SINK_TYPE_TEXT pads in
+	  either gst_play_sink_request_pad or gst_play_sink_refresh_pad.
+	  The blocking probe is still installed, so any text data arriving during
+	  reconfiguration is properly held back, reconfiguration no longer waits for it to
+	  fire. This looks safe because gst_play_sink_do_reconfigure only requires
+	  playsink->text_pad to exist (not to be blocked) in order to set up the text
+	  rendering chain.
+	  This approach looks OK to me because:
+	  - Video/audio have continuous data flow, so their probes fire quickly
+	  - Text/subtitles are inherently sparse and may not have data available
+	  - Text is secondary to A/V; its absence shouldn't block reconfiguration
+	  - The text chain is properly set up during do_reconfigure regardless
+	  Fixes: https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4744
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12178>
+
+2026-01-25 23:53:43 +0000  Charles <charles05@canonical.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Fix logging logic
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12178>
+
+2026-01-25 23:53:17 +0000  Charles <charles05@canonical.com>
+
+	* gst/playback/gstplaysink.c:
+	  playsink: Fix typo
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12178>
+
+2026-07-21 15:35:44 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* meson.build:
+	  meson: Make the g-ir-scanner init section consistent across modules
+	  We weren't disabling the registry correctly due to typos and missing
+	  env vars.
+	  This speeds up introspection builds considerably on Windows.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12163>
+
+2026-02-13 02:58:40 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* gst-libs/gst/gl/eagl/gstglwindow_eagl.m:
+	  gl/eagl: Fix GstGLUIView leak from duplicate __bridge_retained
+	  _create_gl_window() called __bridge_retained twice on the same view,
+	  storing to priv->internal_view both times. Each __bridge_retained
+	  increments the ObjC retain count, but the first retained reference was
+	  immediately overwritten by the second. Since gst_gl_window_eagl_finalize
+	  only calls CFRelease once, the GstGLUIView (and its CAEAGLLayer) leaked
+	  with an extra +1 retain count.
+	  Remove the first redundant __bridge_retained. The local ARC variable
+	  keeps the view alive until after addSubview: and the second
+	  __bridge_retained.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12118>
+
+2026-07-10 14:41:49 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctions.c:
+	  typefind: Fix C nonsense in ipmovie typefinder
+	  memcmp() returns 0 on equality, not a non-zero value. The typefinder was
+	  triggering on everything that is *not* an ipmovie file.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12098>
+
+2026-07-09 15:50:31 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/typefind/gsttypefindfunctionsplugin.c:
+	  typefind: Actually register various forgotten typefinders
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12098>
+
+2026-07-08 23:48:39 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.28.5
+
 === release 1.28.5 ===
 
 2026-07-08 23:42:39 +0200  Tim-Philipp Müller <tim@centricular.com>
