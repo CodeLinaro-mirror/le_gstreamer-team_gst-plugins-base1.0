@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base-1.28.5\n"
+"Project-Id-Version: gst-plugins-base-1.28.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-08 23:42+0200\n"
+"POT-Creation-Date: 2026-08-05 12:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -99,7 +99,7 @@ msgstr ""
 #: gst/playback/gstplaysink.c:2763 gst/playback/gstplaysink.c:2794
 #: gst/playback/gstplaysink.c:3173 gst/playback/gstplaysink.c:3182
 #: gst/playback/gstplaysink.c:3191 gst/playback/gstplaysink.c:3200
-#: gst/playback/gstplaysink.c:3650 gst/playback/gstplaysink.c:4579
+#: gst/playback/gstplaysink.c:3650 gst/playback/gstplaysink.c:4583
 #: gst/playback/gstplaysinkconvertbin.c:97
 #: gst/playback/gstplaysinkconvertbin.c:117 gst/playback/gsturidecodebin.c:1580
 #: gst/playback/gsturisourcebin.c:1830
