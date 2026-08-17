@@ -1,0 +1,13 @@
+Index: gst-plugins-base1.0/tests/check/meson.build
+===================================================================
+--- gst-plugins-base1.0.orig/tests/check/meson.build
++++ gst-plugins-base1.0/tests/check/meson.build
+@@ -51,7 +51,7 @@ base_tests = [
+   [ 'elements/urisourcebin.c', get_option('playback').disabled()],
+   [ 'elements/videoconvert.c', get_option('videoconvertscale').disabled()],
+   [ 'elements/videorate.c', get_option('videorate').disabled()],
+-  [ 'elements/videoscale.c', get_option('videoconvertscale').disabled()],
++  [ 'elements/videoscale.c', true ],
+   [ 'elements/videotestsrc.c', get_option('videotestsrc').disabled()],
+   [ 'elements/volume.c', get_option('volume').disabled(), [ gst_controller_dep ] ],
+   [ 'generic/clock-selection.c' ],
