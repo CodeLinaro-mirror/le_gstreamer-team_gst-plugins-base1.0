@@ -1,3 +1,11 @@
+gst-plugins-base1.0 (1.28.6-2) unstable; urgency=medium
+
+  * d/patches: disable appsrc test (Closes: #1114143)
+  * d/patches: disable compositor test
+  * d/patches: disable videoscale test
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Mon, 17 Aug 2026 10:14:59 +0200
+
 gst-plugins-base1.0 (1.28.6-1) unstable; urgency=medium
 
   * New upstream version 1.28.6
