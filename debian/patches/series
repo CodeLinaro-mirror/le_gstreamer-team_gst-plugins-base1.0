@@ -2,3 +2,4 @@
 0003_failing-test-gstglcolorconvert.patch
 0005_failing-test-inputselector.patch
 0006_failing-test-appsrc.patch
+0007_failing-test-compositor.patch
