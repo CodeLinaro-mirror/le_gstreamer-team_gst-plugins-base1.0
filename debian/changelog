@@ -6,7 +6,7 @@ gst-plugins-base1.0 (1.26.2-1+deb13u1+qcom1) trixie; urgency=medium
   * d/patches: add gst-qti-oss-patches/0003-videometa-Update-the-aggregation-logic-for-stride-al.patch
   * Update mail ids to qti.qualcomm.com
 
- -- Bala Sai Kosuri <bkosuri@qti.qualcomm.com>  Tue, 21 Jul 2026 09:25:44 -0700
+ -- Bala Sai Kosuri <bkosuri@qti.qualcomm.com>  Tue, 25 Aug 2026 09:21:19 -0700
 
 gst-plugins-base1.0 (1.26.2-1+deb13u1) trixie-security; urgency=medium
 
