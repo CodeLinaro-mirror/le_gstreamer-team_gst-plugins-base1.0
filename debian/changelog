@@ -1,3 +1,12 @@
+gst-plugins-base1.0 (1.28.2-2+qcom1) resolute; urgency=medium
+
+  * add qcom patches for v1.28.2
+  * d/patches: add gst-qti-oss-patches/0001-video-Add-support-for-NV12_Q08C-compressed-8-bit-for.patch
+  * d/patches: add gst-qti-oss-patches/0002-video-Add-support-for-NV12_Q10LE32C-compressed-10-bi.patch
+  * d/patches: add gst-qti-oss-patches/0003-videometa-Update-the-aggregation-logic-for-stride-al.patch
+
+ -- Bala Sai Kosuri <bkosuri@qti.qualcomm.com>  Wed, 02 Sep 2026 08:10:54 +0530
+
 gst-plugins-base1.0 (1.28.2-2) unstable; urgency=medium
 
   * d/control: bring orc build dependency with meson version (Closes: #1133130)
