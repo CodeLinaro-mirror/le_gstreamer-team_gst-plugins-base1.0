@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.28.7-1) unstable; urgency=medium
+
+  * New upstream version 1.28.7
+
+ -- Marc Leeman <marc.leeman@gmail.com>  Tue, 08 Sep 2026 08:20:40 +0200
+
 gst-plugins-base1.0 (1.28.6-2) unstable; urgency=medium
 
   * d/patches: disable appsrc test (Closes: #1114143)
