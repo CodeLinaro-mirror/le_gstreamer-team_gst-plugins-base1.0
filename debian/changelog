@@ -1,3 +1,16 @@
+gst-plugins-base1.0 (1.26.2-1+deb13u2+qcom1) trixie; urgency=medium
+
+  * Import Debian changes 1.26.2-1+deb13u2
+  * Add qcom to revision
+
+ -- Bala Sai Kosuri <bkosuri@qti.qualcomm.com>  Wed, 09 Sep 2026 20:19:27 +0530
+
+gst-plugins-base1.0 (1.26.2-1+deb13u2) trixie-security; urgency=medium
+
+  * CVE-2026-18297
+
+ -- Moritz Mühlenhoff <jmm@debian.org>  Mon, 07 Sep 2026 22:53:41 +0200
+
 gst-plugins-base1.0 (1.26.2-1+deb13u1+qcom1) trixie; urgency=medium
 
   * add qcom patches for v1.26.2
