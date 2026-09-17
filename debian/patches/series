@@ -4,3 +4,6 @@
 0006_failing-test-appsrc.patch
 0007_failing-test-compositor.patch
 0008_failing-test-videoscale.patch
+gst-qti-oss-patches/0001-video-Add-support-for-NV12_Q08C-compressed-8-bit-for.patch
+gst-qti-oss-patches/0002-video-Add-support-for-NV12_Q10LE32C-compressed-10-bi.patch
+gst-qti-oss-patches/0003-videometa-Update-the-aggregation-logic-for-stride-al.patch
