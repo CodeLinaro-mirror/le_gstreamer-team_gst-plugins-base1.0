@@ -1,3 +1,202 @@
+=== release 1.28.7 ===
+
+2026-09-07 20:11:13 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.28.7
+
+2026-09-01 10:36:31 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/rtp/gstrtpbasedepayload.c:
+	  rtpbasedepayload: Don't assert if previous buffer's delayed header extensions are still queued
+	  This can happen on packet loss and various other scenarios and subclasses can't
+	  always flush them themselves as it also depends on internal base class state.
+	  Instead of asserting, simply log this case and flush all header extensions when
+	  a new buffer is received.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5057
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12444>
+
+2026-09-07 20:50:00 +0530  Sanchayan Maity <sanchayan@centricular.com>
+
+	* tests/check/gst/typefindfunctions.c:
+	  Revert "tests: typefindfunctions: Add test for type finding with caps"
+	  This reverts commit 300e7801765d8f09ad9bb2334420961de260c2cf.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12443>
+
+2026-09-02 16:14:23 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/rtsp/gstrtspmessage.c:
+	  rtsp/message: fix crash when an auth value started with whitespace
+	  When parsing a field like 'key= ",foo=bar' the space after the '=' would be
+	  considered the end of the key value pair.
+	  The '=' would be found and the key (before the '=') extracted. Then the value
+	  parsing would skip any initial whitespace. advancing beyond the ' '. The value
+	  would then be g_strndup(value, end - value). As `end < value`, This attempts to
+	  copy -1 bytes and fail.
+	  Fix by using the end of the item after skipping over any whitespace.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5278
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12431>
+
+2026-08-16 13:46:20 +0100  Colin Kinloch <colin.kinloch@collabora.com>
+
+	* gst-libs/gst/video/video-format.c:
+	  video-format: Fix annotation on component function
+	  This caused PyGObject to generate bindings for the
+	  `gst_video_format_info_component` function that returned a single int
+	  and would SIGSEGV when called.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12425>
+
+2026-07-18 09:08:32 +0200  Thomas Devoogdt <thomas@devoogdt.com>
+
+	* gst-libs/gst/sdp/gstmikey.c:
+	  mikey: split master key and salt in MIKEY message generation
+	  gst_mikey_message_new_from_caps writes the whole key (master key and
+	  session salt concatenated) into a single TEK field. RFC 3830 table 6.13.a
+	  defines both TEK (2) and TEK+SALT (3); without the latter, the receiver
+	  has no way to determine the key and salt lengths. I ran into this while
+	  adding MIKEY support to FFmpeg, which required a workaround, see
+	  https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/23408.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12404>
+
+2026-09-03 14:28:18 -0400  Thibault Saunier <tsaunier@igalia.com>
+
+	* tests/validate/audiotestsrc/reverse.validatetest:
+	* tests/validate/compositor/renogotiate_failing_unsupported_src_format.validatetest:
+	* tests/validate/encodebin/set-encoder-properties.validatetest:
+	* tests/validate/fakevideodec/encoded.validatetest:
+	* tests/validate/fakevideodec/simple.validatetest:
+	* tests/validate/giosrc/read-growing-file.validatetest:
+	* tests/validate/uridecodebin/expose_raw_pad_caps.validatetest:
+	* tests/validate/videorate/10_to_1fps.validatetest:
+	* tests/validate/videorate/change_rate_reverse_playback.validatetest:
+	* tests/validate/videorate/change_rate_while_playing.validatetest:
+	* tests/validate/videorate/drop_out_of_segment.validatetest:
+	* tests/validate/videorate/duplicate_on_eos.validatetest:
+	* tests/validate/videorate/duplicate_on_eos_disbaled.validatetest:
+	* tests/validate/videorate/duplicate_on_eos_half_sec.validatetest:
+	* tests/validate/videorate/fill_segment_after_caps_changed_before_eos.validatetest:
+	* tests/validate/videorate/rate_2_0.validatetest:
+	* tests/validate/videorate/reverse.10_to_30fps.validatetest:
+	* tests/validate/videorate/reverse.30fps.validatetest:
+	* tests/validate/videorate/reverse.variable_to_10fps.validatetest:
+	* tests/validate/videorate/reverse_fast.variable_to_10fps.validatetest:
+	* tests/validate/videorate/reverse_slow.variable_to_10fps.validatetest:
+	  validate: Reindent all validatetest files
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12343>
+
+2026-03-03 15:02:23 +0000  Thibault Saunier <tsaunier@igalia.com>
+
+	* tests/validate/audiotestsrc/reverse.validatetest:
+	* tests/validate/fakevideodec/encoded.validatetest:
+	* tests/validate/fakevideodec/simple.validatetest:
+	* tests/validate/giosrc/read-growing-file.validatetest:
+	* tests/validate/videorate/change_rate_reverse_playback.validatetest:
+	* tests/validate/videorate/change_rate_while_playing.validatetest:
+	* tests/validate/videorate/drop_out_of_segment.validatetest:
+	* tests/validate/videorate/duplicate_on_eos.validatetest:
+	* tests/validate/videorate/duplicate_on_eos_disbaled.validatetest:
+	* tests/validate/videorate/duplicate_on_eos_half_sec.validatetest:
+	* tests/validate/videorate/fill_segment_after_caps_changed_before_eos.validatetest:
+	* tests/validate/videorate/reverse.variable_to_10fps.validatetest:
+	* tests/validate/videorate/reverse_fast.variable_to_10fps.validatetest:
+	* tests/validate/videorate/reverse_slow.variable_to_10fps.validatetest:
+	  validateflow: auto-derive directories from test file path
+	  Allow validateflow configs to be written as proper nested structures
+	  instead of requiring the $(validateflow) variable expansion:
+	  configs = {
+	  [validateflow, pad=sink:sink, buffers-checksum=true],
+	  }
+	  instead of:
+	  configs = {
+	  "$(validateflow), pad=sink:sink, buffers-checksum=true",
+	  }
+	  When expectations-dir or actual-results-dir are not explicitly set,
+	  validate_flow_override_new() now derives them from the __filename__
+	  metadata field (already attached to each config structure by the
+	  parser). This mirrors the path computation done in
+	  gst_validate_structure_set_variables_from_struct_file().
+	  The $(validateflow) variable and the old string syntax remain fully
+	  supported for backward compatibility.
+	  Port all existing .validatetest files to the new syntax.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12343>
+
+2026-08-20 12:17:55 -0400  Thibault Saunier <tsaunier@igalia.com>
+
+	* gst/videoconvertscale/gstvideoconvertscale.c:
+	  videoconvertscale: keep input colorimetry in scale-only elements
+	  videoscale does not put a colorimetry field in its output caps, so
+	  gst_video_info_from_caps() derives one from the frame height: BT709 above
+	  576 lines, BT601 below. Scaling across that boundary makes the input and
+	  output infos disagree, which disqualifies the video converter fast paths
+	  and makes videoscale apply a BT709 to BT601 matrix that was never
+	  requested.
+	  Take the input colorimetry when the subclass cannot convert and the output
+	  caps do not ask for a specific one, so an explicit downstream request still
+	  wins.
+	  Scaling 1000x600 to 320x240 I420 drops from 9.3 to 1.4 G instructions.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4425
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12378>
+
+2026-08-24 14:05:40 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/video-converter.c:
+	* tests/check/libs/video.c:
+	  video-converter: Fix GRAY output border color
+	  Border color for grayscale formats should be computed like YUV
+	  and use the Y component
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12374>
+
+2026-08-20 13:06:39 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/video-blend.c:
+	* gst-libs/gst/video/video-overlay-composition.c:
+	  overlay-composition: Don't try to scale high bitdepth rectangles
+	  gst_video_blend_scale_linear_RGBA() can scale only 8-bit formats
+	  correctly. Skip blending the rectangle if scaling fails
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12330>
+
+2026-08-11 15:47:07 +1000  Matthew Waters <matthew@centricular.com>
+
+	* gst-libs/gst/gl/gstglcolorconvert.c:
+	  glcolorconvert: don't rely on integer modulus '%'
+	  GLSL does not support it until GLSL 1.30 which is only available with GL 3.0.
+	  GL 2.1 systems instead have to use floating point mod() so convert everything
+	  needing integer modulus to float and back.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12286>
+
+2026-08-11 22:39:39 +1000  Jan Schmidt <jan@centricular.com>
+
+	* gst-libs/gst/app/gstappsrc.c:
+	* tests/check/elements/appsrc.c:
+	  appsrc: Don't push EOS directly in event handler
+	  The change in
+	  https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11924
+	  inadvertently dropped through and sent EOS events directly through
+	  the default basesrc handler after the custom handling, instead of
+	  letting the appsrc EOS machinery handle everything - leading to
+	  unexpected extra (even endless) blocking waiting for some applications
+	  that were pushing events to a blocked pipeline.
+	  Add a unit test which reliably fails before, and succeeds with this
+	  patch.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12283>
+
+2026-08-05 19:21:52 +0900  Seungha Yang <seungha@centricular.com>
+
+	* gst-libs/gst/video/gstvideometa.c:
+	* gst-libs/gst/video/gstvideotimecode.c:
+	  videotimecode: Fix documentation bug and update annotations
+	  The implementation does not take ownership of latest_daily_jam,
+	  and it is already annotated accordingly.
+	  And add missing (allow-none) annotation to other methods for
+	  consistency with gst_video_time_code_new()
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12255>
+
+2026-08-05 13:04:46 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.28.6
+
 === release 1.28.6 ===
 
 2026-08-05 12:59:39 +0100  Tim-Philipp Müller <tim@centricular.com>
