@@ -1,5 +1,5 @@
 project('gst-plugins-base', 'c',
-  version : '1.28.7',
+  version : '1.28.8',
   meson_version : '>= 1.4',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized',
@@ -457,10 +457,9 @@ if host_machine.cpu_family() == 'arm'
 #include <arm_neon.h>
 int32x4_t testfunc(int16_t *a, int16_t *b) {
   asm volatile ("vmull.s16 q0, d0, d0" : : : "q0");
-  asm volatile ("add.w r1, r0, r0" : : : "r0", "r1");
   return vmull_s16(vld1_s16(a), vld1_s16(b));
 }
-''', name : 'NEON with 32-bit wide Thumb support')
+''', name : 'NEON support')
     core_conf.set('HAVE_ARM_NEON', true)
   endif
 endif

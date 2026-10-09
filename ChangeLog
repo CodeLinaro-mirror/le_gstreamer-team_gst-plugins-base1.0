@@ -1,3 +1,142 @@
+=== release 1.28.8 ===
+
+2026-10-08 17:20:32 +0200  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-plugins-base.doap:
+	* meson.build:
+	  Release 1.28.8
+
+2026-09-09 20:42:25 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiometa.c:
+	  audio: Replace O(n²) overlap check in audio meta code with O(n log n) code
+	  At least when receiving audio meta from the network, an attacker might provide a
+	  big serialized meta with a couple of tens of thousands of channels which would
+	  take a moment to check with the previous code.
+	  For some example measurements:
+	  - 128kB payload, 16k channels: 24.8ms before, 0.24ms now
+	  - 1MB payload, 128k channels: 1.6s before, 2.9ms now
+	  - 2MB payload, 256k channels: 6.4s before, 5.7ms now
+	  This and all other meta deserialize function are checking for enough data to be
+	  available before allocating arrays so triggering OOM by sending a payload that
+	  declares more channels/etc than available inside the payload is not possible.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12652>
+
+2026-09-09 17:00:29 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/gstaudiometa.c:
+	* gst-libs/gst/video/gstvideometa.c:
+	* tests/check/libs/audio.c:
+	* tests/check/libs/video.c:
+	  audio: video: Validate audio/video meta deserialization
+	  Accepting arbitrary values can lead to assertions or out-of-bounds reads/writes.
+	  Also ensure enough payload data is available before allocating arrays or
+	  otherwise e.g. a crafted channels value could lead to OOM.
+	  Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5257
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12652>
+
+2026-09-24 11:58:40 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst-libs/gst/audio/audio-channels.c:
+	  audio: limit gst_audio_channel_positions_to_valid_order() to 64 channels
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12657>
+
+2024-12-05 17:24:36 +0100  Kushal Arora <kusarora@amazon.com>
+
+	* gst-libs/gst/app/gstappsink.c:
+	* tests/check/elements/appsink.c:
+	  appsink: Reset EOS state on PAUSED → READY
+	  After an appsink received an EOS event, cycling its state through
+	  PLAYING → READY → PAUSED left gst_app_sink_is_eos() returning TRUE.
+	  Reset the EOS flag when appsink transitions from PAUSED to READY.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12663>
+
+2026-09-25 09:28:59 +0200  Robert Mader <robert.mader@collabora.com>
+
+	* gst-libs/gst/allocators/gstudmabufallocator.c:
+	  udmabuf: Open device with O_RDONLY instead O_RDWR
+	  udmabuf - just like dma-heaps - only need read access.
+	  See also:
+	  https://gitlab.freedesktop.org/camera/libcamera/-/commit/168b00eb344221c0c1ab27e418d71febc92d3086
+	  Fixes: afab800737f7 ("allocators: Add a udmabuf allocator")
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12567>
+
+2026-09-22 19:54:34 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/sdp/gstsdpmessage.c:
+	  sdpmessage: Avoid sign bit when hex-escaping chars
+	  gchar is signed and `hex[c >> 4]` will give a negative number for negative
+	  chars, indexing into the ro data segment before the array.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12532>
+
+2026-08-03 11:32:52 -0400  Olivier Crête <olivier.crete@collabora.com>
+
+	* gst/videoconvertscale/gstvideoconvertscale.c:
+	* tests/check/elements/videoconvert.c:
+	  videoconvertscale: Restore default config when clearing converter-config
+	  Otherwise resetting the property does nothing
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12516>
+
+2026-07-27 14:39:00 -0400  Olivier Crête <olivier.crete@collabora.com>
+
+	* gst/videoconvertscale/gstvideoconvertscale.c:
+	* tests/check/elements/videoconvert.c:
+	  videoconvertscale: Take GstVideoMeta into account when converting
+	  The the GstVideoInfo from the frame instead of from the caps, as this
+	  one was initialized from the GstVideoMeta.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12516>
+
+2026-09-21 12:12:07 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* tests/check/libs/audio.c:
+	  audioconverter: Add tests for the NULL/silence handling issues
+	  And also various tests for normal cases for completeness.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12517>
+
+2026-09-21 12:10:24 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/audio-converter.c:
+	  audioconverter: Call gst_audio_format_info_fill_silence() with number of bytes instead of samples
+	  The function takes the numbers of bytes and we were passing the number of
+	  samples in many places. This was keeping the remainder of the samples
+	  uninitialized with >8bpp formats.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12517>
+
+2026-09-21 12:03:43 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst-libs/gst/audio/audio-converter.c:
+	  audioconverter: Guard against NULL input in do_unpack() too
+	  NULL is accepted to request silence output so treat it as silence input instead
+	  of dereferencing it and crashing.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12517>
+
+2026-09-20 22:54:28 +0000  Bruno Fournier <xxtqqtx@gmail.com>
+
+	* gst-libs/gst/audio/audio-converter.c:
+	  audioconverter: guard against NULL input in do_convert_out
+	  audio_chain_get_samples() returns NULL when an upstream chain link produced
+	  no samples yet, which happens for a short initial input whose frame count is
+	  below the resampler latency. The sibling functions do_quantize() and
+	  converter_generic() already guard against this, but do_convert_out()
+	  dereferenced in[i] unconditionally, causing a NULL pointer dereference when a
+	  float-to-integer conversion is combined with a sample rate change.
+	  Guard the conversion loop with the same "if (in && out)" check the other
+	  chain functions use.
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12517>
+
+2026-09-15 17:50:56 -0300  L. E. Segovia <amy@centricular.com>
+
+	* gst-libs/gst/audio/audio-resampler-neon.h:
+	* meson.build:
+	  audio-resampler-neon: handle Thumb1-only builds correctly
+	  Fixes #5280
+	  Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12501>
+
+2026-09-07 20:17:18 +0100  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  Back to development after 1.28.7
+
 === release 1.28.7 ===
 
 2026-09-07 20:11:13 +0100  Tim-Philipp Müller <tim@centricular.com>
