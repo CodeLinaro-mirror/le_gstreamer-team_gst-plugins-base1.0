@@ -172,13 +172,18 @@ gst_buffer_add_video_sei_user_data_unregistered_meta (GstBuffer * buffer,
 {
   GstVideoSEIUserDataUnregisteredMeta *meta;
   g_return_val_if_fail (GST_IS_BUFFER (buffer), NULL);
+  g_return_val_if_fail (uuid != NULL, NULL);
+  g_return_val_if_fail (data != NULL || size == 0, NULL);
 
   meta = (GstVideoSEIUserDataUnregisteredMeta *) gst_buffer_add_meta (buffer,
       GST_VIDEO_SEI_USER_DATA_UNREGISTERED_META_INFO, NULL);
   g_assert (meta != NULL);
   memcpy (meta->uuid, uuid, 16);
-  meta->data = g_malloc (size);
-  memcpy (meta->data, data, size);
+  meta->data = NULL;
+  if (size > 0) {
+    meta->data = g_malloc (size);
+    memcpy (meta->data, data, size);
+  }
   meta->size = size;
 
   return meta;
@@ -200,7 +205,13 @@ gboolean
     gst_video_sei_user_data_unregistered_parse_precision_time_stamp
     (GstVideoSEIUserDataUnregisteredMeta * user_data, guint8 * status,
     guint64 * precision_time_stamp) {
-  guint8 *data = user_data->data;
+  guint8 *data;
+
+  g_return_val_if_fail (user_data != NULL, FALSE);
+  g_return_val_if_fail (status != NULL, FALSE);
+  g_return_val_if_fail (precision_time_stamp != NULL, FALSE);
+
+  data = user_data->data;
 
   if (memcmp (user_data->uuid, &H264_MISP_MICROSECTIME, 16) != 0 &&
       memcmp (user_data->uuid, &H265_MISP_MICROSECONDS, 16) != 0 &&
