@@ -1,3 +1,9 @@
+gst-plugins-base1.0 (1.28.9-1+qcom1) forky; urgency=medium
+
+  * qcom patched version for 1.28.9
+
+ -- Bala Sai Kosuri <bkosuri@qti.qualcomm.com>  Mon, 16 Nov 2026 03:37:49 -0800
+
 gst-plugins-base1.0 (1.28.9-1) unstable; urgency=medium
 
   * New upstream version 1.28.9
